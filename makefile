@@ -1,5 +1,6 @@
 clean:
 	rm -f *.o
+	rm -f ./test
 
 color.o: color.c color.h
 	gcc -c color.c -I. -o color.o
