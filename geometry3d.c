@@ -10,13 +10,6 @@ inline float cos_vectors3d(Vector3d v1, Vector3d v2);
 inline float module_vector3d(Vector3d v);
 inline float herons_square(float a, float b, float c);
 
-// Triangle3d functions
-void release_triangle_data(void * data);
-void print_triangle(void * data);
-void rotate_triangle(void * data, float al, float be);
-Color get_triangle_color(void * data, Point3d p, LightSource3d * light_sources, int light_sources_count);
-int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point);
-
 /***************************************************
  *                Helpful functions                *
  ***************************************************/
@@ -85,8 +78,14 @@ inline float herons_square(float a, float b, float c) {
  *              Triangle3D construction            *
  ***************************************************/
 
+void release_triangle_data(void * data);
+void print_triangle(void * data);
+void rotate_triangle(void * data, float al, float be);
+Color get_triangle_color(void * data, Point3d p, LightSource3d * light_sources, int light_sources_count);
+int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point);
 
-Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3) {
+
+Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
 	Triangle3d * triangle = malloc(sizeof(Triangle3d));
 	triangle->p1w = p1;
 	triangle->p2w = p2;
@@ -99,6 +98,7 @@ Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3) {
     triangle->d_p2_p3 = module_vector3d(vector3dp(p2, p3));
     triangle->d_p3_p1 = module_vector3d(vector3dp(p3, p1));
     triangle->s = herons_square(triangle->d_p1_p2, triangle->d_p2_p3, triangle->d_p3_p1);
+    triangle->color = color;
 
 	Object3d * obj = malloc(sizeof(Object3d));
 	obj->data = triangle;
