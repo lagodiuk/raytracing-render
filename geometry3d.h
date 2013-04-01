@@ -2,7 +2,6 @@
 #include <color.h>
 
 #define BACKGROUND_COLOR rgb(0, 0, 0)
-#define NO_INTERSECTION point3d(FLT_MAX, FLT_MAX, FLT_MAX)
 
 typedef 
 struct {
@@ -30,7 +29,7 @@ struct {
 	void * data;
 	void (*print)(void * data);
 	void (*rotate)(void * data, float al, float be);
-	Point3d (*intersect)(void * data, Point3d p, Vector3d v);
+	int (*intersect)(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point);
 	Color (*get_color)(void * data, Point3d p, LightSource3d * light_sources, int light_sources_count);
 	void (*release_data)(void * data);
 }
@@ -38,20 +37,30 @@ Object3d;
 
 typedef
 struct {
+    // World coordinates
 	Point3d p1w;
 	Point3d p2w;
 	Point3d p3w;
+    // World norm vector (Aw, Bw, Cw)
 	float Aw;
 	float Bw;
 	float Cw;
 	float Dw;
+    // Projection coordinates
 	Point3d p1;
 	Point3d p2;
 	Point3d p3;
+    // Projection norm vector (A, B, C)
 	float A;
 	float B;
 	float C;
 	float D;
+    // Length of the sides of a triangle
+    float d_p1_p2;
+    float d_p2_p3;
+    float d_p3_p1;
+    // Square of triangle
+    float s;
 }
 Triangle3d;
 

@@ -3,12 +3,16 @@
 #include <math.h>
 #include <geometry3d.h>
 
+#define EPSILON 1e-5
+
 // Triangle3d functions
 void release_triangle_data(void * data);
 void print_triangle(void * data);
 void rotate_triangle(void * data, float al, float be);
 Color get_triangle_color(void * data, Point3d p, LightSource3d * light_sources, int light_sources_count);
-Point3d intersect_triangle(void * data, Point3d p, Vector3d v);
+int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point);
+
+inline float herons_square(float a, float b, float c);
 
 inline Point3d point3d(float x, float y, float z) {
 	Point3d p = {.x = x, .y = y, .z = z};
@@ -45,6 +49,10 @@ Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3) {
 	triangle->Bw = (p2.x - p3.x) * (p1.z - p3.z) - (p2.z - p3.z) * (p1.x - p3.x);
 	triangle->Cw = (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x);
 	triangle->Dw = -(p1.x * triangle->Aw + p1.y * triangle->Bw + p1.z * triangle->Cw);
+    triangle->d_p1_p2 = module_vector3d(vector3dp(p1, p2));
+    triangle->d_p2_p3 = module_vector3d(vector3dp(p2, p3));
+    triangle->d_p3_p1 = module_vector3d(vector3dp(p3, p1));
+    triangle->s = herons_square(triangle->d_p1_p2, triangle->d_p2_p3, triangle->d_p3_p1);
 
 	Object3d * obj = malloc(sizeof(Object3d));
 	obj->data = triangle;
@@ -86,21 +94,40 @@ void rotate_triangle(void * data, float al, float be) {
 	triangle->D = -(triangle->p1.x * triangle->A + triangle->p1.y * triangle->B + triangle->p1.z * triangle->C);
 }
 
-Point3d intersect_triangle(void * data, Point3d p, Vector3d v) {
+int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point) {
 	Triangle3d * tr = data;
 
-	float k = - (tr->A * p.x + tr->B * p.y + tr->C * p.z + tr->D)
-		/ (tr->A * v.direction.x + tr->B * v.direction.y + tr->C * v.direction.z);
+	float k = - (tr->A * vector_start.x + tr->B * vector_start.y + tr->C * vector_start.z + tr->D)
+		/ (tr->A * vector.direction.x + tr->B * vector.direction.y + tr->C * vector.direction.z);
+    
+    if(k < EPSILON) {
+        // No intersection
+        return 0;
+    }
 	
-	float x = p.x + v.direction.x * k;
-	float y = p.y + v.direction.y * k;
-	float z = p.z + v.direction.z * k;
+	float x = vector_start.x + vector.direction.x * k;
+	float y = vector_start.y + vector.direction.y * k;
+	float z = vector_start.z + vector.direction.z * k;
 
-	Point3d ret = point3d(x, y, z);
+    // Intersection point
+	Point3d ipt = point3d(x, y, z);
 
-	// TODO
-
-	return ret;
+	float d_p1_ipt = module_vector3d(vector3dp(tr->p1, ipt));
+	float d_p2_ipt = module_vector3d(vector3dp(tr->p2, ipt));
+	float d_p3_ipt = module_vector3d(vector3dp(tr->p3, ipt));
+    
+    float s1 = herons_square(tr->d_p1_p2, d_p1_ipt, d_p2_ipt);
+    float s2 = herons_square(tr->d_p2_p3, d_p2_ipt, d_p3_ipt);
+    float s3 = herons_square(tr->d_p3_p1, d_p3_ipt, d_p1_ipt);
+    
+    if(abs(s1 + s2 + s3 - tr->s) < EPSILON) {
+        // Intersected
+        *intersection_point = ipt;
+        return 1;
+    }
+    
+    // No intersection
+	return 0;
 }
 
 Color get_triangle_color(void * data, Point3d p, LightSource3d * light_sources, int light_sources_count) {
@@ -141,4 +168,9 @@ inline float cos_vectors3d(Vector3d v1, Vector3d v2) {
                 + v1.direction.z * v2.direction.z;
         float denominator = module_vector3d(v1) * module_vector3d(v2);
         return numerator / denominator;
+}
+
+inline float herons_square(float a, float b, float c) {
+    float p = (a + b + c) / 2;
+    return sqrt(p * (p - a) * (p - b) * (p - c));
 }
