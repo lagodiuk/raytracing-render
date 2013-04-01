@@ -75,7 +75,3 @@ inline Vector3d vector3df(float x, float y, float z);
 inline LightSource3d light_source_3d(Point3d location, Color color);
 
 Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3);
-
-inline float cos_vectors3d(Vector3d v1, Vector3d v2);
-
-inline float module_vector3d(Vector3d v);
