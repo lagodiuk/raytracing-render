@@ -13,5 +13,5 @@ geometry3d.o: geometry3d.c geometry3d.h color.h
 	gcc -c geometry3d.c -I. -o geometry3d.o
 
 test: test.c color.o geometry3d.o canvas.o
-	gcc test.c color.o geometry3d.o canvas.o -I. -o test
+	gcc -O test.c color.o geometry3d.o canvas.o -I. -o test
 	./test
