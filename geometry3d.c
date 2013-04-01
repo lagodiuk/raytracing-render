@@ -101,22 +101,37 @@ void trace(Scene * scene,
         obj = (scene->objects)[i];
         
         if(obj->intersect(obj->data, vector_start, vector, &intersection_point)) {
+            printf("Intersect %i\n", i);
+            
             curr_intersection_point_dist = module_vector3d(vector3dp(vector_start, intersection_point));
+            
+            printf("Dist: %f\n", curr_intersection_point_dist);
+            
             if(curr_intersection_point_dist < nearest_intersection_point_dist) {
+                printf("Nearest is %i\n", i);
+                
                 nearest_obj = obj;
                 nearest_intersection_point = intersection_point;
                 nearest_intersection_point_dist = curr_intersection_point_dist;
             }
+        } else {
+            printf("Not intersect %i\n", i);
         }
+        
+        printf("\n");
     }
 
     if(nearest_obj) {
+        printf("aa\n");
+        
         *color = nearest_obj->get_color(nearest_obj->data,
-                                      nearest_intersection_point,
-                                      scene->light_sources,
-                                      scene->light_sources_count,
-                                      vector_start,
-                                      vector);
+                                        nearest_intersection_point,
+                                        scene->light_sources,
+                                        scene->light_sources_count,
+                                        vector_start,
+                                        vector);
+        
+        printf("r = %i, g = %i, b = %i\n", color->r, color->g, color->b);
     }
     
     *color = BACKGROUND_COLOR;
@@ -127,9 +142,9 @@ void trace(Scene * scene,
  ***************************************************/
 
 inline float module_vector3d(Vector3d v) {
-    return v.direction.x * v.direction.x
-    + v.direction.y * v.direction.y
-    + v.direction.z * v.direction.z;
+    return sqrt(v.direction.x * v.direction.x
+                + v.direction.y * v.direction.y
+                + v.direction.z * v.direction.z);
 }
 
 inline float cos_vectors3d(Vector3d v1, Vector3d v2) {
