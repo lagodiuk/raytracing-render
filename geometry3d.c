@@ -96,7 +96,11 @@ Point3d intersect_triangle(void * data, Point3d p, Vector3d v) {
 	float y = p.y + v.direction.y * k;
 	float z = p.z + v.direction.z * k;
 
-	return point3d(x, y, z);
+	Point3d ret = point3d(x, y, z);
+
+	// TODO
+
+	return ret;
 }
 
 Color get_triangle_color(void * data, Point3d p, LightSource3d * light_sources, int light_sources_count) {
@@ -116,13 +120,6 @@ Color get_triangle_color(void * data, Point3d p, LightSource3d * light_sources, 
 void release_triangle_data(void * data) {
 	Triangle3d * triangle = data;
 	free(triangle);
-}
-
-inline Vector3d vector_product(Vector3d u, Vector3d v) {
-	float x = u.direction.y * v.direction.z - u.direction.z * v.direction.y;
-	float y = u.direction.z * v.direction.x - u.direction.x * v.direction.z;
-	float z = u.direction.x * v.direction.y - u.direction.y * v.direction.x;
-	return vector3df(x, y, z);
 }
 
 inline Point3d rotate(Point3d p, float al, float be) {

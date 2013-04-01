@@ -63,8 +63,6 @@ inline Vector3d vector3dp(Point3d start_point, Point3d end_point);
 
 inline Vector3d vector3df(float x, float y, float z);
 
-inline Vector3d vector_product(Vector3d u, Vector3d v);
-
 inline LightSource3d light_source_3d(Point3d location, Color color);
 
 Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3);
