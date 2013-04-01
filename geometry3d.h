@@ -1,4 +1,3 @@
-#include <float.h>
 #include <color.h>
 
 #define BACKGROUND_COLOR rgb(0, 0, 0)
@@ -27,13 +26,36 @@ LightSource3d;
 typedef 
 struct {
 	void * data;
-	void (*print)(void * data);
-	void (*rotate)(void * data, float al, float be);
-	int (*intersect)(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point);
-	Color (*get_color)(void * data, Point3d p, LightSource3d * light_sources, int light_sources_count);
+        
+	void (*rotate)(void * data,
+                   float al,
+                   float be);
+    
+	int (*intersect)(void * data,
+                     Point3d vector_start,
+                     Vector3d vector,
+                     Point3d * intersection_point);
+    
+	Color (*get_color)(void * data,
+                       Point3d intersection_point,
+                       LightSource3d * light_sources,
+                       int light_sources_count,
+                       Point3d vector_start,
+                       Vector3d vector);
+    
 	void (*release_data)(void * data);
 }
 Object3d;
+
+typedef
+struct {
+    Object3d ** objects;
+    int objects_count;
+    
+    LightSource3d * light_sources;
+    int light_sources_count;
+}
+Scene;
 
 typedef
 struct {
@@ -78,7 +100,7 @@ Triangle3d;
  *                Helpful functions                *
  ***************************************************/
 
-inline void release(Object3d * obj);
+inline void release_object3d(Object3d * obj);
 
 inline Point3d point3d(float x, float y, float z);
 
@@ -89,6 +111,21 @@ inline Vector3d vector3dp(Point3d start_point, Point3d end_point);
 inline Vector3d vector3df(float x, float y, float z);
 
 inline LightSource3d light_source_3d(Point3d location, Color color);
+
+/***************************************************
+ *                     Scene                       *
+ ***************************************************/
+
+inline Scene * new_scene(int objects_count);
+
+inline void release_scene(Scene * scene);
+
+void rotate_scene(Scene * scene, float al, float be);
+
+void trace(Scene * scene,
+          Point3d vector_start,
+          Vector3d vector,
+          Color * color);
 
 /***************************************************
  *              3D objects construction            *

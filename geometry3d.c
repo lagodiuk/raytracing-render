@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <float.h>
 #include <math.h>
 #include <geometry3d.h>
 
@@ -14,7 +15,7 @@ inline float herons_square(float a, float b, float c);
  *                Helpful functions                *
  ***************************************************/
 
-inline void release(Object3d * obj) {
+inline void release_object3d(Object3d * obj) {
     obj->release_data(obj->data);
     free(obj);
 }
@@ -52,6 +53,76 @@ inline LightSource3d light_source_3d(Point3d location, Color color) {
 }
 
 /***************************************************
+ *                     Scene                       *
+ ***************************************************/
+
+inline Scene * new_scene(int objects_count) {
+    Scene * s = malloc(sizeof(Scene));
+    s->objects_count=objects_count;
+    s->objects = calloc(objects_count, sizeof(Object3d *));
+    return s;
+}
+
+inline void release_scene(Scene * scene) {
+    int i;
+    for(i = 0; i < scene->objects_count; i++) {
+        if(scene->objects[i]) {
+            release_object3d((scene->objects)[i]);
+        }
+    }
+    free(scene->objects);
+    free(scene);
+}
+
+void rotate_scene(Scene * scene, float al, float be) {
+    int i;
+    Object3d * obj;
+    for(i = 0; i < scene->objects_count; i++) {
+        obj = (scene->objects)[i];
+        obj->rotate(obj->data, al, be);
+    }
+}
+
+void trace(Scene * scene,
+           Point3d vector_start,
+           Vector3d vector,
+           Color * color) {
+
+    Object3d * nearest_obj = NULL;
+    Point3d nearest_intersection_point;
+    float nearest_intersection_point_dist = FLT_MAX;
+
+    int i;
+    Object3d * obj = NULL;
+    Point3d intersection_point;
+    float curr_intersection_point_dist;
+
+    for(i = 0; i < scene->objects_count; i++) {
+        obj = (scene->objects)[i];
+        
+        if(obj->intersect(obj->data, vector_start, vector, &intersection_point)) {
+            curr_intersection_point_dist = module_vector3d(vector3dp(vector_start, intersection_point));
+            if(curr_intersection_point_dist < nearest_intersection_point_dist) {
+                nearest_obj = obj;
+                nearest_intersection_point = intersection_point;
+                nearest_intersection_point_dist = curr_intersection_point_dist;
+            }
+        }
+    }
+
+    if(nearest_obj) {
+        *color = nearest_obj->get_color(nearest_obj->data,
+                                      nearest_intersection_point,
+                                      scene->light_sources,
+                                      scene->light_sources_count,
+                                      vector_start,
+                                      vector);
+    }
+    
+    *color = BACKGROUND_COLOR;
+}
+
+/***************************************************
  *                General functions                *
  ***************************************************/
 
@@ -79,10 +150,22 @@ inline float herons_square(float a, float b, float c) {
  ***************************************************/
 
 void release_triangle_data(void * data);
-void print_triangle(void * data);
-void rotate_triangle(void * data, float al, float be);
-Color get_triangle_color(void * data, Point3d p, LightSource3d * light_sources, int light_sources_count);
-int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point);
+
+void rotate_triangle(void * data,
+                     float al,
+                     float be);
+
+Color get_triangle_color(void * data,
+                         Point3d intersection_point,
+                         LightSource3d * light_sources,
+                         int light_sources_count,
+                         Point3d vector_start,
+                         Vector3d vector);
+
+int intersect_triangle(void * data,
+                       Point3d vector_start,
+                       Vector3d vector,
+                       Point3d * intersection_point);
 
 
 Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
@@ -102,28 +185,12 @@ Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
 
 	Object3d * obj = malloc(sizeof(Object3d));
 	obj->data = triangle;
-	obj->print = print_triangle;
 	obj->rotate = rotate_triangle;
 	obj->release_data = release_triangle_data;
 	obj->get_color = get_triangle_color;
 	obj->intersect = intersect_triangle;
 
 	return obj;
-}
-
-void print_triangle(void * data) {
-	Triangle3d * t = data;
-
-	printf("x1w = %f y1w = %f z1w = %f\n", t->p1w.x, t->p1w.y, t->p1w.z);
-	printf("x2w = %f y2w = %f z2w = %f\n", t->p2w.x, t->p2w.y, t->p2w.z);
-	printf("x3w = %f y3w = %f z3w = %f\n", t->p3w.x, t->p3w.y, t->p3w.z);
-	printf("Aw = %f Bw = %f Cw = %f Dw = %f\n", t->Aw, t->Bw, t->Cw, t->Dw);
-
-	putchar('\n');	
-	printf("x1 = %f y1 = %f z1 = %f\n", t->p1.x, t->p1.y, t->p1.z);
-	printf("x2 = %f y2 = %f z2 = %f\n", t->p2.x, t->p2.y, t->p2.z);
-	printf("x3 = %f y3 = %f z3 = %f\n", t->p3.x, t->p3.y, t->p3.z);
-	printf("A = %f B = %f C = %f D = %f\n", t->A, t->B, t->C, t->D);
 }
 
 void rotate_triangle(void * data, float al, float be) {
@@ -176,18 +243,26 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
 	return 0;
 }
 
-Color get_triangle_color(void * data, Point3d p, LightSource3d * light_sources, int light_sources_count) {
+Color get_triangle_color(void * data,
+                         Point3d intersection_point,
+                         LightSource3d * light_sources,
+                         int light_sources_count,
+                         Point3d vector_start,
+                         Vector3d vector) {
 	Triangle3d * triangle = data;
-	int i;
+    // TODO
+	/*
+    int i;
 	float cosin;
 	Color c = BACKGROUND_COLOR;
 	Vector3d norm = vector3df(triangle->A, triangle->B, triangle->C);
 	for(i = 0; i < light_sources_count; i++) {
-		Vector3d light_vect = vector3dp(p, light_sources[i].location);
+		Vector3d light_vect = vector3dp(intersection_point, light_sources[i].location);
 		cosin = cos_vectors3d(norm, light_vect);
 		c = add_colors(c, mul_color(light_sources[i].color, cosin));
 	}
-	return c;
+     */
+	return triangle->color;
 }
 
 void release_triangle_data(void * data) {
