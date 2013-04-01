@@ -10,6 +10,10 @@ Canvas * new_canvas(int width, int height) {
 	return c;
 }
 
+void clear_canvas(Canvas * canv) {
+    memset(canv->data, 0, canv->w * canv->h * sizeof(Color));
+}
+
 void release(Canvas * c) {
 	free(c->data);
 	free(c);
