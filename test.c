@@ -3,32 +3,56 @@
 #include <canvas.h>
 #include <geometry3d.h>
 
+#define PICTURES 60
+
+#define PROJ_PLANE_Z 50
+
+#define X_CAM -0
+#define Y_CAM -0
+#define Z_CAM -240
+
+#define MIN_X -100
+#define MAX_X 100
+
+#define MIN_Y -100
+#define MAX_Y 100
+
+#define CANVAS_W (MAX_X - MIN_X)
+#define CANVAS_H (MAX_Y - MIN_Y)
+
 void add_cube(Scene * scene, Point3d base, float a);
 
 int main() {
-    Scene * scene = new_scene(8);
-    
-    add_cube(scene, point3d(-5, -5, -5), 150);
-    
-    rotate_scene(scene, 0, M_PI / 3);
+    Scene * scene = new_scene(8);    
+    add_cube(scene, point3d(-5, -5, -5), 100);
     
     int i;
     int j;
     Color col;
+    Canvas * canv = new_canvas(CANVAS_W, CANVAS_H);
+    Point3d camera_point = point3d(X_CAM, Y_CAM, Z_CAM);
     
-    Canvas * canv = new_canvas(200, 200);
+    int k;
+    float delta_al = 2 * M_PI / PICTURES;
+    char filename[30];
     
-    for(i = -100; i < 101; i++) {
-        for(j = -100; j < 101; j++) {
-            trace(scene, point3d(-20, -20, -140), vector3df(i, j, 50), &col);
-            
-            set_pixel(i+100, j+100, col, canv);
+    for(k = 1; k <= PICTURES; k++) {
+        rotate_scene(scene, M_PI / 3 * 2.5, k * delta_al);
+        
+        for(i = MIN_X; i <= MAX_X; i++) {
+            for(j = MIN_Y; j <= MAX_Y; j++) {
+                trace(scene, camera_point, vector3df(i, j, PROJ_PLANE_Z), &col);
+                
+                set_pixel(i + CANVAS_W / 2, j + CANVAS_H / 2, col, canv);
+            }
         }
+        
+        sprintf(filename, "out_%03d.bmp", k);
+        write_bmp(filename, canv);
+        clear_canvas(canv);
     }
     
-    write_bmp("out.bmp", canv);
     release(canv);
-    
     release_scene(scene);
 	return 0;
 }
