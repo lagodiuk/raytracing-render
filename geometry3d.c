@@ -5,14 +5,17 @@
 
 #define EPSILON 1e-5
 
+// General functions
+inline float cos_vectors3d(Vector3d v1, Vector3d v2);
+inline float module_vector3d(Vector3d v);
+inline float herons_square(float a, float b, float c);
+
 // Triangle3d functions
 void release_triangle_data(void * data);
 void print_triangle(void * data);
 void rotate_triangle(void * data, float al, float be);
 Color get_triangle_color(void * data, Point3d p, LightSource3d * light_sources, int light_sources_count);
 int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point);
-
-inline float herons_square(float a, float b, float c);
 
 inline Point3d point3d(float x, float y, float z) {
 	Point3d p = {.x = x, .y = y, .z = z};
