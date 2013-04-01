@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <math.h>
+#include <canvas.h>
 #include <geometry3d.h>
 
 int main() {
@@ -22,12 +24,24 @@ int main() {
                                      point3d( 0, 10, 10),
                                      rgb(0, 255, 0));
     
-    rotate_scene(scene, 0, 0);
+    rotate_scene(scene, M_PI / 4, M_PI / 2);
     
+    int i;
+    int j;
     Color col;
-    trace(scene, point3d(1, 1, 1), vector3df(0, 0, 1), &col);
     
-    printf("r = %i, g = %i, b = %i\n", col.r, col.g, col.b);
+    Canvas * canv = new_canvas(200, 200);
+    
+    for(i = -100; i < 101; i++) {
+        for(j = -100; j < 101; j++) {
+            trace(scene, point3d(0, 0, -10), vector3df(i, j, -5), &col);
+            
+            set_pixel(i+100, j+100, col, canv);
+        }
+    }
+    
+    write_bmp("out.bmp", canv);
+    release(canv);
     
     release_scene(scene);
 	return 0;
