@@ -10,6 +10,8 @@ Canvas;
 
 Canvas * new_canvas(int width, int height);
 
+void clear_canvas(Canvas * canv);
+
 void release(Canvas * canv);
 
 inline void set_pixel(int x, int y, Color c, Canvas * canv);
