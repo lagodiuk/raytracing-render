@@ -17,22 +17,32 @@ void rotate_triangle(void * data, float al, float be);
 Color get_triangle_color(void * data, Point3d p, LightSource3d * light_sources, int light_sources_count);
 int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point);
 
+/***************************************************
+ *                Helpful functions                *
+ ***************************************************/
+
+inline void release(Object3d * obj) {
+    obj->release_data(obj->data);
+    free(obj);
+}
+
 inline Point3d point3d(float x, float y, float z) {
 	Point3d p = {.x = x, .y = y, .z = z};
 	return p;
 }
 
-
-inline LightSource3d light_source_3d(Point3d location, Color color) {
-	LightSource3d l = {.location = location, .color = color};
-	return l;
+inline Point3d rotate(Point3d p, float al, float be) {
+	float x = p.x * cos(al) - p.y * sin(al);
+	float y = p.x * sin(al) * cos(be) + p.y * cos(al) * cos(be) - p.z * sin(be);
+	float z = p.x * sin(al) * sin(be) + p.y * cos(al) * sin(be) + p.z * cos(be);
+	return point3d(x, y, z);
 }
 
 inline Vector3d vector3dp(Point3d start_point, Point3d end_point) {
 	Point3d direction = point3d(
-		end_point.x - start_point.x,
-		end_point.y - start_point.y,
-		end_point.z - start_point.z);
+                                end_point.x - start_point.x,
+                                end_point.y - start_point.y,
+                                end_point.z - start_point.z);
 	Vector3d v = {.direction = direction};
 	return v;
 }
@@ -40,8 +50,41 @@ inline Vector3d vector3dp(Point3d start_point, Point3d end_point) {
 inline Vector3d vector3df(float x, float y, float z) {
 	Point3d direction = point3d(x, y, z);
 	Vector3d v = {.direction = direction};
-        return v;
+    return v;
 }
+
+inline LightSource3d light_source_3d(Point3d location, Color color) {
+	LightSource3d l = {.location = location, .color = color};
+	return l;
+}
+
+/***************************************************
+ *                General functions                *
+ ***************************************************/
+
+inline float module_vector3d(Vector3d v) {
+    return v.direction.x * v.direction.x
+    + v.direction.y * v.direction.y
+    + v.direction.z * v.direction.z;
+}
+
+inline float cos_vectors3d(Vector3d v1, Vector3d v2) {
+    float numerator = v1.direction.x * v2.direction.x
+    + v1.direction.y * v2.direction.y
+    + v1.direction.z * v2.direction.z;
+    float denominator = module_vector3d(v1) * module_vector3d(v2);
+    return numerator / denominator;
+}
+
+inline float herons_square(float a, float b, float c) {
+    float p = (a + b + c) / 2;
+    return sqrt(p * (p - a) * (p - b) * (p - c));
+}
+
+/***************************************************
+ *              Triangle3D construction            *
+ ***************************************************/
+
 
 Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3) {
 	Triangle3d * triangle = malloc(sizeof(Triangle3d));
@@ -150,30 +193,4 @@ Color get_triangle_color(void * data, Point3d p, LightSource3d * light_sources, 
 void release_triangle_data(void * data) {
 	Triangle3d * triangle = data;
 	free(triangle);
-}
-
-inline Point3d rotate(Point3d p, float al, float be) {
-	float x = p.x * cos(al) - p.y * sin(al);
-	float y = p.x * sin(al) * cos(be) + p.y * cos(al) * cos(be) - p.z * sin(be);
-	float z = p.x * sin(al) * sin(be) + p.y * cos(al) * sin(be) + p.z * cos(be);
-	return point3d(x, y, z);
-}
-
-inline float module_vector3d(Vector3d v) {
-        return v.direction.x * v.direction.x
-                + v.direction.y * v.direction.y
-                + v.direction.z * v.direction.z;
-}
-
-inline float cos_vectors3d(Vector3d v1, Vector3d v2) {
-        float numerator = v1.direction.x * v2.direction.x
-                + v1.direction.y * v2.direction.y
-                + v1.direction.z * v2.direction.z;
-        float denominator = module_vector3d(v1) * module_vector3d(v2);
-        return numerator / denominator;
-}
-
-inline float herons_square(float a, float b, float c) {
-    float p = (a + b + c) / 2;
-    return sqrt(p * (p - a) * (p - b) * (p - c));
 }
