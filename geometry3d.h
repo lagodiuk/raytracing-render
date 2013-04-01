@@ -37,6 +37,10 @@ Object3d;
 
 typedef
 struct {
+    /************
+     * Geometry *
+     ************/
+    
     // World coordinates
 	Point3d p1w;
 	Point3d p2w;
@@ -61,6 +65,12 @@ struct {
     float d_p3_p1;
     // Square of triangle
     float s;
+
+    /************
+     * Material *
+     ************/
+    
+    Color color;
 }
 Triangle3d;
 
@@ -84,4 +94,4 @@ inline LightSource3d light_source_3d(Point3d location, Color color);
  *              3D objects construction            *
  ***************************************************/
 
-Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3);
+Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color);
