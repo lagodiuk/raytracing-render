@@ -132,6 +132,7 @@ void trace(Scene * scene,
                                         vector);
         
         printf("r = %i, g = %i, b = %i\n", color->r, color->g, color->b);
+        return;
     }
     
     *color = BACKGROUND_COLOR;
