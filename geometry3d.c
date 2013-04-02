@@ -54,10 +54,11 @@ inline LightSource3d light_source_3d(Point3d location, Color color) {
  *                     Scene                       *
  ***************************************************/
 
-inline Scene * new_scene(int objects_count) {
+inline Scene * new_scene(int objects_count, Color background_color) {
     Scene * s = malloc(sizeof(Scene));
     s->objects_count=objects_count;
     s->objects = calloc(objects_count, sizeof(Object3d *));
+    s->background_color = background_color;
     return s;
 }
 
@@ -126,7 +127,7 @@ void trace(Scene * scene,
         return;
     }
     
-    *color = BACKGROUND_COLOR;
+    *color = scene->background_color;
 }
 
 /***************************************************
