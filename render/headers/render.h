@@ -4,8 +4,18 @@
 #include <color.h>
 
 typedef
+int
+Boolean;
+
+#define True 1
+#define False 0
+
+// Using double for satisfactory accuracy
+typedef
 double
 Float;
+
+#define FLOAT_MAX DBL_MAX
 
 typedef 
 struct {
@@ -25,6 +35,9 @@ Vector3d;
 
 typedef
 struct {
+    // Absolute location
+    Point3d location_world;
+    // Location on projection
 	Point3d location;
 	Color color;
 }
@@ -89,11 +102,11 @@ inline LightSource3d light_source_3d(Point3d location, Color color);
  *                     Scene                       *
  ***************************************************/
 
-inline Scene * new_scene(int objects_count, Color background_color);
+inline Scene * new_scene(int objects_count, int light_sources_count, Color background_color);
 
 inline void release_scene(Scene * scene);
 
-void rotate_scene(Scene * scene, Float al, Float be);
+void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_sources);
 
 void trace(Scene * scene,
           Point3d vector_start,
