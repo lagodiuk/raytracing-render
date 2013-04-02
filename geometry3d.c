@@ -7,9 +7,9 @@
 #define EPSILON 1e-5
 
 // General functions
-inline float cos_vectors3d(Vector3d v1, Vector3d v2);
-inline float module_vector3d(Vector3d v);
-inline float herons_square(float a, float b, float c);
+inline Float cos_vectors3d(Vector3d v1, Vector3d v2);
+inline Float module_vector3d(Vector3d v);
+inline Float herons_square(Float a, Float b, Float c);
 
 /***************************************************
  *                Helpful functions                *
@@ -20,15 +20,15 @@ inline void release_object3d(Object3d * obj) {
     free(obj);
 }
 
-inline Point3d point3d(float x, float y, float z) {
+inline Point3d point3d(Float x, Float y, Float z) {
 	Point3d p = {.x = x, .y = y, .z = z};
 	return p;
 }
 
-inline Point3d rotate(Point3d p, float al, float be) {
-	float x = p.x * cos(al) - p.y * sin(al);
-	float y = p.x * sin(al) * cos(be) + p.y * cos(al) * cos(be) - p.z * sin(be);
-	float z = p.x * sin(al) * sin(be) + p.y * cos(al) * sin(be) + p.z * cos(be);
+inline Point3d rotate(Point3d p, Float al, Float be) {
+	Float x = p.x * cos(al) - p.y * sin(al);
+	Float y = p.x * sin(al) * cos(be) + p.y * cos(al) * cos(be) - p.z * sin(be);
+	Float z = p.x * sin(al) * sin(be) + p.y * cos(al) * sin(be) + p.z * cos(be);
 	return point3d(x, y, z);
 }
 
@@ -41,7 +41,7 @@ inline Vector3d vector3dp(Point3d start_point, Point3d end_point) {
 	return v;
 }
 
-inline Vector3d vector3df(float x, float y, float z) {
+inline Vector3d vector3df(Float x, Float y, Float z) {
 	Point3d direction = point3d(x, y, z);
 	Vector3d v = {.direction = direction};
     return v;
@@ -74,7 +74,7 @@ inline void release_scene(Scene * scene) {
     free(scene);
 }
 
-void rotate_scene(Scene * scene, float al, float be) {
+void rotate_scene(Scene * scene, Float al, Float be) {
     int i;
     Object3d * obj;
     for(i = 0; i < scene->objects_count; i++) {
@@ -90,12 +90,12 @@ void trace(Scene * scene,
 
     Object3d * nearest_obj = NULL;
     Point3d nearest_intersection_point;
-    float nearest_intersection_point_dist = FLT_MAX;
+    Float nearest_intersection_point_dist = FLT_MAX;
 
     int i;
     Object3d * obj = NULL;
     Point3d intersection_point;
-    float curr_intersection_point_dist;
+    Float curr_intersection_point_dist;
 
     for(i = 0; i < scene->objects_count; i++) {
         obj = (scene->objects)[i];
@@ -128,22 +128,22 @@ void trace(Scene * scene,
  *                General functions                *
  ***************************************************/
 
-inline float module_vector3d(Vector3d v) {
+inline Float module_vector3d(Vector3d v) {
     return sqrt(v.direction.x * v.direction.x
                 + v.direction.y * v.direction.y
                 + v.direction.z * v.direction.z);
 }
 
-inline float cos_vectors3d(Vector3d v1, Vector3d v2) {
-    float numerator = v1.direction.x * v2.direction.x
+inline Float cos_vectors3d(Vector3d v1, Vector3d v2) {
+    Float numerator = v1.direction.x * v2.direction.x
     + v1.direction.y * v2.direction.y
     + v1.direction.z * v2.direction.z;
-    float denominator = module_vector3d(v1) * module_vector3d(v2);
+    Float denominator = module_vector3d(v1) * module_vector3d(v2);
     return numerator / denominator;
 }
 
-inline float herons_square(float a, float b, float c) {
-    float p = (a + b + c) / 2;
+inline Float herons_square(Float a, Float b, Float c) {
+    Float p = (a + b + c) / 2;
     return sqrt(p * (p - a) * (p - b) * (p - c));
 }
 
@@ -154,8 +154,8 @@ inline float herons_square(float a, float b, float c) {
 void release_triangle_data(void * data);
 
 void rotate_triangle(void * data,
-                     float al,
-                     float be);
+                     Float al,
+                     Float be);
 
 Color get_triangle_color(void * data,
                          Point3d intersection_point,
@@ -195,7 +195,7 @@ Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
 	return obj;
 }
 
-void rotate_triangle(void * data, float al, float be) {
+void rotate_triangle(void * data, Float al, Float be) {
 	Triangle3d * triangle = data;
 
 	triangle->p1 = rotate(triangle->p1w, al, be);
@@ -212,7 +212,7 @@ void rotate_triangle(void * data, float al, float be) {
 int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point) {
 	Triangle3d * tr = data;
 
-	float k = - (tr->A * vector_start.x + tr->B * vector_start.y + tr->C * vector_start.z + tr->D)
+	Float k = - (tr->A * vector_start.x + tr->B * vector_start.y + tr->C * vector_start.z + tr->D)
 		/ (tr->A * vector.direction.x + tr->B * vector.direction.y + tr->C * vector.direction.z);
     
     if(k < EPSILON) {
@@ -220,20 +220,20 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
         return 0;
     }
 	
-	float x = vector_start.x + vector.direction.x * k;
-	float y = vector_start.y + vector.direction.y * k;
-	float z = vector_start.z + vector.direction.z * k;
+	Float x = vector_start.x + vector.direction.x * k;
+	Float y = vector_start.y + vector.direction.y * k;
+	Float z = vector_start.z + vector.direction.z * k;
 
     // Intersection point
 	Point3d ipt = point3d(x, y, z);
 
-	float d_p1_ipt = module_vector3d(vector3dp(tr->p1, ipt));
-	float d_p2_ipt = module_vector3d(vector3dp(tr->p2, ipt));
-	float d_p3_ipt = module_vector3d(vector3dp(tr->p3, ipt));
+	Float d_p1_ipt = module_vector3d(vector3dp(tr->p1, ipt));
+	Float d_p2_ipt = module_vector3d(vector3dp(tr->p2, ipt));
+	Float d_p3_ipt = module_vector3d(vector3dp(tr->p3, ipt));
     
-    float s1 = herons_square(tr->d_p1_p2, d_p1_ipt, d_p2_ipt);
-    float s2 = herons_square(tr->d_p2_p3, d_p2_ipt, d_p3_ipt);
-    float s3 = herons_square(tr->d_p3_p1, d_p3_ipt, d_p1_ipt);
+    Float s1 = herons_square(tr->d_p1_p2, d_p1_ipt, d_p2_ipt);
+    Float s2 = herons_square(tr->d_p2_p3, d_p2_ipt, d_p3_ipt);
+    Float s3 = herons_square(tr->d_p3_p1, d_p3_ipt, d_p1_ipt);
     
     if(abs(s1 + s2 + s3 - tr->s) < EPSILON) {
         // Intersected
@@ -255,7 +255,7 @@ Color get_triangle_color(void * data,
     // TODO
 	/*
     int i;
-	float cosin;
+	Float cosin;
 	Color c = BACKGROUND_COLOR;
 	Vector3d norm = vector3df(triangle->A, triangle->B, triangle->C);
 	for(i = 0; i < light_sources_count; i++) {
