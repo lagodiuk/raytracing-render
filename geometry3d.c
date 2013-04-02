@@ -115,9 +115,7 @@ void trace(Scene * scene,
         *color = nearest_obj->get_color(nearest_obj->data,
                                         nearest_intersection_point,
                                         scene->light_sources,
-                                        scene->light_sources_count,
-                                        vector_start,
-                                        vector);
+                                        scene->light_sources_count);
         return;
     }
     
@@ -160,9 +158,7 @@ void rotate_triangle(void * data,
 Color get_triangle_color(void * data,
                          Point3d intersection_point,
                          LightSource3d * light_sources,
-                         int light_sources_count,
-                         Point3d vector_start,
-                         Vector3d vector);
+                         int light_sources_count);
 
 int intersect_triangle(void * data,
                        Point3d vector_start,
@@ -211,7 +207,14 @@ void rotate_triangle(void * data, Float al, Float be) {
 
 int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point) {
 	Triangle3d * tr = data;
-
+    
+    /*
+    if(abs(cos_vectors3d(vector3df(tr->A, tr->B, tr->C), vector)) < EPSILON) {
+        // Ray is perpendicular to triangle
+        return 0;
+    }
+     */
+    
 	Float k = - (tr->A * vector_start.x + tr->B * vector_start.y + tr->C * vector_start.z + tr->D)
 		/ (tr->A * vector.direction.x + tr->B * vector.direction.y + tr->C * vector.direction.z);
     
@@ -248,9 +251,7 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
 Color get_triangle_color(void * data,
                          Point3d intersection_point,
                          LightSource3d * light_sources,
-                         int light_sources_count,
-                         Point3d vector_start,
-                         Vector3d vector) {
+                         int light_sources_count) {
 	Triangle3d * triangle = data;
     // TODO
 	/*
