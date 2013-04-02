@@ -47,6 +47,9 @@ struct {
                        LightSource3d * light_sources,
                        int light_sources_count);
     
+    Vector3d (*get_normal_vector)(void * data,
+                                  Point3d intersection_point);
+    
 	void (*release_data)(void * data);
 }
 Object3d;

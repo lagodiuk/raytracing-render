@@ -6,11 +6,35 @@
 
 #define EPSILON 1e-5
 
-// General functions
+/***************************************************
+ *              Helpful math functions             *
+ ***************************************************/
 inline Float cos_vectors3d(Vector3d v1, Vector3d v2);
 inline Float module_vector3d(Vector3d v);
 inline Float herons_square(Float a, Float b, Float c);
 inline Point3d rotate(Point3d p, Float sin_al, Float cos_al, Float sin_be, Float cos_be);
+
+inline Float module_vector3d(Vector3d v) {
+    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
+inline Float cos_vectors3d(Vector3d v1, Vector3d v2) {
+    Float numerator = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+    Float denominator = module_vector3d(v1) * module_vector3d(v2);
+    return numerator / denominator;
+}
+
+inline Float herons_square(Float a, Float b, Float c) {
+    Float p = (a + b + c) / 2;
+    return sqrt(p * (p - a) * (p - b) * (p - c));
+}
+
+inline Point3d rotate(Point3d p, Float sin_al, Float cos_al, Float sin_be, Float cos_be) {
+	Float x = p.x * cos_al - p.y * sin_al;
+	Float y = p.x * sin_al * cos_be + p.y * cos_al * cos_be - p.z * sin_be;
+	Float z = p.x * sin_al * sin_be + p.y * cos_al * sin_be + p.z * cos_be;
+	return point3d(x, y, z);
+}
 
 /***************************************************
  *                Helpful functions                *
@@ -24,13 +48,6 @@ inline void release_object3d(Object3d * obj) {
 inline Point3d point3d(Float x, Float y, Float z) {
 	Point3d p = {.x = x, .y = y, .z = z};
 	return p;
-}
-
-inline Point3d rotate(Point3d p, Float sin_al, Float cos_al, Float sin_be, Float cos_be) {
-	Float x = p.x * cos_al - p.y * sin_al;
-	Float y = p.x * sin_al * cos_be + p.y * cos_al * cos_be - p.z * sin_be;
-	Float z = p.x * sin_al * sin_be + p.y * cos_al * sin_be + p.z * cos_be;
-	return point3d(x, y, z);
 }
 
 inline Vector3d vector3dp(Point3d start_point, Point3d end_point) {
@@ -131,25 +148,6 @@ void trace(Scene * scene,
 }
 
 /***************************************************
- *                General functions                *
- ***************************************************/
-
-inline Float module_vector3d(Vector3d v) {
-    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-}
-
-inline Float cos_vectors3d(Vector3d v1, Vector3d v2) {
-    Float numerator = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-    Float denominator = module_vector3d(v1) * module_vector3d(v2);
-    return numerator / denominator;
-}
-
-inline Float herons_square(Float a, Float b, Float c) {
-    Float p = (a + b + c) / 2;
-    return sqrt(p * (p - a) * (p - b) * (p - c));
-}
-
-/***************************************************
  *              Triangle3D construction            *
  ***************************************************/
 
@@ -170,6 +168,9 @@ int intersect_triangle(void * data,
                        Point3d vector_start,
                        Vector3d vector,
                        Point3d * intersection_point);
+
+Vector3d get_triangle_normal_vector(void * data,
+                                Point3d intersection_point);
 
 
 Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
@@ -193,6 +194,7 @@ Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
 	obj->release_data = release_triangle_data;
 	obj->get_color = get_triangle_color;
 	obj->intersect = intersect_triangle;
+    obj->get_normal_vector = get_triangle_normal_vector;
 
 	return obj;
 }
@@ -289,6 +291,12 @@ Color get_triangle_color(void * data,
 	}
      */
 	return triangle->color;
+}
+
+Vector3d get_triangle_normal_vector(void * data,
+                                Point3d intersection_point) {
+  	Triangle3d * triangle = data;
+    return vector3df(triangle->A, triangle->B, triangle->C);
 }
 
 void release_triangle_data(void * data) {
