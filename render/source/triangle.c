@@ -171,18 +171,6 @@ Color get_triangle_color(void * data,
                          LightSource3d * light_sources,
                          int light_sources_count) {
 	Triangle3d * triangle = data;
-    // TODO
-	/*
-     int i;
-     Float cosin;
-     Color c = BACKGROUND_COLOR;
-     Vector3d norm = vector3df(triangle->A, triangle->B, triangle->C);
-     for(i = 0; i < light_sources_count; i++) {
-     Vector3d light_vect = vector3dp(intersection_point, light_sources[i].location);
-     cosin = cos_vectors3d(norm, light_vect);
-     c = add_colors(c, mul_color(light_sources[i].color, cosin));
-     }
-     */
 	return triangle->color;
 }
 

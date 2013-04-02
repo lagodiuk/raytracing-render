@@ -5,6 +5,8 @@
 #include <render.h>
 #include <utils.h>
 
+int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene);
+
 /***************************************************
  *                Helpful functions                *
  ***************************************************/
@@ -32,7 +34,9 @@ inline Vector3d vector3df(Float x, Float y, Float z) {
 }
 
 inline LightSource3d light_source_3d(Point3d location, Color color) {
-	LightSource3d l = {.location = location, .color = color};
+	LightSource3d l = {.location_world = location,
+                       .location = location,
+                       .color = color};
 	return l;
 }
 
@@ -40,10 +44,14 @@ inline LightSource3d light_source_3d(Point3d location, Color color) {
  *                     Scene                       *
  ***************************************************/
 
-inline Scene * new_scene(int objects_count, Color background_color) {
+inline Scene * new_scene(int objects_count, int light_sources_count, Color background_color) {
     Scene * s = malloc(sizeof(Scene));
     s->objects_count=objects_count;
     s->objects = calloc(objects_count, sizeof(Object3d *));
+    if(light_sources_count) {
+        s->light_sources = calloc(light_sources_count, sizeof(LightSource3d));
+    }
+    s->light_sources_count = light_sources_count;
     s->background_color = background_color;
     return s;
 }
@@ -59,7 +67,7 @@ inline void release_scene(Scene * scene) {
     free(scene);
 }
 
-void rotate_scene(Scene * scene, Float al, Float be) {
+void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_sources) {
     // Pre-calculating of trigonometric functions
     Float sin_al = sin(al);
     Float cos_al = cos(al);
@@ -73,6 +81,16 @@ void rotate_scene(Scene * scene, Float al, Float be) {
         obj = (scene->objects)[i];
         obj->rotate(obj->data, sin_al, cos_al, sin_be, cos_be);
     }
+    
+    if((scene->light_sources_count) && (rotate_light_sources)) {
+        Point3d ls_location;
+        
+        for(i = 0; i < scene->light_sources_count; i++) {
+            ls_location = scene->light_sources[i].location_world;
+            scene->light_sources[i].location =
+                rotate(ls_location, sin_al, cos_al, sin_be, cos_be);
+        }
+    }
 }
 
 void trace(Scene * scene,
@@ -84,7 +102,7 @@ void trace(Scene * scene,
     
     Object3d * nearest_obj = NULL;
     Point3d nearest_intersection_point;
-    Float nearest_intersection_point_dist = FLT_MAX;
+    Float nearest_intersection_point_dist = FLOAT_MAX;
 
     int i;
     Object3d * obj = NULL;
@@ -108,12 +126,62 @@ void trace(Scene * scene,
     }
 
     if(nearest_obj) {
-        *color = nearest_obj->get_color(nearest_obj->data,
+        Color obj_color = nearest_obj->get_color(nearest_obj->data,
                                         nearest_intersection_point,
                                         scene->light_sources,
                                         scene->light_sources_count);
+        
+        if(scene->light_sources_count) {
+            Color light_color = rgb(0, 0, 0);
+            
+            Vector3d norm = nearest_obj->get_normal_vector(nearest_obj->data, nearest_intersection_point);
+            normalize_vector(&norm);
+            
+            LightSource3d ls;
+            Vector3d v_ls;
+            Float cos_ls;
+            Color color_ls;
+            
+            for(i = 0; i < scene->light_sources_count; i++) {
+                ls = scene->light_sources[i];
+                
+                if(is_viewable(ls.location, nearest_intersection_point, scene)) {
+                    v_ls = vector3dp(nearest_intersection_point, ls.location);
+                    normalize_vector(&v_ls);
+                    
+                    cos_ls = fabs(cos_vectors3d(norm, v_ls));                    
+                    color_ls = mul_color(ls.color, cos_ls);
+                    light_color = add_colors(light_color, color_ls);
+                }
+            }
+            
+            obj_color = mul_colors(obj_color, light_color);
+        }
+        
+        *color = obj_color;
         return;
     }
     
     *color = scene->background_color;
+}
+
+int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene) {
+    Vector3d ray = vector3dp(starting_point, target_point);
+    normalize_vector(&ray);
+    Point3d intersection_point;
+    
+    int i;
+    Object3d * obj = NULL;
+    for(i = 0; i < scene->objects_count; i++) {
+        obj = (scene->objects)[i];
+        
+        if(obj->intersect(obj->data, starting_point, ray, &intersection_point)) {
+            // Target point is not viewable from starting point
+            // because of ray intersects some of scene objects
+            return 0;
+        }
+    }
+    
+    // Ray doesn't intersect any of scene objects
+    return 1;
 }

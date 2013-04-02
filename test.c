@@ -22,11 +22,14 @@
 
 #define BACKGROUND_COLOR rgb(0, 0, 0)
 
+#define ROTATE_LIGHT_SOURCES False
+
 void add_cube(Scene * scene, Point3d base, float a);
 
 int main() {
-    Scene * scene = new_scene(8, BACKGROUND_COLOR);
+    Scene * scene = new_scene(8, 1, BACKGROUND_COLOR);
     add_cube(scene, point3d(-5, -5, -5), 100);
+    scene->light_sources[0] = light_source_3d(point3d(X_CAM, Y_CAM, Z_CAM), rgb(255, 255, 255));
     
     int i;
     int j;
@@ -39,7 +42,7 @@ int main() {
     char filename[30];
     
     for(k = 1; k <= PICTURES; k++) {
-        rotate_scene(scene, M_PI / 3 * 2.5, k * delta_al);
+        rotate_scene(scene, M_PI / 3 * 2.5, k * delta_al, ROTATE_LIGHT_SOURCES);
         
         for(i = MIN_X; i <= MAX_X; i++) {
             for(j = MIN_Y; j <= MAX_Y; j++) {
