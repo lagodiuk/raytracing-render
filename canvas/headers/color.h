@@ -23,6 +23,8 @@ inline Color rgb(Byte r, Byte g, Byte b);
 
 inline Color add_colors(Color c1, Color c2);
 
+inline Color mul_colors(Color c1, Color c2);
+
 inline Color mul_color(Color c, float k);
 
 #endif
