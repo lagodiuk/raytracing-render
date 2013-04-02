@@ -1,3 +1,6 @@
+#ifndef GEOMETRY_3D_H
+#define GEOMETRY_3D_H
+
 #include <color.h>
 
 typedef
@@ -68,47 +71,6 @@ struct {
 }
 Scene;
 
-typedef
-struct {
-    /************
-     * Geometry *
-     ************/
-    
-    // Absolute (world) vertexes of triangle
-	Point3d p1w;
-	Point3d p2w;
-	Point3d p3w;
-    // Absolute (world) norm vector (Aw, Bw, Cw) of triangle
-    // Aw * x + Bw * y + Cw * z + D = 0
-	Float Aw;
-	Float Bw;
-	Float Cw;
-	Float Dw;
-    // Projection vertexes of triangle
-	Point3d p1;
-	Point3d p2;
-	Point3d p3;
-    // Projection norm vector (A, B, C)
-    // A * x + B * y + C * z + D = 0
-	Float A;
-	Float B;
-	Float C;
-	Float D;
-    // Pre-calculated lengths of the sides of a triangle
-    Float d_p1_p2;
-    Float d_p2_p3;
-    Float d_p3_p1;
-    // Pre-calculated square of triangle
-    Float s;
-
-    /************
-     * Material *
-     ************/
-    
-    Color color;
-}
-Triangle3d;
-
 /***************************************************
  *                Helpful functions                *
  ***************************************************/
@@ -143,3 +105,5 @@ void trace(Scene * scene,
  ***************************************************/
 
 Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color);
+
+#endif
