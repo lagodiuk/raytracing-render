@@ -75,9 +75,9 @@ Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
 	triangle->Bw = (p2.x - p3.x) * (p1.z - p3.z) - (p2.z - p3.z) * (p1.x - p3.x);
 	triangle->Cw = (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x);
 	triangle->Dw = -(p1.x * triangle->Aw + p1.y * triangle->Bw + p1.z * triangle->Cw);
-    triangle->d_p1_p2 = module_vector3d(vector3dp(p1, p2));
-    triangle->d_p2_p3 = module_vector3d(vector3dp(p2, p3));
-    triangle->d_p3_p1 = module_vector3d(vector3dp(p3, p1));
+    triangle->d_p1_p2 = module_vector(vector3dp(p1, p2));
+    triangle->d_p2_p3 = module_vector(vector3dp(p2, p3));
+    triangle->d_p3_p1 = module_vector(vector3dp(p3, p1));
     triangle->s = herons_square(triangle->d_p1_p2, triangle->d_p2_p3, triangle->d_p3_p1);
     triangle->color = color;
     
@@ -95,11 +95,11 @@ Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
 void rotate_triangle(void * data, Float sin_al, Float cos_al, Float sin_be, Float cos_be) {
 	Triangle3d * triangle = data;
     
-	triangle->p1 = rotate(triangle->p1w, sin_al, cos_al, sin_be, cos_be);
-	triangle->p2 = rotate(triangle->p2w, sin_al, cos_al, sin_be, cos_be);
-	triangle->p3 = rotate(triangle->p3w, sin_al, cos_al, sin_be, cos_be);
+	triangle->p1 = rotate_point(triangle->p1w, sin_al, cos_al, sin_be, cos_be);
+	triangle->p2 = rotate_point(triangle->p2w, sin_al, cos_al, sin_be, cos_be);
+	triangle->p3 = rotate_point(triangle->p3w, sin_al, cos_al, sin_be, cos_be);
     
-	Point3d norm = rotate(point3d(triangle->Aw, triangle->Bw, triangle->Cw), sin_al, cos_al, sin_be, cos_be);
+	Point3d norm = rotate_point(point3d(triangle->Aw, triangle->Bw, triangle->Cw), sin_al, cos_al, sin_be, cos_be);
 	triangle->A = norm.x;
 	triangle->B = norm.y;
 	triangle->C = norm.z;
@@ -141,9 +141,9 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
     // point is inside when: S(p1-p2-ipt) + S(p2-p3-ipt) + S(p1-p3-ipt) = S(p1-p2-p3)
     
     // Calculating length of the sides: p1-ipt, p2-ipt, p3-ipt
-	Float d_p1_ipt = module_vector3d(vector3dp(tr->p1, ipt));
-	Float d_p2_ipt = module_vector3d(vector3dp(tr->p2, ipt));
-	Float d_p3_ipt = module_vector3d(vector3dp(tr->p3, ipt));
+	Float d_p1_ipt = module_vector(vector3dp(tr->p1, ipt));
+	Float d_p2_ipt = module_vector(vector3dp(tr->p2, ipt));
+	Float d_p3_ipt = module_vector(vector3dp(tr->p3, ipt));
     // length of other sides are pre-calculated:
     // p1-p2 is tr->d_p1_p2
     // p2-p3 is tr->d_p2_p3

@@ -88,7 +88,7 @@ void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_source
         for(i = 0; i < scene->light_sources_count; i++) {
             ls_location = scene->light_sources[i].location_world;
             scene->light_sources[i].location =
-                rotate(ls_location, sin_al, cos_al, sin_be, cos_be);
+                rotate_point(ls_location, sin_al, cos_al, sin_be, cos_be);
         }
     }
 }
@@ -115,7 +115,7 @@ void trace(Scene * scene,
         obj = (scene->objects)[i];
         
         if(obj->intersect(obj->data, vector_start, vector, &intersection_point)) {
-            curr_intersection_point_dist = module_vector3d(vector3dp(vector_start, intersection_point));
+            curr_intersection_point_dist = module_vector(vector3dp(vector_start, intersection_point));
             
             if(curr_intersection_point_dist < nearest_intersection_point_dist) {
                 nearest_obj = obj;
@@ -149,7 +149,7 @@ void trace(Scene * scene,
                     v_ls = vector3dp(nearest_intersection_point, ls.location);
                     normalize_vector(&v_ls);
                     
-                    cos_ls = fabs(cos_vectors3d(norm, v_ls));                    
+                    cos_ls = fabs(cos_vectors(norm, v_ls));                    
                     color_ls = mul_color(ls.color, cos_ls);
                     light_color = add_colors(light_color, color_ls);
                 }
