@@ -12,6 +12,13 @@ inline Float cos_vectors3d(Vector3d v1, Vector3d v2) {
     return numerator / denominator;
 }
 
+inline void normalize_vector(Vector3d * v) {
+    Float module = module_vector3d(*v);
+    v->x = v->x / module;
+    v->y = v->y / module;
+    v->z = v->z / module;
+}
+
 inline Float herons_square(Float a, Float b, Float c) {
     Float p = (a + b + c) / 2;
     return sqrt(p * (p - a) * (p - b) * (p - c));

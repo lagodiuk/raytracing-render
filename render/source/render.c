@@ -80,6 +80,8 @@ void trace(Scene * scene,
            Vector3d vector,
            Color * color) {
 
+    normalize_vector(&vector);
+    
     Object3d * nearest_obj = NULL;
     Point3d nearest_intersection_point;
     Float nearest_intersection_point_dist = FLT_MAX;
