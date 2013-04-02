@@ -94,6 +94,8 @@ void trace(Scene * scene,
     Point3d intersection_point;
     Float curr_intersection_point_dist;
 
+    // Finding nearest object
+    // and intersection point
     for(i = 0; i < scene->objects_count; i++) {
         obj = (scene->objects)[i];
         
@@ -201,18 +203,23 @@ void rotate_triangle(void * data, Float al, Float be) {
 int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point) {
 	Triangle3d * tr = data;
     
-    if(abs(tr->A * vector.x + tr->B * vector.y + tr->C * vector.z) < EPSILON) {
+    Float scalar_product = tr->A * vector.x + tr->B * vector.y + tr->C * vector.z;
+    
+    if(abs(scalar_product) < EPSILON) {
         // Ray is perpendicular to triangles normal vector (A, B, C)
         // it means that ray is parellel to triangle
         // so there is no intersection
         return 0;
     }
     
-	Float k = - (tr->A * vector_start.x + tr->B * vector_start.y + tr->C * vector_start.z + tr->D)
-		/ (tr->A * vector.x + tr->B * vector.y + tr->C * vector.z);
+	Float k = - (tr->A * vector_start.x
+                 + tr->B * vector_start.y
+                 + tr->C * vector_start.z
+                 + tr->D)
+              / scalar_product;
     
     if(k < EPSILON) {
-        // No intersection
+        // Avoid intersection in the opposite direction
         return 0;
     }
 	
@@ -223,16 +230,28 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
     // Intersection point
 	Point3d ipt = point3d(x, y, z);
 
+    // Checking if point "ipt" is inside of triangle "p1-p2-p3"
+    // using herons square formula:
+    // point is inside when: S(p1-p2-ipt) + S(p2-p3-ipt) + S(p1-p3-ipt) = S(p1-p2-p3)
+    
+    // Calculating length of the sides: p1-ipt, p2-ipt, p3-ipt
 	Float d_p1_ipt = module_vector3d(vector3dp(tr->p1, ipt));
 	Float d_p2_ipt = module_vector3d(vector3dp(tr->p2, ipt));
 	Float d_p3_ipt = module_vector3d(vector3dp(tr->p3, ipt));
+    // length of other sides are pre-calculated:
+    // p1-p2 is tr->d_p1_p2
+    // p2-p3 is tr->d_p2_p3
+    // p3-p1 is tr->d_p3_p1
     
+    // Calculating S(p1-p2-ipt), S(p2-p3-ipt) and S(p1-p3-ipt)
     Float s1 = herons_square(tr->d_p1_p2, d_p1_ipt, d_p2_ipt);
     Float s2 = herons_square(tr->d_p2_p3, d_p2_ipt, d_p3_ipt);
     Float s3 = herons_square(tr->d_p3_p1, d_p3_ipt, d_p1_ipt);
+    // Square of triangle p1-p2-p3 is pre-calculated too
+    // S(p1-p2-p3) is tr->s
     
     if(abs(s1 + s2 + s3 - tr->s) < EPSILON) {
-        // Intersected
+        // Triangle is intersected
         *intersection_point = ipt;
         return 1;
     }
