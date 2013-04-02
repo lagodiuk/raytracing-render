@@ -16,7 +16,9 @@ Point3d;
 
 typedef
 struct {
-	Point3d direction;
+	Float x;
+	Float y;
+	Float z;
 }
 Vector3d;
 

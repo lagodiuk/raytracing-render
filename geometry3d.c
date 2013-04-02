@@ -33,17 +33,14 @@ inline Point3d rotate(Point3d p, Float al, Float be) {
 }
 
 inline Vector3d vector3dp(Point3d start_point, Point3d end_point) {
-	Point3d direction = point3d(
-                                end_point.x - start_point.x,
-                                end_point.y - start_point.y,
-                                end_point.z - start_point.z);
-	Vector3d v = {.direction = direction};
+	Vector3d v = {.x = (end_point.x - start_point.x),
+                  .y = (end_point.y - start_point.y),
+                  .z = (end_point.z - start_point.z)};
 	return v;
 }
 
 inline Vector3d vector3df(Float x, Float y, Float z) {
-	Point3d direction = point3d(x, y, z);
-	Vector3d v = {.direction = direction};
+	Vector3d v = {.x = x, .y = y, .z = z};
     return v;
 }
 
@@ -127,15 +124,11 @@ void trace(Scene * scene,
  ***************************************************/
 
 inline Float module_vector3d(Vector3d v) {
-    return sqrt(v.direction.x * v.direction.x
-                + v.direction.y * v.direction.y
-                + v.direction.z * v.direction.z);
+    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 inline Float cos_vectors3d(Vector3d v1, Vector3d v2) {
-    Float numerator = v1.direction.x * v2.direction.x
-    + v1.direction.y * v2.direction.y
-    + v1.direction.z * v2.direction.z;
+    Float numerator = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
     Float denominator = module_vector3d(v1) * module_vector3d(v2);
     return numerator / denominator;
 }
@@ -216,16 +209,16 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
      */
     
 	Float k = - (tr->A * vector_start.x + tr->B * vector_start.y + tr->C * vector_start.z + tr->D)
-		/ (tr->A * vector.direction.x + tr->B * vector.direction.y + tr->C * vector.direction.z);
+		/ (tr->A * vector.x + tr->B * vector.y + tr->C * vector.z);
     
     if(k < EPSILON) {
         // No intersection
         return 0;
     }
 	
-	Float x = vector_start.x + vector.direction.x * k;
-	Float y = vector_start.y + vector.direction.y * k;
-	Float z = vector_start.z + vector.direction.z * k;
+	Float x = vector_start.x + vector.x * k;
+	Float y = vector_start.y + vector.y * k;
+	Float z = vector_start.z + vector.z * k;
 
     // Intersection point
 	Point3d ipt = point3d(x, y, z);
