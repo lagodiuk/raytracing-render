@@ -20,10 +20,12 @@
 #define CANVAS_W (MAX_X - MIN_X)
 #define CANVAS_H (MAX_Y - MIN_Y)
 
+#define BACKGROUND_COLOR rgb(0, 0, 0)
+
 void add_cube(Scene * scene, Point3d base, float a);
 
 int main() {
-    Scene * scene = new_scene(8);    
+    Scene * scene = new_scene(8, BACKGROUND_COLOR);
     add_cube(scene, point3d(-5, -5, -5), 100);
     
     int i;

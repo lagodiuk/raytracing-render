@@ -1,8 +1,5 @@
 #include <color.h>
 
-#define BACKGROUND_COLOR rgb(0, 0, 0)
-
-
 typedef
 double
 Float;
@@ -63,6 +60,8 @@ struct {
     // Array of light sources
     LightSource3d * light_sources;
     int light_sources_count;
+    
+    Color background_color;
 }
 Scene;
 
@@ -125,7 +124,7 @@ inline LightSource3d light_source_3d(Point3d location, Color color);
  *                     Scene                       *
  ***************************************************/
 
-inline Scene * new_scene(int objects_count);
+inline Scene * new_scene(int objects_count, Color background_color);
 
 inline void release_scene(Scene * scene);
 
