@@ -201,12 +201,12 @@ void rotate_triangle(void * data, Float al, Float be) {
 int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point) {
 	Triangle3d * tr = data;
     
-    /*
-    if(abs(cos_vectors3d(vector3df(tr->A, tr->B, tr->C), vector)) < EPSILON) {
-        // Ray is perpendicular to triangle
+    if(abs(tr->A * vector.x + tr->B * vector.y + tr->C * vector.z) < EPSILON) {
+        // Ray is perpendicular to triangles normal vector (A, B, C)
+        // it means that ray is parellel to triangle
+        // so there is no intersection
         return 0;
     }
-     */
     
 	Float k = - (tr->A * vector_start.x + tr->B * vector_start.y + tr->C * vector_start.z + tr->D)
 		/ (tr->A * vector.x + tr->B * vector.y + tr->C * vector.z);
