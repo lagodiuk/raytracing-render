@@ -43,9 +43,7 @@ struct {
 	Color (*get_color)(void * data,
                        Point3d intersection_point,
                        LightSource3d * light_sources,
-                       int light_sources_count,
-                       Point3d vector_start,
-                       Vector3d vector);
+                       int light_sources_count);
     
 	void (*release_data)(void * data);
 }
