@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <canvas.h>
-#include <geometry3d.h>
+#include <render.h>
 
 #define PICTURES 60
 

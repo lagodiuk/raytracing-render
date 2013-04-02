@@ -1,0 +1,198 @@
+#include <math.h>
+#include <stdlib.h>
+#include <render.h>
+#include <utils.h>
+
+typedef
+struct {
+    /************
+     * Geometry *
+     ************/
+    
+    // Absolute (world) vertexes of triangle
+	Point3d p1w;
+	Point3d p2w;
+	Point3d p3w;
+    // Absolute (world) norm vector (Aw, Bw, Cw) of triangle
+    // Aw * x + Bw * y + Cw * z + D = 0
+	Float Aw;
+	Float Bw;
+	Float Cw;
+	Float Dw;
+    // Projection vertexes of triangle
+	Point3d p1;
+	Point3d p2;
+	Point3d p3;
+    // Projection norm vector (A, B, C)
+    // A * x + B * y + C * z + D = 0
+	Float A;
+	Float B;
+	Float C;
+	Float D;
+    // Pre-calculated lengths of the sides of a triangle
+    Float d_p1_p2;
+    Float d_p2_p3;
+    Float d_p3_p1;
+    // Pre-calculated square of triangle
+    Float s;
+    
+    /************
+     * Material *
+     ************/
+    
+    Color color;
+}
+Triangle3d;
+
+void release_triangle_data(void * data);
+
+void rotate_triangle(void * data,
+                     Float sin_al,
+                     Float cos_al,
+                     Float sin_be,
+                     Float cos_be);
+
+Color get_triangle_color(void * data,
+                         Point3d intersection_point,
+                         LightSource3d * light_sources,
+                         int light_sources_count);
+
+int intersect_triangle(void * data,
+                       Point3d vector_start,
+                       Vector3d vector,
+                       Point3d * intersection_point);
+
+Vector3d get_triangle_normal_vector(void * data,
+                                    Point3d intersection_point);
+
+
+Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
+	Triangle3d * triangle = malloc(sizeof(Triangle3d));
+	triangle->p1w = p1;
+	triangle->p2w = p2;
+	triangle->p3w = p3;
+	triangle->Aw = (p1.y - p3.y) * (p2.z - p3.z) - (p1.z - p3.z) * (p2.y - p3.y);
+	triangle->Bw = (p2.x - p3.x) * (p1.z - p3.z) - (p2.z - p3.z) * (p1.x - p3.x);
+	triangle->Cw = (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x);
+	triangle->Dw = -(p1.x * triangle->Aw + p1.y * triangle->Bw + p1.z * triangle->Cw);
+    triangle->d_p1_p2 = module_vector3d(vector3dp(p1, p2));
+    triangle->d_p2_p3 = module_vector3d(vector3dp(p2, p3));
+    triangle->d_p3_p1 = module_vector3d(vector3dp(p3, p1));
+    triangle->s = herons_square(triangle->d_p1_p2, triangle->d_p2_p3, triangle->d_p3_p1);
+    triangle->color = color;
+    
+	Object3d * obj = malloc(sizeof(Object3d));
+	obj->data = triangle;
+	obj->rotate = rotate_triangle;
+	obj->release_data = release_triangle_data;
+	obj->get_color = get_triangle_color;
+	obj->intersect = intersect_triangle;
+    obj->get_normal_vector = get_triangle_normal_vector;
+    
+	return obj;
+}
+
+void rotate_triangle(void * data, Float sin_al, Float cos_al, Float sin_be, Float cos_be) {
+	Triangle3d * triangle = data;
+    
+	triangle->p1 = rotate(triangle->p1w, sin_al, cos_al, sin_be, cos_be);
+	triangle->p2 = rotate(triangle->p2w, sin_al, cos_al, sin_be, cos_be);
+	triangle->p3 = rotate(triangle->p3w, sin_al, cos_al, sin_be, cos_be);
+    
+	Point3d norm = rotate(point3d(triangle->Aw, triangle->Bw, triangle->Cw), sin_al, cos_al, sin_be, cos_be);
+	triangle->A = norm.x;
+	triangle->B = norm.y;
+	triangle->C = norm.z;
+	triangle->D = -(triangle->p1.x * triangle->A + triangle->p1.y * triangle->B + triangle->p1.z * triangle->C);
+}
+
+int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point) {
+	Triangle3d * tr = data;
+    
+    Float scalar_product = tr->A * vector.x + tr->B * vector.y + tr->C * vector.z;
+    
+    if(abs(scalar_product) < EPSILON) {
+        // Ray is perpendicular to triangles normal vector (A, B, C)
+        // it means that ray is parellel to triangle
+        // so there is no intersection
+        return 0;
+    }
+    
+	Float k = - (tr->A * vector_start.x
+                 + tr->B * vector_start.y
+                 + tr->C * vector_start.z
+                 + tr->D)
+    / scalar_product;
+    
+    if(k < EPSILON) {
+        // Avoid intersection in the opposite direction
+        return 0;
+    }
+	
+	Float x = vector_start.x + vector.x * k;
+	Float y = vector_start.y + vector.y * k;
+	Float z = vector_start.z + vector.z * k;
+    
+    // Intersection point
+	Point3d ipt = point3d(x, y, z);
+    
+    // Checking if point "ipt" is inside of triangle "p1-p2-p3"
+    // using herons square formula:
+    // point is inside when: S(p1-p2-ipt) + S(p2-p3-ipt) + S(p1-p3-ipt) = S(p1-p2-p3)
+    
+    // Calculating length of the sides: p1-ipt, p2-ipt, p3-ipt
+	Float d_p1_ipt = module_vector3d(vector3dp(tr->p1, ipt));
+	Float d_p2_ipt = module_vector3d(vector3dp(tr->p2, ipt));
+	Float d_p3_ipt = module_vector3d(vector3dp(tr->p3, ipt));
+    // length of other sides are pre-calculated:
+    // p1-p2 is tr->d_p1_p2
+    // p2-p3 is tr->d_p2_p3
+    // p3-p1 is tr->d_p3_p1
+    
+    // Calculating S(p1-p2-ipt), S(p2-p3-ipt) and S(p1-p3-ipt)
+    Float s1 = herons_square(tr->d_p1_p2, d_p1_ipt, d_p2_ipt);
+    Float s2 = herons_square(tr->d_p2_p3, d_p2_ipt, d_p3_ipt);
+    Float s3 = herons_square(tr->d_p3_p1, d_p3_ipt, d_p1_ipt);
+    // Square of triangle p1-p2-p3 is pre-calculated too
+    // S(p1-p2-p3) is tr->s
+    
+    if(abs(s1 + s2 + s3 - tr->s) < EPSILON) {
+        // Triangle is intersected
+        *intersection_point = ipt;
+        return 1;
+    }
+    
+    // No intersection
+	return 0;
+}
+
+Color get_triangle_color(void * data,
+                         Point3d intersection_point,
+                         LightSource3d * light_sources,
+                         int light_sources_count) {
+	Triangle3d * triangle = data;
+    // TODO
+	/*
+     int i;
+     Float cosin;
+     Color c = BACKGROUND_COLOR;
+     Vector3d norm = vector3df(triangle->A, triangle->B, triangle->C);
+     for(i = 0; i < light_sources_count; i++) {
+     Vector3d light_vect = vector3dp(intersection_point, light_sources[i].location);
+     cosin = cos_vectors3d(norm, light_vect);
+     c = add_colors(c, mul_color(light_sources[i].color, cosin));
+     }
+     */
+	return triangle->color;
+}
+
+Vector3d get_triangle_normal_vector(void * data,
+                                    Point3d intersection_point) {
+  	Triangle3d * triangle = data;
+    return vector3df(triangle->A, triangle->B, triangle->C);
+}
+
+void release_triangle_data(void * data) {
+	Triangle3d * triangle = data;
+	free(triangle);
+}
