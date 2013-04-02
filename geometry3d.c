@@ -10,6 +10,7 @@
 inline Float cos_vectors3d(Vector3d v1, Vector3d v2);
 inline Float module_vector3d(Vector3d v);
 inline Float herons_square(Float a, Float b, Float c);
+inline Point3d rotate(Point3d p, Float sin_al, Float cos_al, Float sin_be, Float cos_be);
 
 /***************************************************
  *                Helpful functions                *
@@ -25,10 +26,10 @@ inline Point3d point3d(Float x, Float y, Float z) {
 	return p;
 }
 
-inline Point3d rotate(Point3d p, Float al, Float be) {
-	Float x = p.x * cos(al) - p.y * sin(al);
-	Float y = p.x * sin(al) * cos(be) + p.y * cos(al) * cos(be) - p.z * sin(be);
-	Float z = p.x * sin(al) * sin(be) + p.y * cos(al) * sin(be) + p.z * cos(be);
+inline Point3d rotate(Point3d p, Float sin_al, Float cos_al, Float sin_be, Float cos_be) {
+	Float x = p.x * cos_al - p.y * sin_al;
+	Float y = p.x * sin_al * cos_be + p.y * cos_al * cos_be - p.z * sin_be;
+	Float z = p.x * sin_al * sin_be + p.y * cos_al * sin_be + p.z * cos_be;
 	return point3d(x, y, z);
 }
 
@@ -72,11 +73,18 @@ inline void release_scene(Scene * scene) {
 }
 
 void rotate_scene(Scene * scene, Float al, Float be) {
+    // Pre-calculating of trigonometric functions
+    Float sin_al = sin(al);
+    Float cos_al = cos(al);
+    Float sin_be = sin(be);
+    Float cos_be = cos(be);
+    
     int i;
     Object3d * obj;
+    
     for(i = 0; i < scene->objects_count; i++) {
         obj = (scene->objects)[i];
-        obj->rotate(obj->data, al, be);
+        obj->rotate(obj->data, sin_al, cos_al, sin_be, cos_be);
     }
 }
 
@@ -147,8 +155,10 @@ inline Float herons_square(Float a, Float b, Float c) {
 void release_triangle_data(void * data);
 
 void rotate_triangle(void * data,
-                     Float al,
-                     Float be);
+                     Float sin_al,
+                     Float cos_al,
+                     Float sin_be,
+                     Float cos_be);
 
 Color get_triangle_color(void * data,
                          Point3d intersection_point,
@@ -186,14 +196,14 @@ Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
 	return obj;
 }
 
-void rotate_triangle(void * data, Float al, Float be) {
+void rotate_triangle(void * data, Float sin_al, Float cos_al, Float sin_be, Float cos_be) {
 	Triangle3d * triangle = data;
 
-	triangle->p1 = rotate(triangle->p1w, al, be);
-	triangle->p2 = rotate(triangle->p2w, al, be);
-	triangle->p3 = rotate(triangle->p3w, al, be);
+	triangle->p1 = rotate(triangle->p1w, sin_al, cos_al, sin_be, cos_be);
+	triangle->p2 = rotate(triangle->p2w, sin_al, cos_al, sin_be, cos_be);
+	triangle->p3 = rotate(triangle->p3w, sin_al, cos_al, sin_be, cos_be);
 
-	Point3d norm = rotate(point3d(triangle->Aw, triangle->Bw, triangle->Cw), al, be);
+	Point3d norm = rotate(point3d(triangle->Aw, triangle->Bw, triangle->Cw), sin_al, cos_al, sin_be, cos_be);
 	triangle->A = norm.x;
 	triangle->B = norm.y;
 	triangle->C = norm.z;

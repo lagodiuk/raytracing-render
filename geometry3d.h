@@ -35,8 +35,10 @@ struct {
 	void * data;
         
 	void (*rotate)(void * data,
-                   Float al,
-                   Float be);
+                   Float sin_al,
+                   Float cos_al,
+                   Float sin_be,
+                   Float cos_be);
     
 	int (*intersect)(void * data,
                      Point3d vector_start,
@@ -112,8 +114,6 @@ Triangle3d;
 inline void release_object3d(Object3d * obj);
 
 inline Point3d point3d(Float x, Float y, Float z);
-
-inline Point3d rotate(Point3d p, Float al, Float be);
 
 inline Vector3d vector3dp(Point3d start_point, Point3d end_point);
 
