@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <canvas.h>
 
 Canvas * new_canvas(int width, int height) {

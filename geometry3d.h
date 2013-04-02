@@ -2,6 +2,7 @@
 
 #define BACKGROUND_COLOR rgb(0, 0, 0)
 
+
 typedef
 double
 Float;
@@ -53,9 +54,11 @@ Object3d;
 
 typedef
 struct {
+    // Array of pointers to 3d objects of scene
     Object3d ** objects;
     int objects_count;
     
+    // Array of light sources
     LightSource3d * light_sources;
     int light_sources_count;
 }
@@ -67,29 +70,31 @@ struct {
      * Geometry *
      ************/
     
-    // World coordinates
+    // Absolute (world) vertexes of triangle
 	Point3d p1w;
 	Point3d p2w;
 	Point3d p3w;
-    // World norm vector (Aw, Bw, Cw)
+    // Absolute (world) norm vector (Aw, Bw, Cw) of triangle
+    // Aw * x + Bw * y + Cw * z + D = 0
 	Float Aw;
 	Float Bw;
 	Float Cw;
 	Float Dw;
-    // Projection coordinates
+    // Projection vertexes of triangle
 	Point3d p1;
 	Point3d p2;
 	Point3d p3;
     // Projection norm vector (A, B, C)
+    // A * x + B * y + C * z + D = 0
 	Float A;
 	Float B;
 	Float C;
 	Float D;
-    // Length of the sides of a triangle
+    // Pre-calculated lengths of the sides of a triangle
     Float d_p1_p2;
     Float d_p2_p3;
     Float d_p3_p1;
-    // Square of triangle
+    // Pre-calculated square of triangle
     Float s;
 
     /************
