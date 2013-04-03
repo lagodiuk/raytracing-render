@@ -20,15 +20,15 @@
 #define CANVAS_W (MAX_X - MIN_X)
 #define CANVAS_H (MAX_Y - MIN_Y)
 
-#define BACKGROUND_COLOR rgb(0, 0, 0)
+#define BACKGROUND_COLOR rgb(255, 255, 255)
 
 #define ROTATE_LIGHT_SOURCES False
 
-void add_cube(Scene * scene, Point3d base, float a);
+void add_cube(Scene * scene, Point3d base, Float a, Material material);
 
 int main() {
     Scene * scene = new_scene(8, 1, BACKGROUND_COLOR);
-    add_cube(scene, point3d(-5, -5, -5), 100);
+    add_cube(scene, point3d(-5, -5, -5), 100, material(1, 5, 0, 0, 0));
     scene->light_sources[0] = light_source_3d(point3d(X_CAM, Y_CAM, Z_CAM), rgb(255, 255, 255));
     
     int i;
@@ -62,19 +62,19 @@ int main() {
 	return 0;
 }
 
-void add_cube(Scene * scene, Point3d base, float a) {
+void add_cube(Scene * scene, Point3d base, Float a, Material material) {
     scene->objects[0] = new_triangle(
                                      point3d(base.x, base.y, base.z),
                                      point3d(base.x + a, base.y, base.z),
                                      point3d(base.x, base.y + a, base.z),
                                      rgb(255, 0, 0),
-                                     material(1, 10, 0, 0, 0));
+                                     material);
     scene->objects[1] = new_triangle(
                                      point3d(base.x + a, base.y + a, base.z),
                                      point3d(base.x + a, base.y, base.z),
                                      point3d(base.x, base.y + a, base.z),
                                      rgb(255, 0, 0),
-                                     material(1, 10, 0, 0, 0));
+                                     material);
     
     
     scene->objects[2] = new_triangle(
@@ -82,37 +82,37 @@ void add_cube(Scene * scene, Point3d base, float a) {
                                      point3d(base.x + a, base.y, base.z + a),
                                      point3d(base.x, base.y + a, base.z + a),
                                      rgb(0, 255, 0),
-                                     material(1, 10, 0, 0, 0));
+                                     material);
     scene->objects[3] = new_triangle(
                                      point3d(base.x + a, base.y + a, base.z + a),
                                      point3d(base.x + a, base.y, base.z + a),
                                      point3d(base.x, base.y + a, base.z + a),
                                      rgb(0, 255, 0),
-                                     material(1, 10, 0, 0, 0));
+                                     material);
     
     scene->objects[4] = new_triangle(
                                      point3d(base.x, base.y, base.z),
                                      point3d(base.x, base.y + a, base.z),
                                      point3d(base.x, base.y + a, base.z + a),
                                      rgb(0, 0, 255),
-                                     material(1, 10, 0, 0, 0));
+                                     material);
     scene->objects[5] = new_triangle(
                                      point3d(base.x, base.y, base.z),
                                      point3d(base.x, base.y, base.z + a),
                                      point3d(base.x, base.y + a, base.z + a),
                                      rgb(0, 0, 255),
-                                     material(1, 10, 0, 0, 0));
+                                     material);
     
     scene->objects[6] = new_triangle(
                                      point3d(base.x + a, base.y, base.z),
                                      point3d(base.x + a, base.y + a, base.z),
                                      point3d(base.x + a, base.y + a, base.z + a),
                                      rgb(255, 255, 0),
-                                     material(1, 10, 0, 0, 0));
+                                     material);
     scene->objects[7] = new_triangle(
                                      point3d(base.x + a, base.y, base.z),
                                      point3d(base.x + a, base.y, base.z + a),
                                      point3d(base.x + a, base.y + a, base.z + a),
                                      rgb(255, 255, 0),
-                                     material(1, 10, 0, 0, 0));
+                                     material);
 }
