@@ -22,14 +22,27 @@
 
 #define BACKGROUND_COLOR rgb(255, 255, 255)
 
-#define ROTATE_LIGHT_SOURCES False
+#define ROTATE_LIGHT_SOURCES True
 
 void add_cube(Scene * scene, Point3d base, Float a, Material material);
 
 int main() {
-    Scene * scene = new_scene(8, 1, BACKGROUND_COLOR);
-    add_cube(scene, point3d(-5, -5, -5), 100, material(1, 5, 0, 0, 0));
-    scene->light_sources[0] = light_source_3d(point3d(X_CAM, Y_CAM, Z_CAM), rgb(255, 255, 255));
+    Scene * scene = new_scene(10, 1, BACKGROUND_COLOR);
+    scene->light_sources[0] = light_source_3d(point3d(-90, 90, 90), rgb(255, 255, 255));
+    
+    add_cube(scene, point3d(-50, -50, -50), 100, material(1, 5, 0, 0, 0));
+    scene->objects[8] = new_triangle(
+                                     point3d(-200, -200, -60),
+                                     point3d(200, -200, -60),
+                                     point3d(200, 200, -60),
+                                     rgb(255, 255, 255),
+                                     material(0, 1, 0, 0, 0));
+    scene->objects[9] = new_triangle(
+                                      point3d(-200, -200, -60),
+                                      point3d(-200, 200, -60),
+                                      point3d(200, 200, -60),
+                                      rgb(255, 255, 255),
+                                      material(0, 1, 0, 0, 0));
     
     int i;
     int j;
