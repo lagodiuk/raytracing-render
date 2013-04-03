@@ -138,19 +138,30 @@ void trace(Scene * scene,
     }
 
     if(nearest_obj) {
-        Color obj_color = nearest_obj->get_color(nearest_obj->data,
-                                        nearest_intersection_point,
-                                        scene->light_sources,
-                                        scene->light_sources_count);
+        Material material = nearest_obj->get_material(nearest_obj->data,
+                                                      nearest_intersection_point);
         
         Vector3d norm = nearest_obj->get_normal_vector(nearest_obj->data, nearest_intersection_point);
         
+        // Ambient
+        Color ambient_color = scene->background_color;
+        
+        // Diffuse
+        Color diffuse_color = nearest_obj->get_color(nearest_obj->data,
+                                        nearest_intersection_point,
+                                        scene->light_sources,
+                                        scene->light_sources_count);
         if(scene->light_sources_count) {
             Color light_color = get_lighting_color(nearest_intersection_point, norm, scene);
-            obj_color = mul_colors(obj_color, light_color);
+            diffuse_color = mul_colors(diffuse_color, light_color);
         }
         
-        *color = obj_color;
+        // Result
+        Color result_color = rgb(0, 0, 0);
+        result_color = add_colors(result_color, mul_color(ambient_color, material.Ka));
+        result_color = add_colors(result_color, mul_color(diffuse_color, material.Kd));
+        
+        *color = result_color;
         return;
     }
     
