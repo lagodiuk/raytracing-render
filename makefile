@@ -9,12 +9,13 @@ clean:
 # Canvas
 #
 
-color.o: ./canvas/source/color.c ./canvas/headers/color.h
-	mkdir -p ./canvas/lib
+canvas_lib_dir:
+	mkdir -p ./canvas/lib	
+
+color.o: ./canvas/source/color.c ./canvas/headers/color.h canvas_lib_dir
 	gcc -c ./canvas/source/color.c -I./canvas/headers/ -o ./canvas/lib/color.o
 
-canvas.o: ./canvas/source/canvas.c ./canvas/headers/canvas.h ./canvas/headers/color.h
-	mkdir -p ./canvas/lib
+canvas.o: ./canvas/source/canvas.c ./canvas/headers/canvas.h ./canvas/headers/color.h canvas_lib_dir
 	gcc -c ./canvas/source/canvas.c -I./canvas/headers/ -o ./canvas/lib/canvas.o
 
 canvas_lib: color.o canvas.o
@@ -26,16 +27,16 @@ canvas_lib: color.o canvas.o
 # Render
 #
 
-render.o: ./render/source/render.c ./render/headers/render.h ./canvas/headers/color.h
+render_lib_dir:
 	mkdir -p ./render/lib
+
+render.o: ./render/source/render.c ./render/headers/render.h ./canvas/headers/color.h render_lib_dir
 	gcc -c ./render/source/render.c -I./render/headers/ -I./canvas/headers/ -o ./render/lib/render.o
 
-utils.o: ./render/source/utils.c ./render/headers/utils.h ./render/headers/render.h
-	mkdir -p ./render/lib
+utils.o: ./render/source/utils.c ./render/headers/utils.h ./render/headers/render.h render_lib_dir
 	gcc -c ./render/source/utils.c -I./render/headers/ -I./canvas/headers/ -o ./render/lib/utils.o
 
-triangle.o: ./render/source/triangle.c ./render/headers/render.h ./canvas/headers/color.h
-	mkdir -p ./render/lib
+triangle.o: ./render/source/triangle.c ./render/headers/render.h ./canvas/headers/color.h render_lib_dir
 	gcc -c ./render/source/triangle.c -I./render/headers/ -I./canvas/headers/ -o ./render/lib/triangle.o
 
 render_lib: render.o utils.o triangle.o

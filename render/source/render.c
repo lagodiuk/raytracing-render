@@ -7,6 +7,8 @@
 
 int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene);
 
+Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene);
+
 /***************************************************
  *                Helpful functions                *
  ***************************************************/
@@ -131,30 +133,10 @@ void trace(Scene * scene,
                                         scene->light_sources,
                                         scene->light_sources_count);
         
+        Vector3d norm = nearest_obj->get_normal_vector(nearest_obj->data, nearest_intersection_point);
+        
         if(scene->light_sources_count) {
-            Color light_color = rgb(0, 0, 0);
-            
-            Vector3d norm = nearest_obj->get_normal_vector(nearest_obj->data, nearest_intersection_point);
-            normalize_vector(&norm);
-            
-            LightSource3d ls;
-            Vector3d v_ls;
-            Float cos_ls;
-            Color color_ls;
-            
-            for(i = 0; i < scene->light_sources_count; i++) {
-                ls = scene->light_sources[i];
-                
-                if(is_viewable(ls.location, nearest_intersection_point, scene)) {
-                    v_ls = vector3dp(nearest_intersection_point, ls.location);
-                    normalize_vector(&v_ls);
-                    
-                    cos_ls = fabs(cos_vectors(norm, v_ls));                    
-                    color_ls = mul_color(ls.color, cos_ls);
-                    light_color = add_colors(light_color, color_ls);
-                }
-            }
-            
+            Color light_color = get_lighting_color(nearest_intersection_point, norm, scene);
             obj_color = mul_colors(obj_color, light_color);
         }
         
@@ -163,6 +145,34 @@ void trace(Scene * scene,
     }
     
     *color = scene->background_color;
+}
+
+Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene) {
+    Color light_color = rgb(0, 0, 0);
+    
+    normalize_vector(&norm_v);
+    
+    LightSource3d ls;
+    Vector3d v_ls;
+    Float cos_ls;
+    Color color_ls;
+    int i;
+    
+    for(i = 0; i < scene->light_sources_count; i++) {
+        ls = scene->light_sources[i];
+        
+        // If not shaded
+        if(is_viewable(ls.location, point, scene)) {
+            v_ls = vector3dp(point, ls.location);
+            normalize_vector(&v_ls);
+            
+            cos_ls = fabs(cos_vectors(norm_v, v_ls));
+            color_ls = mul_color(ls.color, cos_ls);
+            light_color = add_colors(light_color, color_ls);
+        }
+    }
+    
+    return light_color;
 }
 
 int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene) {
