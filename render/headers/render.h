@@ -45,6 +45,9 @@ LightSource3d;
 
 typedef
 struct {
+    // Required:
+    // Ka + Kd + Ks + Kr + Kt = 1.0
+    
     // Ambient
     Float Ka;
     // Diffuse
@@ -56,8 +59,8 @@ struct {
     // Transparency
     Float Kt;
     
-    // Required:
-    // Ka + Kd + Ks + Kr + Kt = 1.0
+    // Ks * LightSource3d->color * ((cos(..))^p)
+    Float p;
 }
 Material;
 
@@ -119,7 +122,7 @@ inline Vector3d vector3df(Float x, Float y, Float z);
 
 inline LightSource3d light_source_3d(Point3d location, Color color);
 
-inline Material material(Float Ka, Float Kd, Float Ks, Float Kr, Float Kt);
+inline Material material(Float Ka, Float Kd, Float Ks, Float Kr, Float Kt, Float p);
 
 /***************************************************
  *                     Scene                       *
