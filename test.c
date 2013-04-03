@@ -67,44 +67,52 @@ void add_cube(Scene * scene, Point3d base, float a) {
                                      point3d(base.x, base.y, base.z),
                                      point3d(base.x + a, base.y, base.z),
                                      point3d(base.x, base.y + a, base.z),
-                                     rgb(255, 0, 0));
+                                     rgb(255, 0, 0),
+                                     material(1, 10, 0, 0, 0));
     scene->objects[1] = new_triangle(
                                      point3d(base.x + a, base.y + a, base.z),
                                      point3d(base.x + a, base.y, base.z),
                                      point3d(base.x, base.y + a, base.z),
-                                     rgb(255, 0, 0));
+                                     rgb(255, 0, 0),
+                                     material(1, 10, 0, 0, 0));
     
     
     scene->objects[2] = new_triangle(
                                      point3d(base.x, base.y, base.z + a),
                                      point3d(base.x + a, base.y, base.z + a),
                                      point3d(base.x, base.y + a, base.z + a),
-                                     rgb(0, 255, 0));
+                                     rgb(0, 255, 0),
+                                     material(1, 10, 0, 0, 0));
     scene->objects[3] = new_triangle(
                                      point3d(base.x + a, base.y + a, base.z + a),
                                      point3d(base.x + a, base.y, base.z + a),
                                      point3d(base.x, base.y + a, base.z + a),
-                                     rgb(0, 255, 0));
+                                     rgb(0, 255, 0),
+                                     material(1, 10, 0, 0, 0));
     
     scene->objects[4] = new_triangle(
                                      point3d(base.x, base.y, base.z),
                                      point3d(base.x, base.y + a, base.z),
                                      point3d(base.x, base.y + a, base.z + a),
-                                     rgb(0, 0, 255));
+                                     rgb(0, 0, 255),
+                                     material(1, 10, 0, 0, 0));
     scene->objects[5] = new_triangle(
                                      point3d(base.x, base.y, base.z),
                                      point3d(base.x, base.y, base.z + a),
                                      point3d(base.x, base.y + a, base.z + a),
-                                     rgb(0, 0, 255));
+                                     rgb(0, 0, 255),
+                                     material(1, 10, 0, 0, 0));
     
     scene->objects[6] = new_triangle(
                                      point3d(base.x + a, base.y, base.z),
                                      point3d(base.x + a, base.y + a, base.z),
                                      point3d(base.x + a, base.y + a, base.z + a),
-                                     rgb(255, 255, 0));
+                                     rgb(255, 255, 0),
+                                     material(1, 10, 0, 0, 0));
     scene->objects[7] = new_triangle(
                                      point3d(base.x + a, base.y, base.z),
                                      point3d(base.x + a, base.y, base.z + a),
                                      point3d(base.x + a, base.y + a, base.z + a),
-                                     rgb(255, 255, 0));
+                                     rgb(255, 255, 0),
+                                     material(1, 10, 0, 0, 0));
 }
