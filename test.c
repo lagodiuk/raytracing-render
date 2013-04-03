@@ -27,22 +27,23 @@
 void add_cube(Scene * scene, Point3d base, Float a, Material material);
 
 int main() {
-    Scene * scene = new_scene(14, 1, BACKGROUND_COLOR);
+    Scene * scene = new_scene(14, 2, BACKGROUND_COLOR);
     scene->light_sources[0] = light_source_3d(point3d(-90, 90, 90), rgb(255, 255, 255));
+    scene->light_sources[1] = light_source_3d(point3d(90, -90, 90), rgb(255, 255, 0));
     
     add_cube(scene, point3d(-50, -50, -50), 100, material(1, 5, 0, 0, 0));
     scene->objects[12] = new_triangle(
                                      point3d(-200, -200, -80),
                                      point3d(200, -200, -80),
                                      point3d(200, 200, -80),
-                                     rgb(255, 255, 255),
-                                     material(0, 1, 0, 10, 0));
+                                     rgb(55, 255, 55),
+                                     material(1, 3, 0, 10, 0));
     scene->objects[13] = new_triangle(
                                       point3d(-200, -200, -80),
                                       point3d(-200, 200, -80),
                                       point3d(200, 200, -80),
-                                      rgb(255, 255, 255),
-                                      material(0, 1, 0, 10, 0));
+                                      rgb(55, 255, 55),
+                                      material(1, 3, 0, 10, 0));
     
     int i;
     int j;
