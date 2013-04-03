@@ -145,11 +145,15 @@ void trace(Scene * scene,
         
         Vector3d norm = nearest_obj->get_normal_vector(nearest_obj->data, nearest_intersection_point);
         
+        Color ambient_color;
+        Color reflected_color;
+        Color diffuse_color;
+        
         // Ambient
-        Color ambient_color = scene->background_color;
+        ambient_color = scene->background_color;
         
         // Diffuse
-        Color diffuse_color = nearest_obj->get_color(nearest_obj->data,
+        diffuse_color = nearest_obj->get_color(nearest_obj->data,
                                         nearest_intersection_point,
                                         scene->light_sources,
                                         scene->light_sources_count);
@@ -158,10 +162,23 @@ void trace(Scene * scene,
             diffuse_color = mul_colors(diffuse_color, light_color);
         }
         
+        // Reflect
+        if(material.Kr) {
+            Vector3d reflected_ray = reflect_ray(vector, norm);
+            trace(scene, nearest_intersection_point, reflected_ray, &reflected_color);
+        }
+        
         // Result
         Color result_color = rgb(0, 0, 0);
-        result_color = add_colors(result_color, mul_color(ambient_color, material.Ka));
-        result_color = add_colors(result_color, mul_color(diffuse_color, material.Kd));
+        if(material.Ka) {
+            result_color = add_colors(result_color, mul_color(ambient_color, material.Ka));
+        }
+        if(material.Kd) {
+            result_color = add_colors(result_color, mul_color(diffuse_color, material.Kd));
+        }
+        if(material.Kr) {
+            result_color = add_colors(result_color, mul_color(reflected_color, material.Kr));
+        }
         
         *color = result_color;
         return;
@@ -227,9 +244,9 @@ inline Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v) {
     
     Float k = numerator / denominator;
     
-    Float x = norm_v.x * k - incident_ray.x;
-    Float y = norm_v.y * k - incident_ray.y;
-    Float z = norm_v.z * k - incident_ray.z;
+    Float x = incident_ray.x - norm_v.x * k;
+    Float y = incident_ray.y - norm_v.y * k;
+    Float z = incident_ray.z - norm_v.z * k;
     
     return vector3df(x, y, z);
 }
