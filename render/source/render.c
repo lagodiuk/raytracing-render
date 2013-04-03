@@ -5,6 +5,10 @@
 #include <render.h>
 #include <utils.h>
 
+#define INITIAL_RAY_INTENSITY 100
+#define THRESHOLD_RAY_INTENSITY 10
+#define MAX_RAY_ITERATIONS 10
+
 int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene);
 
 Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene);
@@ -12,6 +16,13 @@ Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene);
 Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, Float p);
 
 inline Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v);
+
+void trace_i(Scene * scene,
+             Point3d vector_start,
+             Vector3d vector,
+             Color * color,
+             Float intensity,
+             int iteration_num);
 
 /***************************************************
  *                Helpful functions                *
@@ -114,6 +125,21 @@ void trace(Scene * scene,
            Point3d vector_start,
            Vector3d vector,
            Color * color) {
+    
+    trace_i(scene,
+            vector_start,
+            vector,
+            color,
+            INITIAL_RAY_INTENSITY,
+            1);
+}
+
+void trace_i(Scene * scene,
+             Point3d vector_start,
+             Vector3d vector,
+             Color * color,
+             Float intensity,
+             int iteration_num) {
 
     normalize_vector(&vector);
     
@@ -179,8 +205,19 @@ void trace(Scene * scene,
         }
         
         // Reflect
-        if(material.Kr) {            
-            trace(scene, nearest_intersection_point, reflected_ray, &reflected_color);
+        if(material.Kr) {
+            // Avoid deep recursion by tracing rays, which have intensity is greather than threshold
+            // and avoid infinite recursion by limiting number of recursive calls
+            if((intensity > THRESHOLD_RAY_INTENSITY) && (iteration_num < MAX_RAY_ITERATIONS)) {
+                trace_i(scene,
+                        nearest_intersection_point,
+                        reflected_ray,
+                        &reflected_color,
+                        intensity * material.Kr,
+                        iteration_num + 1);
+            } else {
+                reflected_color = scene->background_color;
+            }
         }
         
         // Result
