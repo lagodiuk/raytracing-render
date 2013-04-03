@@ -9,6 +9,8 @@ int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene);
 
 Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene);
 
+Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, Float p);
+
 inline Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v);
 
 /***************************************************
@@ -44,13 +46,14 @@ inline LightSource3d light_source_3d(Point3d location, Color color) {
 	return l;
 }
 
-inline Material material(Float Ka, Float Kd, Float Ks, Float Kr, Float Kt) {
+inline Material material(Float Ka, Float Kd, Float Ks, Float Kr, Float Kt, Float p) {
     Float sum = Ka + Kd + Ks + Kr + Kt;
     Material m = {.Ka = Ka / sum,
                   .Kd = Kd / sum,
                   .Ks = Ks / sum,
                   .Kr = Kr / sum,
-                  .Kt = Kt / sum};
+                  .Kt = Kt / sum,
+                  .p = p};
     return m;
 }
 
@@ -148,6 +151,12 @@ void trace(Scene * scene,
         Color ambient_color;
         Color reflected_color;
         Color diffuse_color;
+        Color specular_color;
+        
+        Vector3d reflected_ray;
+        if((material.Ks) || (material.Kr)) {
+            reflected_ray = reflect_ray(vector, norm);
+        }
         
         // Ambient
         ambient_color = scene->background_color;
@@ -158,13 +167,19 @@ void trace(Scene * scene,
                                         scene->light_sources,
                                         scene->light_sources_count);
         if(scene->light_sources_count) {
-            Color light_color = get_lighting_color(nearest_intersection_point, norm, scene);
-            diffuse_color = mul_colors(diffuse_color, light_color);
+            if(material.Kd) {
+                Color light_color = get_lighting_color(nearest_intersection_point, norm, scene);
+                diffuse_color = mul_colors(diffuse_color, light_color);
+            }
+            
+            // Specular
+            if(material.Ks) {
+                specular_color = get_specular_color(nearest_intersection_point, reflected_ray, scene, material.p);
+            }
         }
         
         // Reflect
-        if(material.Kr) {
-            Vector3d reflected_ray = reflect_ray(vector, norm);
+        if(material.Kr) {            
             trace(scene, nearest_intersection_point, reflected_ray, &reflected_color);
         }
         
@@ -175,6 +190,9 @@ void trace(Scene * scene,
         }
         if(material.Kd) {
             result_color = add_colors(result_color, mul_color(diffuse_color, material.Kd));
+        }
+        if(material.Ks) {
+            result_color = add_colors(result_color, mul_color(specular_color, material.Ks));
         }
         if(material.Kr) {
             result_color = add_colors(result_color, mul_color(reflected_color, material.Kr));
@@ -208,6 +226,34 @@ Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene) {
             
             cos_ls = fabs(cos_vectors(norm_v, v_ls));
             color_ls = mul_color(ls.color, cos_ls);
+            light_color = add_colors(light_color, color_ls);
+        }
+    }
+    
+    return light_color;
+}
+
+Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, Float p) {
+    Color light_color = rgb(0, 0, 0);
+    
+    normalize_vector(&reflected_ray);
+    
+    LightSource3d ls;
+    Vector3d v_ls;
+    Float cos_ls;
+    Color color_ls;
+    int i;
+    
+    for(i = 0; i < scene->light_sources_count; i++) {
+        ls = scene->light_sources[i];
+        
+        // If not shaded
+        if(is_viewable(ls.location, point, scene)) {
+            v_ls = vector3dp(point, ls.location);
+            normalize_vector(&v_ls);
+            
+            cos_ls = fabs(cos_vectors(reflected_ray, v_ls));
+            color_ls = mul_color(ls.color, pow(cos_ls, p));
             light_color = add_colors(light_color, color_ls);
         }
     }
