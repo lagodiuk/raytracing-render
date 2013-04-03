@@ -42,6 +42,16 @@ inline LightSource3d light_source_3d(Point3d location, Color color) {
 	return l;
 }
 
+inline Material material(Float Ka, Float Kd, Float Ks, Float Kr, Float Kt) {
+    Float sum = Ka + Kd + Ks + Kr + Kt;
+    Material m = {.Ka = Ka / sum,
+                  .Kd = Kd / sum,
+                  .Ks = Ks / sum,
+                  .Kr = Kr / sum,
+                  .Kt = Kt / sum};
+    return m;
+}
+
 /***************************************************
  *                     Scene                       *
  ***************************************************/

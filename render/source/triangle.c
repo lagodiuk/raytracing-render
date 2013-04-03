@@ -41,6 +41,8 @@ struct {
      ************/
     
     Color color;
+
+    Material material;
 }
 Triangle3d;
 
@@ -65,8 +67,11 @@ int intersect_triangle(void * data,
 Vector3d get_triangle_normal_vector(void * data,
                                     Point3d intersection_point);
 
+Material get_triangle_material(void * data,
+                      Point3d intersection_point);
 
-Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
+
+Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color, Material material) {
 	Triangle3d * triangle = malloc(sizeof(Triangle3d));
 	triangle->p1w = p1;
 	triangle->p2w = p2;
@@ -80,6 +85,7 @@ Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
     triangle->d_p3_p1 = module_vector(vector3dp(p3, p1));
     triangle->s = herons_square(triangle->d_p1_p2, triangle->d_p2_p3, triangle->d_p3_p1);
     triangle->color = color;
+    triangle->material = material;
     
 	Object3d * obj = malloc(sizeof(Object3d));
 	obj->data = triangle;
@@ -88,6 +94,7 @@ Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color) {
 	obj->get_color = get_triangle_color;
 	obj->intersect = intersect_triangle;
     obj->get_normal_vector = get_triangle_normal_vector;
+    obj->get_material = get_triangle_material;
     
 	return obj;
 }
@@ -178,6 +185,12 @@ Vector3d get_triangle_normal_vector(void * data,
                                     Point3d intersection_point) {
   	Triangle3d * triangle = data;
     return vector3df(triangle->A, triangle->B, triangle->C);
+}
+
+Material get_triangle_material(void * data,
+                               Point3d intersection_point) {
+    Triangle3d * triangle = data;
+    return triangle->material;
 }
 
 void release_triangle_data(void * data) {

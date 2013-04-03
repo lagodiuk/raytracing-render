@@ -43,6 +43,24 @@ struct {
 }
 LightSource3d;
 
+typedef
+struct {
+    // Ambient
+    Float Ka;
+    // Diffuse
+    Float Kd;
+    // Specular
+    Float Ks;
+    // Reflection
+    Float Kr;
+    // Transparency
+    Float Kt;
+    
+    // Required:
+    // Ka + Kd + Ks + Kr + Kt = 1.0
+}
+Material;
+
 typedef 
 struct {
 	void * data;
@@ -65,6 +83,9 @@ struct {
     
     Vector3d (*get_normal_vector)(void * data,
                                   Point3d intersection_point);
+    
+    Material (*get_material)(void * data,
+                             Point3d intersection_point);
     
 	void (*release_data)(void * data);
 }
@@ -98,6 +119,8 @@ inline Vector3d vector3df(Float x, Float y, Float z);
 
 inline LightSource3d light_source_3d(Point3d location, Color color);
 
+inline Material material(Float Ka, Float Kd, Float Ks, Float Kr, Float Kt);
+
 /***************************************************
  *                     Scene                       *
  ***************************************************/
@@ -117,6 +140,6 @@ void trace(Scene * scene,
  *              3D objects construction            *
  ***************************************************/
 
-Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color);
+Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color, Material material);
 
 #endif
