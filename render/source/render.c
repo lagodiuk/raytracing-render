@@ -9,6 +9,8 @@ int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene);
 
 Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene);
 
+inline Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v);
+
 /***************************************************
  *                Helpful functions                *
  ***************************************************/
@@ -215,4 +217,19 @@ int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene) {
     
     // Ray doesn't intersect any of scene objects
     return 1;
+}
+
+inline Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v) {
+    Float numerator = 2 * (incident_ray.x * norm_v.x + incident_ray.y * norm_v.y + incident_ray.z * norm_v.z);
+    
+    Float norm_module = module_vector(norm_v);
+    Float denominator = norm_module * norm_module;
+    
+    Float k = numerator / denominator;
+    
+    Float x = norm_v.x * k - incident_ray.x;
+    Float y = norm_v.y * k - incident_ray.y;
+    Float z = norm_v.z * k - incident_ray.z;
+    
+    return vector3df(x, y, z);
 }
