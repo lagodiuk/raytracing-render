@@ -99,10 +99,12 @@ struct {
     // Array of pointers to 3d objects of scene
     Object3d ** objects;
     int objects_count;
+    int last_object_index;
     
     // Array of pointers to light sources
     LightSource3d ** light_sources;
     int light_sources_count;
+    int last_light_source_index;
     
     Color background_color;
 }
@@ -133,6 +135,10 @@ inline Scene * new_scene(int objects_count, int light_sources_count, Color backg
 inline void release_scene(Scene * scene);
 
 void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_sources);
+
+inline void add_object(Scene * scene, Object3d * object);
+
+inline void add_light_source(Scene * scene, LightSource3d * light_source);
 
 void trace(Scene * scene,
           Point3d vector_start,
