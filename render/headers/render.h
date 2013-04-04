@@ -80,9 +80,7 @@ struct {
                      Point3d * intersection_point);
     
 	Color (*get_color)(void * data,
-                       Point3d intersection_point,
-                       LightSource3d * light_sources,
-                       int light_sources_count);
+                       Point3d intersection_point);
     
     Vector3d (*get_normal_vector)(void * data,
                                   Point3d intersection_point);

@@ -203,9 +203,11 @@ void trace_i(Scene * scene,
         
         Vector3d norm = nearest_obj->get_normal_vector(nearest_obj->data, nearest_intersection_point);
         
+        Color obj_color = nearest_obj->get_color(nearest_obj->data,
+                                                 nearest_intersection_point);
         Color ambient_color;
-        Color reflected_color;
         Color diffuse_color;
+        Color reflected_color;
         Color specular_color;
         
         Vector3d reflected_ray;
@@ -214,24 +216,27 @@ void trace_i(Scene * scene,
         }
         
         // Ambient
-        ambient_color = scene->background_color;
+        if(material.Ka) {
+            ambient_color = mul_colors(scene->background_color, obj_color);
+        }
         
         // Diffuse
-        diffuse_color = nearest_obj->get_color(nearest_obj->data,
-                                        nearest_intersection_point,
-                                        scene->light_sources,
-                                        scene->light_sources_count);
-        if(scene->light_sources_count) {
-            if(material.Kd) {
-                Color light_color = get_lighting_color(nearest_intersection_point, norm, scene);
-                diffuse_color = mul_colors(diffuse_color, light_color);
+       if(material.Kd) {
+           diffuse_color = obj_color;
+           if(scene->light_sources_count) {
+               Color light_color = get_lighting_color(nearest_intersection_point, norm, scene);
+               diffuse_color = mul_colors(diffuse_color, light_color);
             }
+       }
             
-            // Specular
-            if(material.Ks) {
+        // Specular
+        if(material.Ks) {
+            specular_color = scene->background_color;
+            if(scene->light_sources_count) {
                 specular_color = get_specular_color(nearest_intersection_point, reflected_ray, scene, material.p);
             }
         }
+        
         
         // Reflect
         if(material.Kr) {
