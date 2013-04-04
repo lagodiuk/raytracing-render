@@ -84,6 +84,8 @@ inline Scene * new_scene(int objects_count, int light_sources_count, Color backg
     }
     s->light_sources_count = light_sources_count;
     s->background_color = background_color;
+    s->last_object_index = -1;
+    s->last_light_source_index = -1;
     return s;
 }
 
@@ -136,6 +138,14 @@ void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_source
             }
         }
     }
+}
+
+inline void add_object(Scene * scene, Object3d * object) {
+    scene->objects[++scene->last_object_index] = object;
+}
+
+inline void add_light_source(Scene * scene, LightSource3d * light_source) {
+    scene->light_sources[++scene->last_light_source_index] = light_source;
 }
 
 void trace(Scene * scene,
