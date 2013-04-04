@@ -211,7 +211,7 @@ void trace_i(Scene * scene,
 
     // Finding nearest object
     // and intersection point
-    for(i = 0; i < scene->objects_count; i++) {
+    for(i = 0; i < scene->last_object_index; i++) {
         if(scene->objects[i]) {
             obj = scene->objects[i];
         
@@ -325,7 +325,7 @@ Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene) {
     Color color_ls;
     int i;
     
-    for(i = 0; i < scene->light_sources_count; i++) {
+    for(i = 0; i < scene->last_light_source_index; i++) {
         if(scene->light_sources[i]) {
             ls = scene->light_sources[i];
         
@@ -355,7 +355,7 @@ Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, F
     Color color_ls;
     int i;
     
-    for(i = 0; i < scene->light_sources_count; i++) {
+    for(i = 0; i < scene->last_light_source_index; i++) {
         if(scene->light_sources[i]) {
             ls = scene->light_sources[i];
         
@@ -381,7 +381,7 @@ int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene) {
     
     int i;
     Object3d * obj = NULL;
-    for(i = 0; i < scene->objects_count; i++) {
+    for(i = 0; i < scene->last_object_index; i++) {
         if(scene->objects[i]) {
             obj = scene->objects[i];
         
