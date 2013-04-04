@@ -3,19 +3,19 @@
 #include <canvas.h>
 #include <render.h>
 
-#define PICTURES 60
+#define PICTURES 80
 
 #define PROJ_PLANE_Z 50
 
 #define X_CAM -0
-#define Y_CAM -0
+#define Y_CAM 40
 #define Z_CAM -240
 
 #define MIN_X -100
 #define MAX_X 100
 
 #define MIN_Y -100
-#define MAX_Y 100
+#define MAX_Y 30
 
 #define CANVAS_W (MAX_X - MIN_X)
 #define CANVAS_H (MAX_Y - MIN_Y)
@@ -35,14 +35,14 @@ void add_pyramid(Scene * scene,
                  Material material, Color color);
 
 int main() {
-    Scene * scene = new_scene(500, 20, BACKGROUND_COLOR);
+    Scene * scene = new_scene(100, 5, BACKGROUND_COLOR);
     
     add_light_source(scene, light_source_3d(point3d(-90, 90, 90), rgb(255, 255, 255)));
     add_light_source(scene, light_source_3d(point3d(90, -90, 90), rgb(255, 255, 0)));
     
-    add_cube(scene, point3d(80, 80, -50), 100, material(1, 5, 0, 0, 0, 0));
+    add_cube(scene, point3d(60, 60, -60), 90, material(3, 5, 0, 0, 0, 0));
     
-    Float pyramid_edge = 150;
+    Float pyramid_edge = 200;
     add_serpinsky_pyramid(scene, 2,
                           point3d(-pyramid_edge/2, -pyramid_edge * 0.87 / 2, 0),
                           point3d(pyramid_edge/2, -pyramid_edge * 0.87 / 2, 0),
@@ -76,11 +76,11 @@ int main() {
     for(k = 1; k <= PICTURES; k++) {
         rotate_scene(scene, k * delta_al, M_PI * 3 / 5, ROTATE_LIGHT_SOURCES);
         
-        for(i = MIN_X; i <= MAX_X; i++) {
-            for(j = MIN_Y; j <= MAX_Y; j++) {
+        for(i = MIN_X; i < MAX_X; i++) {
+            for(j = MIN_Y; j < MAX_Y; j++) {
                 trace(scene, camera_point, vector3df(i, j, PROJ_PLANE_Z), &col);
                 
-                set_pixel(i + CANVAS_W / 2, j + CANVAS_H / 2, col, canv);
+                set_pixel(i - MIN_X, j - MIN_Y, col, canv);
             }
         }
         

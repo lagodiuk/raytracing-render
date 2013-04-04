@@ -55,9 +55,7 @@ void rotate_triangle(void * data,
                      Float cos_be);
 
 Color get_triangle_color(void * data,
-                         Point3d intersection_point,
-                         LightSource3d * light_sources,
-                         int light_sources_count);
+                         Point3d intersection_point);
 
 int intersect_triangle(void * data,
                        Point3d vector_start,
@@ -174,9 +172,7 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
 }
 
 Color get_triangle_color(void * data,
-                         Point3d intersection_point,
-                         LightSource3d * light_sources,
-                         int light_sources_count) {
+                         Point3d intersection_point) {
 	Triangle3d * triangle = data;
 	return triangle->color;
 }
