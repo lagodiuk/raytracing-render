@@ -17,6 +17,8 @@ Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, F
 
 inline Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v);
 
+inline Float exponential_fog_density(Float distance, void * fog_data);
+
 void trace_i(Scene * scene,
              Point3d vector_start,
              Vector3d vector,
@@ -107,6 +109,10 @@ inline void release_scene(Scene * scene) {
     free(scene->objects);
     free(scene->light_sources);
     
+    if(scene->fog_parameters) {
+        free(scene->fog_parameters);
+    }
+    
     free(scene);
 }
 
@@ -146,6 +152,30 @@ inline void add_object(Scene * scene, Object3d * object) {
 
 inline void add_light_source(Scene * scene, LightSource3d * light_source) {
     scene->light_sources[++scene->last_light_source_index] = light_source;
+}
+
+inline void set_exponential_fog(Scene * scene, Float k) {
+    scene->fog_density = exponential_fog_density;
+    
+    Float * k_p = malloc(sizeof(Float));
+    *k_p = k;
+    
+    if(scene->fog_parameters) {
+        free(scene->fog_parameters);
+    }
+    scene->fog_parameters = k_p;
+}
+
+inline void set_no_fog(Scene * scene) {
+    if(scene->fog_parameters) {
+        free(scene->fog_parameters);
+    }
+    scene->fog_density = NULL;
+}
+
+inline Float exponential_fog_density(Float distance, void * fog_data) {
+    Float * k = (Float *) fog_data;
+    return 1 - exp(- (*k) * distance);
 }
 
 void trace(Scene * scene,
@@ -267,6 +297,14 @@ void trace_i(Scene * scene,
         }
         if(material.Kr) {
             result_color = add_colors(result_color, mul_color(reflected_color, material.Kr));
+        }
+        
+        if(scene->fog_density) {
+            Float distance_to_intersection = module_vector(vector3dp(vector_start, nearest_intersection_point));
+            Float fog_density = scene->fog_density(distance_to_intersection, scene->fog_parameters);
+            result_color = add_colors(
+                                      mul_color(scene->background_color, fog_density),
+                                      mul_color(result_color, 1 - fog_density));
         }
         
         *color = result_color;
