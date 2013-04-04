@@ -100,8 +100,8 @@ struct {
     Object3d ** objects;
     int objects_count;
     
-    // Array of light sources
-    LightSource3d * light_sources;
+    // Array of pointers to light sources
+    LightSource3d ** light_sources;
     int light_sources_count;
     
     Color background_color;
@@ -120,7 +120,7 @@ inline Vector3d vector3dp(Point3d start_point, Point3d end_point);
 
 inline Vector3d vector3df(Float x, Float y, Float z);
 
-inline LightSource3d light_source_3d(Point3d location, Color color);
+inline LightSource3d * light_source_3d(Point3d location, Color color);
 
 inline Material material(Float Ka, Float Kd, Float Ks, Float Kr, Float Kt, Float p);
 

@@ -27,7 +27,7 @@
 void add_cube(Scene * scene, Point3d base, Float a, Material material);
 
 int main() {
-    Scene * scene = new_scene(14, 2, BACKGROUND_COLOR);
+    Scene * scene = new_scene(100, 20, BACKGROUND_COLOR);
     scene->light_sources[0] = light_source_3d(point3d(-90, 90, 90), rgb(255, 255, 255));
     scene->light_sources[1] = light_source_3d(point3d(90, -90, 90), rgb(255, 255, 0));
     
