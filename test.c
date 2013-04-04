@@ -40,15 +40,15 @@ int main() {
     add_light_source(scene, light_source_3d(point3d(-90, 90, 90), rgb(255, 255, 255)));
     add_light_source(scene, light_source_3d(point3d(90, -90, 90), rgb(255, 255, 0)));
     
-    add_cube(scene, point3d(60, 60, -60), 90, material(3, 5, 0, 0, 0, 0));
+    add_cube(scene, point3d(60, 60, -60), 90, material(3, 7, 0, 0, 0, 0));
     
     Float pyramid_edge = 200;
     add_serpinsky_pyramid(scene, 2,
-                          point3d(-pyramid_edge/2, -pyramid_edge * 0.87 / 2, 0),
-                          point3d(pyramid_edge/2, -pyramid_edge * 0.87 / 2, 0),
-                          point3d(0, pyramid_edge * 0.87 / 2, 0),
-                          point3d(0, 0, pyramid_edge * 0.87),
-                          material(1, 5, 0, 0, 0, 0), rgb(200, 230, 40));
+                          point3d(-pyramid_edge/2 + 5, -pyramid_edge * 0.87 / 2 + 5, 0),
+                          point3d(pyramid_edge/2 + 5, -pyramid_edge * 0.87 / 2 + 5, 0),
+                          point3d(5, pyramid_edge * 0.87 / 2 + 5, 0),
+                          point3d(5, 5, pyramid_edge * 0.87),
+                          material(1, 5, 0, 0, 0, 0), rgb(240, 210, 40));
     
     add_object(scene, new_triangle(
                                      point3d(-300, -300, -80),
