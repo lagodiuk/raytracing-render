@@ -105,6 +105,10 @@ struct {
     int last_light_source_index;
     
     Color background_color;
+    
+    // Required to return value from interval [0..1]
+    Float (*fog_density)(Float distance, void * fog_parameters);
+    void * fog_parameters;
 }
 Scene;
 
@@ -137,6 +141,10 @@ void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_source
 inline void add_object(Scene * scene, Object3d * object);
 
 inline void add_light_source(Scene * scene, LightSource3d * light_source);
+
+inline void set_exponential_fog(Scene * scene, Float k);
+
+inline void set_no_fog(Scene * scene);
 
 void trace(Scene * scene,
           Point3d vector_start,
