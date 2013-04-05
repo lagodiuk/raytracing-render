@@ -1,57 +1,76 @@
-clean:
-	rm -f ./test
-	rm -f *.bmp
-	rm -f *.mp4
-	rm -rf ./canvas/lib
-	rm -rf ./render/lib
+render_dir 	=	./render/lib
+render_lib	=	$(render_dir)/librender.a
+
+canvas_dir	=	./canvas/lib
+canvas_lib 	=	$(canvas_dir)/libcanvas.a
+
+LIBPATH		=	$(addprefix -L, $(render_dir) $(canvas_dir))
+INCLUDES	=	-g $(addprefix -I, ./render/headers ./canvas/headers)
+LINKLIBS	= 	-lcanvas -lrender -lm
+
+frame_dir	=	./frames
+
+#
+# Test applications
+#
+
+test_video: test $(frame_dir)
+	cd $(frame_dir) && ../test
+	ffmpeg -qscale 2 -r 10 -b 10M  -i '$(frame_dir)/out_%03d.bmp'  movie.mp4
+
+test: test.c scene1.h scene1.o $(canvas_lib) $(render_lib)
+	gcc -O test.c scene1.o $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@
+
+test_gl: $(canvas_lib) $(render_lib) scene1.o scene1.h test_gl.c
+	gcc test_gl.c scene1.o $(INCLUDES) $(LIBPATH) $(LINKLIBS) -lglut -o $@ \
+		&& ./$@
+
+$(frame_dir):
+	mkdir -p $@
+
+scene1.o: scene1.c
+	gcc -c $< $(INCLUDES) -o $@
 
 #
 # Canvas
 #
 
-canvas_lib_dir:
-	mkdir -p ./canvas/lib	
+$(canvas_dir):
+	mkdir -p $@
 
-color.o: ./canvas/source/color.c ./canvas/headers/color.h canvas_lib_dir
-	gcc -c ./canvas/source/color.c -I./canvas/headers/ -o ./canvas/lib/color.o
+$(canvas_dir)/color.o: ./canvas/source/color.c ./canvas/headers/color.h $(canvas_dir)
+	gcc -c ./canvas/source/color.c -I./canvas/headers/ -o $@
 
-canvas.o: ./canvas/source/canvas.c ./canvas/headers/canvas.h ./canvas/headers/color.h canvas_lib_dir
-	gcc -c ./canvas/source/canvas.c -I./canvas/headers/ -o ./canvas/lib/canvas.o
+$(canvas_dir)/canvas.o: ./canvas/source/canvas.c ./canvas/headers/canvas.h ./canvas/headers/color.h $(canvas_dir)
+	gcc -c ./canvas/source/canvas.c -I./canvas/headers/ -o $@
 
-canvas_lib: color.o canvas.o
-	ar -rcs ./canvas/lib/libcanvas.a ./canvas/lib/color.o ./canvas/lib/canvas.o
-	rm ./canvas/lib/color.o
-	rm ./canvas/lib/canvas.o
+$(canvas_lib): $(canvas_dir)/color.o $(canvas_dir)/canvas.o
+	ar -rcs $@ $^
 
 #
 # Render
 #
 
-render_lib_dir:
-	mkdir -p ./render/lib
+$(render_dir):
+	mkdir -p $@
 
-render.o: ./render/source/render.c ./render/headers/render.h ./canvas/headers/color.h render_lib_dir
-	gcc -c ./render/source/render.c -I./render/headers/ -I./canvas/headers/ -o ./render/lib/render.o
+$(render_dir)/render.o: ./render/source/render.c ./render/headers/render.h ./canvas/headers/color.h $(render_dir)
+	gcc -c ./render/source/render.c $(INCLUDES) -o $@
 
-utils.o: ./render/source/utils.c ./render/headers/utils.h ./render/headers/render.h render_lib_dir
-	gcc -c ./render/source/utils.c -I./render/headers/ -I./canvas/headers/ -o ./render/lib/utils.o
+$(render_dir)/utils.o: ./render/source/utils.c ./render/headers/utils.h ./render/headers/render.h $(render_dir)
+	gcc -c ./render/source/utils.c $(INCLUDES) -o $@
 
-triangle.o: ./render/source/triangle.c ./render/headers/render.h ./canvas/headers/color.h render_lib_dir
-	gcc -c ./render/source/triangle.c -I./render/headers/ -I./canvas/headers/ -o ./render/lib/triangle.o
+$(render_dir)/triangle.o: ./render/source/triangle.c ./render/headers/render.h ./canvas/headers/color.h $(render_dir)
+	gcc -c ./render/source/triangle.c $(INCLUDES) -o $@
 
-render_lib: render.o utils.o triangle.o
-	ar -rcs ./render/lib/librender.a ./render/lib/render.o ./render/lib/utils.o ./render/lib/triangle.o
-	rm ./render/lib/render.o
-	rm ./render/lib/utils.o
-	rm ./render/lib/triangle.o
+$(render_lib): $(render_dir)/render.o $(render_dir)/utils.o $(render_dir)/triangle.o
+	ar -rcs $@ $^
 
 #
-# Test application
+# Routines
 #
-
-test: test.c canvas_lib render_lib
-	gcc -O test.c -I./render/headers/ -I./canvas/headers/ -L./render/lib/ -L./canvas/lib/ -lcanvas -lrender -o test
-
-test_video: test
-	./test
-	ffmpeg -qscale 2 -r 10 -b 10M  -i 'out_%03d.bmp'  movie.mp4
+.PHONY: clean
+clean:
+	rm -f ./test ./test_gl;     \
+	rm -f *.mp4;                \
+	rm -rf $(canvas_dir) $(render_dir) $(frame_dir)
