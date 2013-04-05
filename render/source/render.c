@@ -88,6 +88,7 @@ inline Scene * new_scene(int objects_count, int light_sources_count, Color backg
     s->background_color = background_color;
     s->last_object_index = -1;
     s->last_light_source_index = -1;
+    s->fog_parameters = NULL;
     return s;
 }
 
