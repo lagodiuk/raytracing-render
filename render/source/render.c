@@ -89,6 +89,7 @@ inline Scene * new_scene(int objects_count, int light_sources_count, Color backg
     s->last_object_index = -1;
     s->last_light_source_index = -1;
     s->fog_parameters = NULL;
+    s->fog_density = NULL;
     return s;
 }
 
@@ -212,7 +213,7 @@ void trace_i(Scene * scene,
 
     // Finding nearest object
     // and intersection point
-    for(i = 0; i < scene->last_object_index; i++) {
+    for(i = 0; i < scene->last_object_index + 1; i++) {
         if(scene->objects[i]) {
             obj = scene->objects[i];
         
