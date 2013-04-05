@@ -23,6 +23,8 @@
 #include "canvas.h"
 #include "render.h"
 
+Scene *makeScene(void);
+
 void add_cube(Scene * scene, Point3d base, Float a, Material material);
 
 void add_serpinsky_pyramid(Scene * scene, int depth,
