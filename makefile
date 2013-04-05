@@ -1,3 +1,16 @@
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Darwin)
+CC_OPTS_TEST_GL = -framework GLUT -framework OpenGL -DDARWIN
+endif
+
+ifeq ($(UNAME), Linux)
+CC_OPTS_TEST_GL = -lglut -DPOSIX
+endif
+
+# Generating by gcc in Mac OS
+d_sym	= *.dSYM
+
 render_dir 	=	./render/lib
 render_lib	=	$(render_dir)/librender.a
 
@@ -22,7 +35,7 @@ test: test.c scene1.h scene1.o $(canvas_lib) $(render_lib)
 	gcc -O test.c scene1.o $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@
 
 test_gl: $(canvas_lib) $(render_lib) scene1.o scene1.h test_gl.c
-	gcc test_gl.c scene1.o $(INCLUDES) $(LIBPATH) $(LINKLIBS) -lglut -o $@ \
+	gcc test_gl.c scene1.o $(CC_OPTS_TEST_GL) $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@ \
 		&& ./$@
 
 $(frame_dir):
@@ -71,6 +84,7 @@ $(render_lib): $(render_dir)/render.o $(render_dir)/utils.o $(render_dir)/triang
 #
 .PHONY: clean
 clean:
+	rm -f *.o; \
 	rm -f ./test ./test_gl;     \
 	rm -f *.mp4;                \
-	rm -rf $(canvas_dir) $(render_dir) $(frame_dir)
+	rm -rf $(canvas_dir) $(render_dir) $(frame_dir) $(d_sym)
