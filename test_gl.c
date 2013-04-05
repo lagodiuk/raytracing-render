@@ -2,8 +2,17 @@
 #include <stdio.h>
 #include <math.h>
 
+// Mac OS X
+#ifdef DARWIN
+#include <OpenGL/gl.h>
+#include <GLUT/glut.h>
+#endif
+
+// The Rest of the World
+#ifdef POSIX
 #include <GL/gl.h>
 #include <GL/glut.h>
+#endif
 
 #include "canvas.h"
 #include "render.h"
