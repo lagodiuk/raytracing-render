@@ -95,6 +95,8 @@ inline Material material(Float Ka, Float Kd, Float Ks, Float Kr, Float Kt, Float
 
 inline Scene * new_scene(int objects_count, int light_sources_count, Color background_color) {
     Scene * s = malloc(sizeof(Scene));
+    s->al = 0;
+    s->be = 0;
     s->objects_count=objects_count;
     s->objects = calloc(objects_count, sizeof(Object3d *));
     if(light_sources_count) {
@@ -135,6 +137,9 @@ inline void release_scene(Scene * scene) {
 }
 
 void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_sources) {
+    scene->al = al;
+    scene->be = be;
+    
     // Pre-calculating of trigonometric functions
     Float sin_al = sin(al);
     Float cos_al = cos(al);
@@ -165,6 +170,13 @@ void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_source
 }
 
 inline void add_object(Scene * scene, Object3d * object) {
+    Float sin_al = sin(scene->al);
+    Float cos_al = cos(scene->al);
+    Float sin_be = sin(scene->be);
+    Float cos_be = cos(scene->be);
+    
+    object->rotate(object->data, sin_al, cos_al, sin_be, cos_be);
+    
     scene->objects[++scene->last_object_index] = object;
 }
 
