@@ -26,6 +26,22 @@ void trace_i(Scene * scene,
              Float intensity,
              int iteration_num);
 
+void find_intersection(Scene * scene,
+                       Point3d vector_start,
+                       Vector3d vector,
+                       Object3d ** nearest_obj_ptr,
+                       Point3d * nearest_intersection_point_ptr,
+                       Float * nearest_intersection_point_dist_ptr);
+
+Color calculate_color(Scene * scene,
+                      Point3d vector_start,
+                      Vector3d vector,
+                      Object3d ** obj_ptr,
+                      Point3d * point_ptr,
+                      Float * dist_ptr,
+                      Float intensity,
+                      int iteration_num);
+
 /***************************************************
  *                Helpful functions                *
  ***************************************************/
@@ -206,114 +222,149 @@ void trace_i(Scene * scene,
     Point3d nearest_intersection_point;
     Float nearest_intersection_point_dist = FLOAT_MAX;
 
+    find_intersection(scene,
+                      vector_start,
+                      vector,
+                      &nearest_obj,
+                      &nearest_intersection_point,
+                      &nearest_intersection_point_dist);
+
+    if(nearest_obj) {
+        *color = calculate_color(scene,
+                                 vector_start,
+                                 vector,
+                                 &nearest_obj,
+                                 &nearest_intersection_point,
+                                 &nearest_intersection_point_dist,
+                                 intensity,
+                                 iteration_num);
+        return;
+    }
+    
+    *color = scene->background_color;
+}
+
+void find_intersection(Scene * scene,
+                       Point3d vector_start,
+                       Vector3d vector,
+                       Object3d ** nearest_obj_ptr,
+                       Point3d * nearest_intersection_point_ptr,
+                       Float * nearest_intersection_point_dist_ptr) {
     int i;
     Object3d * obj = NULL;
     Point3d intersection_point;
     Float curr_intersection_point_dist;
-
+    
     // Finding nearest object
     // and intersection point
     for(i = 0; i < scene->last_object_index + 1; i++) {
         if(scene->objects[i]) {
             obj = scene->objects[i];
-        
+            
             if(obj->intersect(obj->data, vector_start, vector, &intersection_point)) {
                 curr_intersection_point_dist = module_vector(vector3dp(vector_start, intersection_point));
-            
-                if(curr_intersection_point_dist < nearest_intersection_point_dist) {
-                    nearest_obj = obj;
-                    nearest_intersection_point = intersection_point;
-                    nearest_intersection_point_dist = curr_intersection_point_dist;
+                
+                if(curr_intersection_point_dist < *nearest_intersection_point_dist_ptr) {
+                    *nearest_obj_ptr = obj;
+                    *nearest_intersection_point_ptr = intersection_point;
+                    *nearest_intersection_point_dist_ptr = curr_intersection_point_dist;
                 }
             }
         }
     }
+}
 
-    if(nearest_obj) {
-        Material material = nearest_obj->get_material(nearest_obj->data,
-                                                      nearest_intersection_point);
-        
-        Vector3d norm = nearest_obj->get_normal_vector(nearest_obj->data, nearest_intersection_point);
-        
-        Color obj_color = nearest_obj->get_color(nearest_obj->data,
-                                                 nearest_intersection_point);
-        Color ambient_color;
-        Color diffuse_color;
-        Color reflected_color;
-        Color specular_color;
-        
-        Vector3d reflected_ray;
-        if((material.Ks) || (material.Kr)) {
-            reflected_ray = reflect_ray(vector, norm);
-        }
-        
-        // Ambient
-        if(material.Ka) {
-            ambient_color = mul_colors(scene->background_color, obj_color);
-        }
-        
-        // Diffuse
-       if(material.Kd) {
-           diffuse_color = obj_color;
-           if(scene->light_sources_count) {
-               Color light_color = get_lighting_color(nearest_intersection_point, norm, scene);
-               diffuse_color = mul_colors(diffuse_color, light_color);
-            }
-       }
-            
-        // Specular
-        if(material.Ks) {
-            specular_color = scene->background_color;
-            if(scene->light_sources_count) {
-                specular_color = get_specular_color(nearest_intersection_point, reflected_ray, scene, material.p);
-            }
-        }
-        
-        
-        // Reflect
-        if(material.Kr) {
-            // Avoid deep recursion by tracing rays, which have intensity is greather than threshold
-            // and avoid infinite recursion by limiting number of recursive calls
-            if((intensity > THRESHOLD_RAY_INTENSITY) && (iteration_num < MAX_RAY_ITERATIONS)) {
-                trace_i(scene,
-                        nearest_intersection_point,
-                        reflected_ray,
-                        &reflected_color,
-                        intensity * material.Kr,
-                        iteration_num + 1);
-            } else {
-                reflected_color = scene->background_color;
-            }
-        }
-        
-        // Result
-        Color result_color = rgb(0, 0, 0);
-        if(material.Ka) {
-            result_color = add_colors(result_color, mul_color(ambient_color, material.Ka));
-        }
-        if(material.Kd) {
-            result_color = add_colors(result_color, mul_color(diffuse_color, material.Kd));
-        }
-        if(material.Ks) {
-            result_color = add_colors(result_color, mul_color(specular_color, material.Ks));
-        }
-        if(material.Kr) {
-            result_color = add_colors(result_color, mul_color(reflected_color, material.Kr));
-        }
-        
-        if(scene->fog_density) {
-            Float distance_to_intersection = module_vector(vector3dp(vector_start, nearest_intersection_point));
-            Float fog_density = scene->fog_density(distance_to_intersection, scene->fog_parameters);
-            result_color = add_colors(
-                                      mul_color(scene->background_color, fog_density),
-                                      mul_color(result_color, 1 - fog_density));
-        }
-        
-        *color = result_color;
-        return;
+Color calculate_color(Scene * scene,
+                     Point3d vector_start,
+                     Vector3d vector,
+                     Object3d ** obj_ptr,
+                     Point3d * point_ptr,
+                     Float * dist_ptr,
+                     Float intensity,
+                     int iteration_num) {
+
+    Object3d * obj = *obj_ptr;
+    Point3d point = *point_ptr;
+    Float dist = *dist_ptr;
+    
+    
+    Material material = obj->get_material(obj->data, point);
+    
+    Vector3d norm = obj->get_normal_vector(obj->data, point);
+    
+    Color obj_color = obj->get_color(obj->data, point);
+    Color ambient_color;
+    Color diffuse_color;
+    Color reflected_color;
+    Color specular_color;
+    
+    Vector3d reflected_ray;
+    if((material.Ks) || (material.Kr)) {
+        reflected_ray = reflect_ray(vector, norm);
     }
     
-    *color = scene->background_color;
+    // Ambient
+    if(material.Ka) {
+        ambient_color = mul_colors(scene->background_color, obj_color);
+    }
+    
+    // Diffuse
+    if(material.Kd) {
+        diffuse_color = obj_color;
+        if(scene->light_sources_count) {
+            Color light_color = get_lighting_color(point, norm, scene);
+            diffuse_color = mul_colors(diffuse_color, light_color);
+        }
+    }
+    
+    // Specular
+    if(material.Ks) {
+        specular_color = scene->background_color;
+        if(scene->light_sources_count) {
+            specular_color = get_specular_color(point, reflected_ray, scene, material.p);
+        }
+    }
+    
+    
+    // Reflect
+    if(material.Kr) {
+        // Avoid deep recursion by tracing rays, which have intensity is greather than threshold
+        // and avoid infinite recursion by limiting number of recursive calls
+        if((intensity > THRESHOLD_RAY_INTENSITY) && (iteration_num < MAX_RAY_ITERATIONS)) {
+            trace_i(scene,
+                    point,
+                    reflected_ray,
+                    &reflected_color,
+                    intensity * material.Kr,
+                    iteration_num + 1);
+        } else {
+            reflected_color = scene->background_color;
+        }
+    }
+    
+    // Result
+    Color result_color = rgb(0, 0, 0);
+    if(material.Ka) {
+        result_color = add_colors(result_color, mul_color(ambient_color, material.Ka));
+    }
+    if(material.Kd) {
+        result_color = add_colors(result_color, mul_color(diffuse_color, material.Kd));
+    }
+    if(material.Ks) {
+        result_color = add_colors(result_color, mul_color(specular_color, material.Ks));
+    }
+    if(material.Kr) {
+        result_color = add_colors(result_color, mul_color(reflected_color, material.Kr));
+    }
+    
+    if(scene->fog_density) {
+        Float fog_density = scene->fog_density(dist, scene->fog_parameters);
+        result_color = add_colors(
+                                  mul_color(scene->background_color, fog_density),
+                                  mul_color(result_color, 1 - fog_density));
+    }
+
+    return result_color;
 }
 
 Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene) {
