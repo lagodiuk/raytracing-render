@@ -94,6 +94,10 @@ Object3d;
 
 typedef
 struct {
+    // Angles of projection
+    Float al;
+    Float be;
+    
     // Array of pointers to 3d objects of scene
     Object3d ** objects;
     int objects_count;
