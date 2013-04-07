@@ -30,6 +30,36 @@ inline Color get_pixel(int x, int y, Canvas * canv) {
 	return canv->data[offs];
 }
 
+inline void draw_line(int x1, int y1, int x2, int y2, Color c, Canvas * canv) {
+    const int deltaX = abs(x2 - x1);
+    const int deltaY = abs(y2 - y1);
+    const int signX = x1 < x2 ? 1 : -1;
+    const int signY = y1 < y2 ? 1 : -1;
+    //
+    int error = deltaX - deltaY;
+    //
+    if((x2 >= 0) && (x2 < canv->width) &&
+       (y2 >= 0) && (y2 < canv->height)) {
+        set_pixel(x2, y2, c, canv);
+    }
+    while(x1 != x2 || y1 != y2) {
+        if((x1 >= 0) && (x1 < canv->width) &&
+           (y1 >= 0) && (y1 < canv->height)) {
+            set_pixel(x1, y1, c, canv);
+        }
+        const int error2 = error * 2;
+        //
+        if(error2 > -deltaY) {
+            error -= deltaY;
+            x1 += signX;
+        }
+        if(error2 < deltaX) {
+            error += deltaX;
+            y1 += signY;
+        }
+    }
+}
+
 int write_bmp(char file_name[], Canvas * canv) {
 
 	void set_bfType(Byte bmp_file_header[]);
