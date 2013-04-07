@@ -38,13 +38,13 @@ inline void draw_line(int x1, int y1, int x2, int y2, Color c, Canvas * canv) {
     //
     int error = deltaX - deltaY;
     //
-    if((x2 >= 0) && (x2 < canv->width) &&
-       (y2 >= 0) && (y2 < canv->height)) {
+    if((x2 >= 0) && (x2 < canv->w) &&
+       (y2 >= 0) && (y2 < canv->h)) {
         set_pixel(x2, y2, c, canv);
     }
     while(x1 != x2 || y1 != y2) {
-        if((x1 >= 0) && (x1 < canv->width) &&
-           (y1 >= 0) && (y1 < canv->height)) {
+        if((x1 >= 0) && (x1 < canv->w) &&
+           (y1 >= 0) && (y1 < canv->h)) {
             set_pixel(x1, y1, c, canv);
         }
         const int error2 = error * 2;
