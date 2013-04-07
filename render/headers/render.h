@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_3D_H
-#define GEOMETRY_3D_H
+#ifndef __RENDEER_H__
+#define __RENDEER_H__
 
 #include <color.h>
 
@@ -87,6 +87,10 @@ struct {
     
     Material (*get_material)(void * data,
                              Point3d intersection_point);
+    
+    Point3d (*get_min_boundary_point)(void * data);
+    
+    Point3d (*get_max_boundary_point)(void * data);
     
 	void (*release_data)(void * data);
 }
