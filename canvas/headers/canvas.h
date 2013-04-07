@@ -20,5 +20,7 @@ inline void set_pixel(int x, int y, Color c, Canvas * canv);
 
 inline Color get_pixel(int x, int y, Canvas * canv);
 
+inline void draw_line(int x1, int y1, int x2, int y2, Color c, Canvas * canv);
+
 int write_bmp(char file_name[], Canvas * canv);
 #endif //__CANVAAS_H__
