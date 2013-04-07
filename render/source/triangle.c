@@ -68,6 +68,10 @@ Vector3d get_triangle_normal_vector(void * data,
 Material get_triangle_material(void * data,
                       Point3d intersection_point);
 
+Point3d get_min_triangle_boundary_point(void * data);
+
+Point3d get_max_triangle_boundary_point(void * data);
+
 
 Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color, Material material) {
 	Triangle3d * triangle = malloc(sizeof(Triangle3d));
@@ -93,8 +97,46 @@ Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color, Materia
 	obj->intersect = intersect_triangle;
     obj->get_normal_vector = get_triangle_normal_vector;
     obj->get_material = get_triangle_material;
+    obj->get_min_boundary_point = get_min_triangle_boundary_point;
+    obj->get_max_boundary_point = get_max_triangle_boundary_point;
     
 	return obj;
+}
+
+Point3d get_min_triangle_boundary_point(void * data) {
+	Triangle3d * t = data;
+    
+    Float x_min = t->p1.x;
+    Float y_min = t->p1.y;
+    Float z_min = t->p1.z;
+    
+    x_min = (x_min < t->p2.x) ? x_min : t->p2.x;
+    y_min = (x_min < t->p2.y) ? y_min : t->p2.y;
+    z_min = (x_min < t->p2.z) ? z_min : t->p2.z;
+    
+    x_min = (x_min < t->p3.x) ? x_min : t->p3.x;
+    y_min = (x_min < t->p3.y) ? y_min : t->p3.y;
+    z_min = (x_min < t->p3.z) ? z_min : t->p3.z;
+    
+    return point3d(x_min, y_min, z_min);
+}
+
+Point3d get_max_triangle_boundary_point(void * data) {
+	Triangle3d * t = data;
+    
+    Float x_max = t->p1.x;
+    Float y_max = t->p1.y;
+    Float z_max = t->p1.z;
+    
+    x_max = (x_max > t->p2.x) ? x_max : t->p2.x;
+    y_max = (x_max > t->p2.y) ? y_max : t->p2.y;
+    z_max = (x_max > t->p2.z) ? z_max : t->p2.z;
+    
+    x_max = (x_max > t->p3.x) ? x_max : t->p3.x;
+    y_max = (x_max > t->p3.y) ? y_max : t->p3.y;
+    z_max = (x_max > t->p3.z) ? z_max : t->p3.z;
+    
+    return point3d(x_max, y_max, z_max);
 }
 
 void rotate_triangle(void * data, Float sin_al, Float cos_al, Float sin_be, Float cos_be) {
