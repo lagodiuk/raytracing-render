@@ -26,13 +26,6 @@ void trace_i(Scene * scene,
              Float intensity,
              int iteration_num);
 
-void find_intersection(Scene * scene,
-                       Point3d vector_start,
-                       Vector3d vector,
-                       Object3d ** nearest_obj_ptr,
-                       Point3d * nearest_intersection_point_ptr,
-                       Float * nearest_intersection_point_dist_ptr);
-
 Color calculate_color(Scene * scene,
                       Point3d vector_start,
                       Vector3d vector,
@@ -41,6 +34,14 @@ Color calculate_color(Scene * scene,
                       Float * dist_ptr,
                       Float intensity,
                       int iteration_num);
+
+int find_intersection(Scene * scene,
+                      Point3d vector_start,
+                      Vector3d vector,
+                      Object3d ** nearest_obj_ptr,
+                      Point3d * nearest_intersection_point_ptr,
+                      Float * nearest_intersection_point_dist_ptr);
+
 
 /***************************************************
  *                Helpful functions                *
@@ -234,14 +235,13 @@ void trace_i(Scene * scene,
     Point3d nearest_intersection_point;
     Float nearest_intersection_point_dist = FLOAT_MAX;
 
-    find_intersection(scene,
-                      vector_start,
-                      vector,
-                      &nearest_obj,
-                      &nearest_intersection_point,
-                      &nearest_intersection_point_dist);
+    if(find_intersection(scene,
+                         vector_start,
+                         vector,
+                         &nearest_obj,
+                         &nearest_intersection_point,
+                         &nearest_intersection_point_dist)) {
 
-    if(nearest_obj) {
         *color = calculate_color(scene,
                                  vector_start,
                                  vector,
@@ -256,7 +256,7 @@ void trace_i(Scene * scene,
     *color = scene->background_color;
 }
 
-void find_intersection(Scene * scene,
+int find_intersection(Scene * scene,
                        Point3d vector_start,
                        Vector3d vector,
                        Object3d ** nearest_obj_ptr,
@@ -266,6 +266,7 @@ void find_intersection(Scene * scene,
     Object3d * obj = NULL;
     Point3d intersection_point;
     Float curr_intersection_point_dist;
+    int intersected = False;
     
     // Finding nearest object
     // and intersection point
@@ -280,10 +281,13 @@ void find_intersection(Scene * scene,
                     *nearest_obj_ptr = obj;
                     *nearest_intersection_point_ptr = intersection_point;
                     *nearest_intersection_point_dist_ptr = curr_intersection_point_dist;
+                    intersected = True;
                 }
             }
         }
     }
+    
+    return intersected;
 }
 
 Color calculate_color(Scene * scene,
