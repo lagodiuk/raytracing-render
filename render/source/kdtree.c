@@ -7,8 +7,8 @@
 #include <kdtree.h>
 #include <utils.h>
 
-#define MAX_ITER 8
-#define OBJECTS_COUNT_THRESHOLD 2
+#define MAX_ITER 12
+#define OBJECTS_COUNT_THRESHOLD 3
 
 Voxel make_initial_voxel(Object3d ** objects, int objects_count);
 
@@ -466,48 +466,19 @@ int find_intersection_node(KDNode * node,
         }
         return False;
     }
-    
-    // Otherwise
-    Float t_near;
-    Float t_far;
-    
-    if(voxel_intersection(vector, vector_start, v, &t_near, &t_far)) {
-    KDNode * front_node;
-    KDNode * back_node;
-    
-    front_node = node->l;
-    back_node = node->r;
-    
-    Voxel front_voxel;
-    Voxel back_voxel;
-    
-    split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
-    
-    int ret1 = find_intersection_node(front_node,
-                                     front_voxel,
-                                     vector_start,
-                                     vector,
-                                     nearest_obj_ptr,
-                                     nearest_intersection_point_ptr,
-                                     nearest_intersection_point_dist_ptr);
 
-    int ret2 = find_intersection_node(back_node,
-                                     back_voxel,
-                                     vector_start,
-                                     vector,
-                                     nearest_obj_ptr,
-                                     nearest_intersection_point_ptr,
-                                     nearest_intersection_point_dist_ptr);
-    
-    return ret1 || ret2;
-    } else return False;
+    // Otherwise    
 
-    /*
     Float t_near;
     Float t_far;
     Float t_split;
     
     if(voxel_intersection(vector, vector_start, v, &t_near, &t_far)) {
+        
+        if((t_near < 0) && (t_far < 0)) {
+            return False;
+        }
+        
         Point3d p_split;
         if(!vector_plane_intersection(vector, vector_start, node->plane, node->coord, &p_split, &t_split)) {
             t_split = FLOAT_MAX;
@@ -529,7 +500,7 @@ int find_intersection_node(KDNode * node,
             split_voxel(v, node->plane, node->coord, &back_voxel, &front_voxel);
         }
         
-
+        /*
         if((t_near < 0) && (t_split < 0) && (t_far < 0))
             return False;
         
@@ -551,17 +522,17 @@ int find_intersection_node(KDNode * node,
                                           nearest_obj_ptr,
                                           nearest_intersection_point_ptr,
                                           nearest_intersection_point_dist_ptr);
-        }
+        }*/
         
-        int ret = find_intersection_node(front_node,
+        int ret1 = find_intersection_node(front_node,
                                          front_voxel,
                                          vector_start,
                                          vector,
                                          nearest_obj_ptr,
                                          nearest_intersection_point_ptr,
                                          nearest_intersection_point_dist_ptr);
-        if(!ret)
-            ret = find_intersection_node(back_node,
+        
+        int ret2 = find_intersection_node(back_node,
                                          back_voxel,
                                          vector_start,
                                          vector,
@@ -569,14 +540,15 @@ int find_intersection_node(KDNode * node,
                                          nearest_intersection_point_ptr,
                                          nearest_intersection_point_dist_ptr);
         
-        return ret;
+        return ret1 || ret2;
         
-    } else
+    } else {
         return False;
-    */ 
+    }
 }
 
 int point_is_left_for_plane(Point3d vector_start, enum Plane p, Coord c) {
+    /*
     switch(p) {
         case XY:
             return vector_start.z < c.z;
@@ -589,6 +561,6 @@ int point_is_left_for_plane(Point3d vector_start, enum Plane p, Coord c) {
         case YZ:
             return vector_start.x < c.x;
             break;
-    }
+    }*/
     return True;
 }
