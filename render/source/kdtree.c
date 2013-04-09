@@ -10,6 +10,27 @@
 #define MAX_ITER 7
 #define OBJECTS_COUNT_THRESHOLD 2
 
+void split_voxel(Voxel v,
+                 enum Plane p,
+                 Coord c,
+                 Voxel * vl,
+                 Voxel * vr);
+
+int object_in_voxel(Object3d * obj, Voxel v);
+
+int vector_plane_intersection(Vector3d vector,
+                              Point3d vector_start,
+                              enum Plane plane,
+                              Coord coord,
+                              Point3d * result,
+                              Float * t);
+
+int voxel_intersection(Vector3d vector,
+                       Point3d vector_start,
+                       Voxel v,
+                       Float * t_near,
+                       Float * t_far);
+
 Voxel make_initial_voxel(Object3d ** objects, int objects_count);
 
 KDNode * rec_build(Object3d ** objects, int objects_count, Voxel v, int iter);
@@ -33,6 +54,11 @@ int find_intersection_node(KDNode * node,
                            Float * nearest_intersection_point_dist_ptr);
 
 int point_is_left_for_plane(Point3d vector_start, enum Plane p, Coord c);
+
+int is_intersect_anything_node(KDNode * node,
+                               Voxel v,
+                               Point3d vector_start,
+                               Vector3d vector);
 
 void release_kd_tree(KDTree * tree) {
     release_kd_node(tree->root);
@@ -562,4 +588,83 @@ int point_is_left_for_plane(Point3d vector_start, enum Plane p, Coord c) {
             break;
     }
     return True;
+}
+
+int is_intersect_anything_tree(KDTree * tree,
+                               Point3d vector_start,
+                               Vector3d vector) {
+
+    return is_intersect_anything_node(tree->root,
+                                      tree->bounding_box,
+                                      vector_start,
+                                      vector);
+}
+
+int is_intersect_anything_node(KDNode * node,
+                               Voxel v,
+                               Point3d vector_start,
+                               Vector3d vector) {
+    
+    // Is leaf
+    if(node->plane == NONE) {
+        if((node->objects_count) && (node->objects)) {
+            int i;
+            Point3d intersection_point;
+            Object3d * obj;
+            
+            // Finding nearest object
+            // and intersection point
+            for(i = 0; i < node->objects_count; i++) {
+                if(node->objects[i]) {
+                    obj = node->objects[i];
+                    
+                    if((obj->intersect(obj->data, vector_start, vector, &intersection_point))
+                       && (point_in_voxel(intersection_point, v))) {
+                        
+                        return True;
+                    }
+                }
+            }
+        }
+        return False;
+    }
+    
+    // Otherwise
+    
+    Float t_near;
+    Float t_far;
+    Float t_split;
+    
+    if(voxel_intersection(vector, vector_start, v, &t_near, &t_far)) {
+        
+        if((t_near < 0) && (t_far < 0)) {
+            return False;
+        }
+        
+        Point3d p_split;
+        if(!vector_plane_intersection(vector, vector_start, node->plane, node->coord, &p_split, &t_split)) {
+            t_split = FLOAT_MAX;
+        }
+        
+        Voxel front_voxel;
+        Voxel back_voxel;
+        
+        KDNode * front_node;
+        KDNode * back_node;
+        
+        if(point_is_left_for_plane(vector_start, node->plane, node->coord)) {
+            front_node = node->l;
+            back_node = node->r;
+            split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
+        } else {
+            front_node = node->r;
+            back_node = node->l;
+            split_voxel(v, node->plane, node->coord, &back_voxel, &front_voxel);
+        }
+        
+        if(is_intersect_anything_node(front_node, front_voxel, vector_start, vector)
+           || is_intersect_anything_node(back_node, back_voxel, vector_start, vector)) return True;
+    }
+    
+    return False;
 }
