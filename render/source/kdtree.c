@@ -7,8 +7,8 @@
 #include <kdtree.h>
 #include <utils.h>
 
-#define MAX_ITER 12
-#define OBJECTS_COUNT_THRESHOLD 3
+#define MAX_ITER 7
+#define OBJECTS_COUNT_THRESHOLD 2
 
 Voxel make_initial_voxel(Object3d ** objects, int objects_count);
 
@@ -505,9 +505,7 @@ int find_intersection_node(KDNode * node,
             t_near = (t_near > 0) ? t_near : 0;
             return find_intersection_node(front_node,
                                           front_voxel,
-                                          point3d(vector_start.x + vector.x * t_near,
-                                                  vector_start.y + vector.y * t_near,
-                                                  vector_start.z + vector.z * t_near),
+                                          vector_start,
                                           vector,
                                           nearest_obj_ptr,
                                           nearest_intersection_point_ptr,
@@ -518,9 +516,7 @@ int find_intersection_node(KDNode * node,
             t_near = (t_near > 0) ? t_near : 0;
             return find_intersection_node(back_node,
                                           back_voxel,
-                                          point3d(vector_start.x + vector.x * t_near,
-                                                  vector_start.y + vector.y * t_near,
-                                                  vector_start.z + vector.z * t_near),
+                                          vector_start,
                                           vector,
                                           nearest_obj_ptr,
                                           nearest_intersection_point_ptr,

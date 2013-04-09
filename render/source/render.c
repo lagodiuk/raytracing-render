@@ -458,7 +458,17 @@ int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene) {
     Vector3d ray = vector3dp(starting_point, target_point);
     normalize_vector(&ray);
     Point3d intersection_point;
-    
+    Object3d * intersection_obj;
+    Float intersection_dist;
+    if(find_intersection_tree(scene->kd_tree,
+                              starting_point,
+                              ray,
+                              &intersection_obj,
+                              &intersection_point,
+                              &intersection_dist)) {
+        return 0;
+    }
+    /*
     int i;
     Object3d * obj = NULL;
     for(i = 0; i < scene->last_object_index; i++) {
@@ -472,7 +482,7 @@ int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene) {
             }
         }
     }
-    
+    */
     // Ray doesn't intersect any of scene objects
     return 1;
 }
