@@ -216,7 +216,15 @@ Voxel make_initial_voxel(Object3d ** objects, int objects_count) {
 int object_in_voxel(Object3d * obj, Voxel v) {
     Point3d min_p = obj->get_min_boundary_point(obj->data);
     Point3d max_p = obj->get_max_boundary_point(obj->data);
-    return ((point_in_voxel(min_p, v)) || (point_in_voxel(max_p, v)));
+
+    if((max_p.x < v.x_min)
+       || (max_p.y < v.y_min)
+       || (max_p.z < v.z_min)
+       || (min_p.x > v.x_max)
+       || (min_p.y > v.y_max)
+       || (min_p.z > v.z_max)) return False;
+    
+    return True;
 }
 
 int point_in_voxel(Point3d p, Voxel v) {
