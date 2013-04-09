@@ -448,7 +448,7 @@ int find_intersection_node(KDNode * node,
                     obj = node->objects[i];
                     
                     if((obj->intersect(obj->data, vector_start, vector, &intersection_point))
-                       /*&& (point_in_voxel(intersection_point, v))*/) {
+                       && (point_in_voxel(intersection_point, v))) {
 
                         curr_intersection_point_dist = module_vector(vector3dp(vector_start, intersection_point));
                         
