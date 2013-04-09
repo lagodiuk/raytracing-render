@@ -27,6 +27,10 @@ frame_dir	=	./frames
 # Test applications
 #
 
+test_kd: test_kd.c scene1.h scene1.o $(canvas_lib) $(render_lib)
+	gcc -O test_kd.c scene1.o $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@ \
+		&& ./$@
+
 test_video: test $(frame_dir)
 	cd $(frame_dir) && ../test
 	ffmpeg -qscale 2 -r 10 -b 10M  -i '$(frame_dir)/out_%03d.bmp'  movie.mp4
@@ -76,7 +80,10 @@ $(render_dir)/utils.o: ./render/source/utils.c ./render/headers/utils.h ./render
 $(render_dir)/triangle.o: ./render/source/triangle.c ./render/headers/render.h ./canvas/headers/color.h $(render_dir)
 	gcc -c ./render/source/triangle.c $(INCLUDES) -o $@
 
-$(render_lib): $(render_dir)/render.o $(render_dir)/utils.o $(render_dir)/triangle.o
+$(render_dir)/kdtree.o: ./render/source/kdtree.c ./render/headers/kdtree.h ./render/headers/render.h $(render_dir)
+	gcc -c ./render/source/kdtree.c $(INCLUDES) -o $@
+
+$(render_lib): $(render_dir)/render.o $(render_dir)/utils.o $(render_dir)/triangle.o $(render_dir)/kdtree.o
 	ar -rcs $@ $^
 
 #
@@ -85,6 +92,6 @@ $(render_lib): $(render_dir)/render.o $(render_dir)/utils.o $(render_dir)/triang
 .PHONY: clean
 clean:
 	rm -f *.o; \
-	rm -f ./test ./test_gl;     \
+	rm -f ./test ./test_gl ./test_kd;     \
 	rm -f *.mp4;                \
 	rm -rf $(canvas_dir) $(render_dir) $(frame_dir) $(d_sym)
