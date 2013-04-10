@@ -118,7 +118,7 @@ Point3d get_min_triangle_boundary_point(void * data) {
     y_min = (y_min < t->p3.y) ? y_min : t->p3.y;
     z_min = (z_min < t->p3.z) ? z_min : t->p3.z;
     
-    return point3d(x_min, y_min, z_min);
+    return point3d(x_min - 1, y_min - 1, z_min - 1);
 }
 
 Point3d get_max_triangle_boundary_point(void * data) {
@@ -136,7 +136,7 @@ Point3d get_max_triangle_boundary_point(void * data) {
     y_max = (y_max > t->p3.y) ? y_max : t->p3.y;
     z_max = (z_max > t->p3.z) ? z_max : t->p3.z;
     
-    return point3d(x_max, y_max, z_max);
+    return point3d(x_max + 1, y_max + 1, z_max + 1);
 }
 
 void rotate_triangle(void * data, Float sin_al, Float cos_al, Float sin_be, Float cos_be) {
