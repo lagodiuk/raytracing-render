@@ -46,7 +46,30 @@ struct {
 }
 Triangle3d;
 
-void release_triangle_data(void * data);
+
+static inline Color get_triangle_color(void * data,
+                         Point3d intersection_point) {
+	Triangle3d * triangle = data;
+	return triangle->color;
+}
+
+static inline Vector3d get_triangle_normal_vector(void * data,
+                                    Point3d intersection_point) {
+  	Triangle3d * triangle = data;
+    return vector3df(triangle->A, triangle->B, triangle->C);
+}
+
+static inline Material get_triangle_material(void * data,
+                               Point3d intersection_point) {
+    Triangle3d * triangle = data;
+    return triangle->material;
+}
+
+static inline void release_triangle_data(void * data) {
+	Triangle3d * triangle = data;
+	free(triangle);
+}
+
 
 void rotate_triangle(void * data,
                      Float sin_al,
@@ -62,11 +85,6 @@ int intersect_triangle(void * data,
                        Vector3d vector,
                        Point3d * intersection_point);
 
-Vector3d get_triangle_normal_vector(void * data,
-                                    Point3d intersection_point);
-
-Material get_triangle_material(void * data,
-                      Point3d intersection_point);
 
 Point3d get_min_triangle_boundary_point(void * data);
 
@@ -213,25 +231,3 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
 	return 0;
 }
 
-Color get_triangle_color(void * data,
-                         Point3d intersection_point) {
-	Triangle3d * triangle = data;
-	return triangle->color;
-}
-
-Vector3d get_triangle_normal_vector(void * data,
-                                    Point3d intersection_point) {
-  	Triangle3d * triangle = data;
-    return vector3df(triangle->A, triangle->B, triangle->C);
-}
-
-Material get_triangle_material(void * data,
-                               Point3d intersection_point) {
-    Triangle3d * triangle = data;
-    return triangle->material;
-}
-
-void release_triangle_data(void * data) {
-	Triangle3d * triangle = data;
-	free(triangle);
-}

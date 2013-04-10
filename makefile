@@ -18,7 +18,7 @@ canvas_dir	=	./canvas/lib
 canvas_lib 	=	$(canvas_dir)/libcanvas.a
 
 LIBPATH		=	$(addprefix -L, $(render_dir) $(canvas_dir))
-INCLUDES	=	-O2 -g $(addprefix -I, ./render/headers ./canvas/headers)
+INCLUDES	=	-O2 $(addprefix -I, ./render/headers ./canvas/headers)
 LINKLIBS	= 	-lcanvas -lrender -lm
 
 frame_dir	=	./frames
