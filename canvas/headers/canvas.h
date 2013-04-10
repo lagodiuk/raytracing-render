@@ -2,6 +2,9 @@
 #define __CANVAAS_H__
 #include "color.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 typedef
 struct {
 	int w;

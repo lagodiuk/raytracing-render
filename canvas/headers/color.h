@@ -1,6 +1,7 @@
 #ifndef COLOR_H_INCLUDED
 #define COLOR_H_INCLUDED
 
+#include <math.h>
 #include <stdint.h>
 
 #define MAX_R 255
