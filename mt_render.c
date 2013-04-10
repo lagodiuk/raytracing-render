@@ -55,7 +55,7 @@ static void *task_thread(void *arg) {
     }
 }
 
-mt_tasks_t * mt_new_pool(work_func_t *work) {
+mt_tasks_t * mt_new_pool(work_func_t work) {
     int ret, i;
     pthread_attr_t pattr;
 

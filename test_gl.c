@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <unistd.h>
 
 // Mac OS X
 #ifdef DARWIN
@@ -40,14 +41,14 @@ Point3d camera_point = { X_CAM, Y_CAM, Z_CAM };
 Scene *scene = NULL;
 
 GLuint tex;
-pixel_t canvas[TEX_WIDTH][TEX_HEIGHT] = { 0 };
+volatile pixel_t canvas[TEX_WIDTH][TEX_HEIGHT] = { 0 };
 
 #if USE_MT
 #include "mt_render.h"
 
 mt_tasks_t *tasks = NULL;
 
-static int render_task(mt_worker_t *w) {
+int render_task(struct mt_worker *w) {
     pixel_t px;
 
     GLint height = TEX_HEIGHT / w->state->n_cpu;
@@ -65,8 +66,8 @@ static int render_task(mt_worker_t *w) {
 
     return 0;
 }
-#endif
 
+#else 
 static int render_seq() {
     pixel_t px;
     GLint i, j;
@@ -77,10 +78,14 @@ static int render_seq() {
             trace(scene, camera_point, ray, (Color *)&px);
             canvas[j][i] = px;
         }
+    return 0;
 }
+
+#endif
 
 void prepare_canvas(void) {
 #if USE_MT
+    //usleep(5000);
     mt_render_start(tasks);
     mt_render_wait(tasks);
 #else
@@ -120,6 +125,10 @@ void display(void) {
     glDisable(GL_TEXTURE_2D);
 
     glFlush();
+
+    GLenum glerr = glGetError();
+    if (glerr) printf(__FILE__": glGetError() -> %d\n", glerr);
+
     ++frames;
 }
 
@@ -136,14 +145,16 @@ static inline uint8_t toGLubyte(GLfloat clampf) {
 
 
 void animate() {
-
     delta_al += 0.05;
     rotate_scene(scene, delta_al, M_PI * 3 / 5, ROTATE_LIGHT_SOURCES);
     prepare_canvas();
 
     glEnable(GL_TEXTURE_2D);
-    /// TODO: Change to glSubImage2D
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_WIDTH, TEX_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, canvas);
+
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, TEX_WIDTH, TEX_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, canvas);
+    GLenum glerr = glGetError();
+    if (glerr) printf("glGetError() -> %d\n", glerr);
+
     glDisable(GL_TEXTURE_2D);
 
     glutPostRedisplay();
