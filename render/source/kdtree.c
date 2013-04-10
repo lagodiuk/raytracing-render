@@ -10,7 +10,11 @@
 #define MAX_ITER 11
 #define OBJECTS_COUNT_THRESHOLD 6
 
-#define __hot   __attribute__((hot))
+#if __GNUC_PREREQ(4,3)
+# define __hot   __attribute__((hot))
+#else
+# define __hot
+#endif
 
 void split_voxel(Voxel v,
                  enum Plane p,
