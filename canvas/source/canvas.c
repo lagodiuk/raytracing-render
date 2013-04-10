@@ -11,26 +11,8 @@ Canvas * new_canvas(int width, int height) {
 	return c;
 }
 
-void clear_canvas(Canvas * canv) {
-    memset(canv->data, 0, canv->w * canv->h * sizeof(Color));
-}
 
-void release(Canvas * c) {
-	free(c->data);
-	free(c);
-}
-
-inline void set_pixel(int x, int y, Color c, Canvas * canv) {
-	int offs = y * canv->w + x;
-	canv->data[offs] = c;
-}
-
-inline Color get_pixel(int x, int y, Canvas * canv) {
-	int offs = y * canv->w + x;
-	return canv->data[offs];
-}
-
-inline void draw_line(int x1, int y1, int x2, int y2, Color c, Canvas * canv) {
+void draw_line(int x1, int y1, int x2, int y2, Color c, Canvas * canv) {
     const int deltaX = abs(x2 - x1);
     const int deltaY = abs(y2 - y1);
     const int signX = x1 < x2 ? 1 : -1;
