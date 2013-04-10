@@ -652,15 +652,15 @@ int is_intersect_anything_node(KDNode * node,
     KDNode * front_node;
     KDNode * back_node;
         
-    if(point_is_left_for_plane(vector_start, node->plane, node->coord)) {
+    //if(point_is_left_for_plane(vector_start, node->plane, node->coord)) {
         front_node = node->l;
         back_node = node->r;
         split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
-    } else {
-        front_node = node->r;
-        back_node = node->l;
-        split_voxel(v, node->plane, node->coord, &back_voxel, &front_voxel);
-    }
+    //} else {
+    //    front_node = node->r;
+    //    back_node = node->l;
+    //    split_voxel(v, node->plane, node->coord, &back_voxel, &front_voxel);
+    //}
         
     if(is_intersect_anything_node(front_node, front_voxel, vector_start, vector)
        || is_intersect_anything_node(back_node, back_voxel, vector_start, vector)) return True;
