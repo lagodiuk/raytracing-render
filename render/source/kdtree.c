@@ -564,8 +564,53 @@ int find_intersection_node(KDNode * node,
                                           nearest_intersection_point_dist_ptr);
         }
          */
+    
+    int ret1;
+    int ret2;
+    
+    if(point_in_voxel(vector_start, front_voxel)) {
+        ret1 = find_intersection_node(front_node,
+                                          front_voxel,
+                                          vector_start,
+                                          vector,
+                                          nearest_obj_ptr,
+                                          nearest_intersection_point_ptr,
+                                          nearest_intersection_point_dist_ptr);
+        if(ret1)
+            return ret1;
         
-    int ret1 = find_intersection_node(front_node,
+        ret2 = find_intersection_node(back_node,
+                                          back_voxel,
+                                          vector_start,
+                                          vector,
+                                          nearest_obj_ptr,
+                                          nearest_intersection_point_ptr,
+                                          nearest_intersection_point_dist_ptr);
+        return ret2;
+    }
+    
+    if(point_in_voxel(vector_start, back_voxel)) {
+        ret1 = find_intersection_node(back_node,
+                                      back_voxel,
+                                      vector_start,
+                                      vector,
+                                      nearest_obj_ptr,
+                                      nearest_intersection_point_ptr,
+                                      nearest_intersection_point_dist_ptr);
+        if(ret1)
+            return ret1;
+        
+        ret2 = find_intersection_node(front_node,
+                                      front_voxel,
+                                      vector_start,
+                                      vector,
+                                      nearest_obj_ptr,
+                                      nearest_intersection_point_ptr,
+                                      nearest_intersection_point_dist_ptr);
+        return ret2;
+    }
+    
+    ret1 = find_intersection_node(front_node,
                                       front_voxel,
                                       vector_start,
                                       vector,
@@ -573,7 +618,7 @@ int find_intersection_node(KDNode * node,
                                       nearest_intersection_point_ptr,
                                       nearest_intersection_point_dist_ptr);
         
-    int ret2 = find_intersection_node(back_node,
+    ret2 = find_intersection_node(back_node,
                                       back_voxel,
                                       vector_start,
                                       vector,
