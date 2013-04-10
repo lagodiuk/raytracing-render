@@ -7,8 +7,8 @@
 #include <kdtree.h>
 #include <utils.h>
 
-#define MAX_ITER 7
-#define OBJECTS_COUNT_THRESHOLD 2
+#define MAX_ITER 11
+#define OBJECTS_COUNT_THRESHOLD 6
 
 void split_voxel(Voxel v,
                  enum Plane p,
