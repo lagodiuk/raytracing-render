@@ -10,13 +10,13 @@
 #define MAX_ITER 11
 #define OBJECTS_COUNT_THRESHOLD 6
 
+#define __hot   __attribute__((hot))
+
 void split_voxel(Voxel v,
                  enum Plane p,
                  Coord c,
                  Voxel * vl,
                  Voxel * vr);
-
-int object_in_voxel(Object3d * obj, Voxel v);
 
 inline int vector_plane_intersection(Vector3d vector,
                               Point3d vector_start,
@@ -30,6 +30,8 @@ int voxel_intersection(Vector3d vector,
                        Voxel v,
                        Float * t_near,
                        Float * t_far);
+
+static inline int object_in_voxel(Object3d * obj, Voxel v);
 
 Voxel make_initial_voxel(Object3d ** objects, int objects_count);
 
@@ -58,7 +60,14 @@ int is_intersect_anything_node(KDNode * node,
                                Point3d vector_start,
                                Vector3d vector);
 
-void release_kd_tree(KDTree * tree) {
+inline int point_in_voxel(Point3d p, Voxel v) {
+    return ((p.x > v.x_min - EPSILON) && (p.x < v.x_max + EPSILON) &&
+            (p.y > v.y_min - EPSILON) && (p.y < v.y_max + EPSILON) &&
+            (p.z > v.z_min - EPSILON) && (p.z < v.z_max + EPSILON));
+}
+
+
+inline void release_kd_tree(KDTree * tree) {
     release_kd_node(tree->root);
     free(tree);
 }
@@ -72,7 +81,7 @@ void release_kd_node(KDNode * node) {
         free(node->objects);
 }
 
-KDTree * build_kd_tree(Object3d ** objects, int objects_count) {
+inline KDTree * build_kd_tree(Object3d ** objects, int objects_count) {
     KDTree * tree = malloc(sizeof(KDTree));
     tree->bounding_box = make_initial_voxel(objects, objects_count);
     tree->root = rec_build(objects, objects_count, tree->bounding_box, 0);
@@ -250,7 +259,8 @@ Voxel make_initial_voxel(Object3d ** objects, int objects_count) {
     return v;
 }
 
-int object_in_voxel(Object3d * obj, Voxel v) {
+
+static inline __hot int object_in_voxel(Object3d * obj, Voxel v) {
     Point3d min_p = obj->get_min_boundary_point(obj->data);
     Point3d max_p = obj->get_max_boundary_point(obj->data);
 
@@ -262,12 +272,6 @@ int object_in_voxel(Object3d * obj, Voxel v) {
        || (min_p.z > v.z_max)) return False;
     
     return True;
-}
-
-int point_in_voxel(Point3d p, Voxel v) {
-    return ((p.x > v.x_min - EPSILON) && (p.x < v.x_max + EPSILON) &&
-            (p.y > v.y_min - EPSILON) && (p.y < v.y_max + EPSILON) &&
-            (p.z > v.z_min - EPSILON) && (p.z < v.z_max + EPSILON));
 }
 
 KDNode * make_leaf(Object3d ** objects, int objects_count) {
@@ -291,7 +295,7 @@ KDNode * make_leaf(Object3d ** objects, int objects_count) {
     return leaf;
 }
 
-inline int vector_plane_intersection(Vector3d vector,
+inline __hot int vector_plane_intersection(Vector3d vector,
                               Point3d vector_start,
                               enum Plane plane,
                               Coord coord,
