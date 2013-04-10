@@ -458,6 +458,18 @@ int find_intersection_node(KDNode * node,
                            Point3d * nearest_intersection_point_ptr,
                            Float * nearest_intersection_point_dist_ptr) {
     
+    Float t_near;
+    Float t_far;
+    Float t_split;
+    
+    if(!voxel_intersection(vector, vector_start, v, &t_near, &t_far)) {
+        return False;
+    }
+    
+    if((t_near < 0) && (t_far < 0)) {
+        return False;
+    }
+    
     // Is leaf
     if(node->plane == NONE) {
         if((node->objects_count) && (node->objects)) {
@@ -494,37 +506,27 @@ int find_intersection_node(KDNode * node,
     }
 
     // Otherwise    
-
-    Float t_near;
-    Float t_far;
-    Float t_split;
+        
+    Point3d p_split;
+    if(!vector_plane_intersection(vector, vector_start, node->plane, node->coord, &p_split, &t_split)) {
+        t_split = FLOAT_MAX;
+    }
     
-    if(voxel_intersection(vector, vector_start, v, &t_near, &t_far)) {
+    Voxel front_voxel;
+    Voxel back_voxel;
         
-        if((t_near < 0) && (t_far < 0)) {
-            return False;
-        }
-        
-        Point3d p_split;
-        if(!vector_plane_intersection(vector, vector_start, node->plane, node->coord, &p_split, &t_split)) {
-            t_split = FLOAT_MAX;
-        }
-        
-        Voxel front_voxel;
-        Voxel back_voxel;
-        
-        KDNode * front_node;
-        KDNode * back_node;
-        
-        if(point_is_left_for_plane(vector_start, node->plane, node->coord)) {
-            front_node = node->l;
-            back_node = node->r;
-            split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
-        } else {
-            front_node = node->r;
-            back_node = node->l;
-            split_voxel(v, node->plane, node->coord, &back_voxel, &front_voxel);
-        }
+    KDNode * front_node;
+    KDNode * back_node;
+    
+    //if(point_is_left_for_plane(vector_start, node->plane, node->coord)) {
+        front_node = node->l;
+        back_node = node->r;
+        split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
+    //} else {
+    //    front_node = node->r;
+    //    back_node = node->l;
+    //    split_voxel(v, node->plane, node->coord, &back_voxel, &front_voxel);
+    //}
         
         /*
         if(t_split > t_far) {
@@ -550,27 +552,23 @@ int find_intersection_node(KDNode * node,
         }
          */
         
-        int ret1 = find_intersection_node(front_node,
-                                          front_voxel,
-                                          vector_start,
-                                          vector,
-                                          nearest_obj_ptr,
-                                          nearest_intersection_point_ptr,
-                                          nearest_intersection_point_dist_ptr);
+    int ret1 = find_intersection_node(front_node,
+                                      front_voxel,
+                                      vector_start,
+                                      vector,
+                                      nearest_obj_ptr,
+                                      nearest_intersection_point_ptr,
+                                      nearest_intersection_point_dist_ptr);
         
-        int ret2 = find_intersection_node(back_node,
-                                          back_voxel,
-                                          vector_start,
-                                          vector,
-                                          nearest_obj_ptr,
-                                          nearest_intersection_point_ptr,
-                                          nearest_intersection_point_dist_ptr);
+    int ret2 = find_intersection_node(back_node,
+                                      back_voxel,
+                                      vector_start,
+                                      vector,
+                                      nearest_obj_ptr,
+                                      nearest_intersection_point_ptr,
+                                      nearest_intersection_point_dist_ptr);
         
-        return ret1 || ret2;
-        
-    } else {
-        return False;
-    }
+    return ret1 || ret2;        
 }
 
 int point_is_left_for_plane(Point3d vector_start, enum Plane p, Coord c) {
@@ -605,6 +603,18 @@ int is_intersect_anything_node(KDNode * node,
                                Point3d vector_start,
                                Vector3d vector) {
     
+    Float t_near;
+    Float t_far;
+    Float t_split;
+    
+    if(!voxel_intersection(vector, vector_start, v, &t_near, &t_far)) {
+        return False;
+    }
+    
+    if((t_near < 0) && (t_far < 0)) {
+        return False;
+    }
+    
     // Is leaf
     if(node->plane == NONE) {
         if((node->objects_count) && (node->objects)) {
@@ -630,41 +640,30 @@ int is_intersect_anything_node(KDNode * node,
     }
     
     // Otherwise
-    
-    Float t_near;
-    Float t_far;
-    Float t_split;
-    
-    if(voxel_intersection(vector, vector_start, v, &t_near, &t_far)) {
         
-        if((t_near < 0) && (t_far < 0)) {
-            return False;
-        }
-        
-        Point3d p_split;
-        if(!vector_plane_intersection(vector, vector_start, node->plane, node->coord, &p_split, &t_split)) {
-            t_split = FLOAT_MAX;
-        }
-        
-        Voxel front_voxel;
-        Voxel back_voxel;
-        
-        KDNode * front_node;
-        KDNode * back_node;
-        
-        if(point_is_left_for_plane(vector_start, node->plane, node->coord)) {
-            front_node = node->l;
-            back_node = node->r;
-            split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
-        } else {
-            front_node = node->r;
-            back_node = node->l;
-            split_voxel(v, node->plane, node->coord, &back_voxel, &front_voxel);
-        }
-        
-        if(is_intersect_anything_node(front_node, front_voxel, vector_start, vector)
-           || is_intersect_anything_node(back_node, back_voxel, vector_start, vector)) return True;
+    Point3d p_split;
+    if(!vector_plane_intersection(vector, vector_start, node->plane, node->coord, &p_split, &t_split)) {
+        t_split = FLOAT_MAX;
     }
-    
+        
+    Voxel front_voxel;
+    Voxel back_voxel;
+        
+    KDNode * front_node;
+    KDNode * back_node;
+        
+    if(point_is_left_for_plane(vector_start, node->plane, node->coord)) {
+        front_node = node->l;
+        back_node = node->r;
+        split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
+    } else {
+        front_node = node->r;
+        back_node = node->l;
+        split_voxel(v, node->plane, node->coord, &back_voxel, &front_voxel);
+    }
+        
+    if(is_intersect_anything_node(front_node, front_voxel, vector_start, vector)
+       || is_intersect_anything_node(back_node, back_voxel, vector_start, vector)) return True;
+
     return False;
 }
