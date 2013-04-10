@@ -18,7 +18,7 @@ canvas_dir	=	./canvas/lib
 canvas_lib 	=	$(canvas_dir)/libcanvas.a
 
 LIBPATH		=	$(addprefix -L, $(render_dir) $(canvas_dir))
-INCLUDES	=	-g $(addprefix -I, ./render/headers ./canvas/headers)
+INCLUDES	=	-O2 -g $(addprefix -I, ./render/headers ./canvas/headers)
 LINKLIBS	= 	-lcanvas -lrender -lm
 
 frame_dir	=	./frames
@@ -54,13 +54,10 @@ mt_render.o: mt_render.c
 $(canvas_dir):
 	mkdir -p $@
 
-$(canvas_dir)/color.o: ./canvas/source/color.c ./canvas/headers/color.h $(canvas_dir)
-	gcc -c ./canvas/source/color.c -I./canvas/headers/ -o $@
-
 $(canvas_dir)/canvas.o: ./canvas/source/canvas.c ./canvas/headers/canvas.h ./canvas/headers/color.h $(canvas_dir)
 	gcc -c ./canvas/source/canvas.c -I./canvas/headers/ -o $@
 
-$(canvas_lib): $(canvas_dir)/color.o $(canvas_dir)/canvas.o
+$(canvas_lib): $(canvas_dir)/canvas.o
 	ar -rcs $@ $^
 
 #
@@ -73,16 +70,13 @@ $(render_dir):
 $(render_dir)/render.o: ./render/source/render.c ./render/headers/render.h ./canvas/headers/color.h $(render_dir)
 	gcc -c ./render/source/render.c $(INCLUDES) -o $@
 
-$(render_dir)/utils.o: ./render/source/utils.c ./render/headers/utils.h ./render/headers/render.h $(render_dir)
-	gcc -c ./render/source/utils.c $(INCLUDES) -o $@
-
 $(render_dir)/triangle.o: ./render/source/triangle.c ./render/headers/render.h ./canvas/headers/color.h $(render_dir)
 	gcc -c ./render/source/triangle.c $(INCLUDES) -o $@
 
 $(render_dir)/kdtree.o: ./render/source/kdtree.c ./render/headers/kdtree.h ./render/headers/render.h $(render_dir)
 	gcc -c ./render/source/kdtree.c $(INCLUDES) -o $@
 
-$(render_lib): $(render_dir)/render.o $(render_dir)/utils.o $(render_dir)/triangle.o $(render_dir)/kdtree.o
+$(render_lib): $(render_dir)/render.o $(render_dir)/triangle.o $(render_dir)/kdtree.o
 	ar -rcs $@ $^
 
 #
