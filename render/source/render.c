@@ -17,9 +17,7 @@ Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene);
 
 Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, Float p);
 
-inline Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v);
-
-inline Float exponential_fog_density(Float distance, void * fog_data);
+Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v);
 
 void trace_i(Scene * scene,
              Point3d vector_start,
@@ -45,58 +43,17 @@ int find_intersection(Scene * scene,
                       Float * nearest_intersection_point_dist_ptr);
 
 
-/***************************************************
- *                Helpful functions                *
- ***************************************************/
-
-inline void release_object3d(Object3d * obj) {
-    obj->release_data(obj->data);
-    free(obj);
+static inline Float exponential_fog_density(Float distance, void * fog_data) {
+    Float * k = (Float *) fog_data;
+    return 1 - exp(- (*k) * distance);
 }
 
-inline Point3d point3d(Float x, Float y, Float z) {
-	Point3d p = {.x = x, .y = y, .z = z};
-	return p;
-}
-
-inline Vector3d vector3dp(Point3d start_point, Point3d end_point) {
-	Vector3d v = {.x = (end_point.x - start_point.x),
-                  .y = (end_point.y - start_point.y),
-                  .z = (end_point.z - start_point.z)};
-	return v;
-}
-
-inline Vector3d vector3df(Float x, Float y, Float z) {
-	Vector3d v = {.x = x, .y = y, .z = z};
-    return v;
-}
-
-inline LightSource3d * light_source_3d(Point3d location, Color color) {
-	LightSource3d * ls_p = malloc(sizeof(LightSource3d));
-    
-    ls_p->location_world = location;
-    ls_p->location = location;
-    ls_p->color = color;
-    
-	return ls_p;
-}
-
-inline Material material(Float Ka, Float Kd, Float Ks, Float Kr, Float Kt, Float p) {
-    Float sum = Ka + Kd + Ks + Kr + Kt;
-    Material m = {.Ka = Ka / sum,
-                  .Kd = Kd / sum,
-                  .Ks = Ks / sum,
-                  .Kr = Kr / sum,
-                  .Kt = Kt / sum,
-                  .p = p};
-    return m;
-}
 
 /***************************************************
  *                     Scene                       *
  ***************************************************/
 
-inline Scene * new_scene(int objects_count, int light_sources_count, Color background_color) {
+Scene * new_scene(int objects_count, int light_sources_count, Color background_color) {
     Scene * s = malloc(sizeof(Scene));
     s->al = 0;
     s->be = 0;
@@ -116,7 +73,7 @@ inline Scene * new_scene(int objects_count, int light_sources_count, Color backg
     return s;
 }
 
-inline void release_scene(Scene * scene) {
+void release_scene(Scene * scene) {
     int i;
     
     for(i = 0; i < scene->objects_count; i++) {
@@ -177,7 +134,7 @@ void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_source
     scene->kd_tree = build_kd_tree(scene->objects, scene->last_object_index + 1);
 }
 
-inline void add_object(Scene * scene, Object3d * object) {
+void add_object(Scene * scene, Object3d * object) {
     Float sin_al = sin(scene->al);
     Float cos_al = cos(scene->al);
     Float sin_be = sin(scene->be);
@@ -191,11 +148,7 @@ inline void add_object(Scene * scene, Object3d * object) {
     scene->kd_tree = build_kd_tree(scene->objects, scene->last_object_index + 1);
 }
 
-inline void add_light_source(Scene * scene, LightSource3d * light_source) {
-    scene->light_sources[++scene->last_light_source_index] = light_source;
-}
-
-inline void set_exponential_fog(Scene * scene, Float k) {
+void set_exponential_fog(Scene * scene, Float k) {
     scene->fog_density = exponential_fog_density;
     
     Float * k_p = malloc(sizeof(Float));
@@ -207,16 +160,11 @@ inline void set_exponential_fog(Scene * scene, Float k) {
     scene->fog_parameters = k_p;
 }
 
-inline void set_no_fog(Scene * scene) {
+void set_no_fog(Scene * scene) {
     if(scene->fog_parameters) {
         free(scene->fog_parameters);
     }
     scene->fog_density = NULL;
-}
-
-inline Float exponential_fog_density(Float distance, void * fog_data) {
-    Float * k = (Float *) fog_data;
-    return 1 - exp(- (*k) * distance);
 }
 
 void trace(Scene * scene,
@@ -466,7 +414,7 @@ int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene) {
     return 1;
 }
 
-inline Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v) {
+Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v) {
     Float numerator = 2 * (incident_ray.x * norm_v.x + incident_ray.y * norm_v.y + incident_ray.z * norm_v.z);
     
     Float norm_module = module_vector(norm_v);
