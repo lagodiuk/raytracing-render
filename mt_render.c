@@ -6,7 +6,9 @@
 
 #define true    1
 
-#ifdef MT_DEBUG
+#define MT_DEBUG    (0)
+
+#if MT_DEBUG
 # define debugf(...) do { printf(__VA_ARGS__); } while (0)
 #else
 # define debugf(...)
@@ -59,7 +61,7 @@ mt_tasks_t * mt_new_pool(work_func_t *work) {
 
     mt_tasks_t *t = (mt_tasks_t *) malloc(sizeof(mt_tasks_t)); 
 
-    t->n_cpu = 32;//sysconf( _SC_NPROCESSORS_ONLN );
+    t->n_cpu = 2 * sysconf( _SC_NPROCESSORS_ONLN );
     debugf("mt_render_init: %d cores\n", t->n_cpu);
 
     /* initialize workers and threads */
