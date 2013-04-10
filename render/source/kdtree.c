@@ -18,7 +18,7 @@ void split_voxel(Voxel v,
 
 int object_in_voxel(Object3d * obj, Voxel v);
 
-int vector_plane_intersection(Vector3d vector,
+inline int vector_plane_intersection(Vector3d vector,
                               Point3d vector_start,
                               enum Plane plane,
                               Coord coord,
@@ -280,7 +280,7 @@ KDNode * make_leaf(Object3d ** objects, int objects_count) {
     return leaf;
 }
 
-int vector_plane_intersection(Vector3d vector,
+inline int vector_plane_intersection(Vector3d vector,
                               Point3d vector_start,
                               enum Plane plane,
                               Coord coord,
@@ -460,7 +460,7 @@ int find_intersection_node(KDNode * node,
     
     Float t_near;
     Float t_far;
-    Float t_split;
+    //Float t_split;
     
     if(!voxel_intersection(vector, vector_start, v, &t_near, &t_far)) {
         return False;
@@ -507,10 +507,10 @@ int find_intersection_node(KDNode * node,
 
     // Otherwise    
         
-    Point3d p_split;
-    if(!vector_plane_intersection(vector, vector_start, node->plane, node->coord, &p_split, &t_split)) {
-        t_split = FLOAT_MAX;
-    }
+    //Point3d p_split;
+    //if(!vector_plane_intersection(vector, vector_start, node->plane, node->coord, &p_split, &t_split)) {
+    //    t_split = FLOAT_MAX;
+    //}
     
     Voxel front_voxel;
     Voxel back_voxel;
@@ -641,10 +641,10 @@ int is_intersect_anything_node(KDNode * node,
     
     // Otherwise
         
-    Point3d p_split;
-    if(!vector_plane_intersection(vector, vector_start, node->plane, node->coord, &p_split, &t_split)) {
-        t_split = FLOAT_MAX;
-    }
+    //Point3d p_split;
+    //if(!vector_plane_intersection(vector, vector_start, node->plane, node->coord, &p_split, &t_split)) {
+    //    t_split = FLOAT_MAX;
+    //}
         
     Voxel front_voxel;
     Voxel back_voxel;
