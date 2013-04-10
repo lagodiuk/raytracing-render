@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
+
 #include <render.h>
 #include <utils.h>
+#include <kdtree.h>
 
 #define INITIAL_RAY_INTENSITY 100
 #define THRESHOLD_RAY_INTENSITY 10
@@ -109,6 +111,8 @@ inline Scene * new_scene(int objects_count, int light_sources_count, Color backg
     s->last_light_source_index = -1;
     s->fog_parameters = NULL;
     s->fog_density = NULL;
+    
+    s->kd_tree = build_kd_tree(s->objects, s->last_object_index + 1);
     return s;
 }
 
@@ -168,6 +172,9 @@ void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_source
             }
         }
     }
+
+    release_kd_tree(scene->kd_tree);
+    scene->kd_tree = build_kd_tree(scene->objects, scene->last_object_index + 1);
 }
 
 inline void add_object(Scene * scene, Object3d * object) {
@@ -179,6 +186,9 @@ inline void add_object(Scene * scene, Object3d * object) {
     object->rotate(object->data, sin_al, cos_al, sin_be, cos_be);
     
     scene->objects[++scene->last_object_index] = object;
+    
+    release_kd_tree(scene->kd_tree);
+    scene->kd_tree = build_kd_tree(scene->objects, scene->last_object_index + 1);
 }
 
 inline void add_light_source(Scene * scene, LightSource3d * light_source) {
@@ -234,8 +244,8 @@ void trace_i(Scene * scene,
     Object3d * nearest_obj = NULL;
     Point3d nearest_intersection_point;
     Float nearest_intersection_point_dist = FLOAT_MAX;
-
-    if(find_intersection(scene,
+    
+    if(find_intersection_tree(scene->kd_tree,
                          vector_start,
                          vector,
                          &nearest_obj,
@@ -250,12 +260,15 @@ void trace_i(Scene * scene,
                                  &nearest_intersection_point_dist,
                                  intensity,
                                  iteration_num);
+                
         return;
     }
     
     *color = scene->background_color;
 }
 
+
+// O(N)
 int find_intersection(Scene * scene,
                        Point3d vector_start,
                        Vector3d vector,
@@ -446,22 +459,9 @@ Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, F
 int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene) {
     Vector3d ray = vector3dp(starting_point, target_point);
     normalize_vector(&ray);
-    Point3d intersection_point;
-    
-    int i;
-    Object3d * obj = NULL;
-    for(i = 0; i < scene->last_object_index; i++) {
-        if(scene->objects[i]) {
-            obj = scene->objects[i];
-        
-            if(obj->intersect(obj->data, starting_point, ray, &intersection_point)) {
-                // Target point is not viewable from starting point
-                // because of ray intersects some of scene objects
-                return 0;
-            }
-        }
+    if(is_intersect_anything_tree(scene->kd_tree, starting_point, ray)) {
+        return 0;
     }
-    
     // Ray doesn't intersect any of scene objects
     return 1;
 }

@@ -96,6 +96,50 @@ struct {
 }
 Object3d;
 
+// KD Tree
+enum Plane {XY, XZ, YZ, NONE};
+
+typedef
+union {
+    Float x;
+    Float y;
+    Float z;
+}
+Coord;
+
+typedef
+struct {
+    Float x_min;
+    Float y_min;
+    Float z_min;
+    
+    Float x_max;
+    Float y_max;
+    Float z_max;
+}
+Voxel;
+
+typedef
+struct KDNode {
+    enum Plane plane;
+    Coord coord;
+    
+    Object3d ** objects;
+    int objects_count;
+    
+    struct KDNode * l;
+    struct KDNode * r;
+}
+KDNode;
+
+typedef
+struct {
+    KDNode * root;
+    Voxel bounding_box;
+}
+KDTree;
+//
+
 typedef
 struct {
     // Angles of projection
@@ -106,6 +150,8 @@ struct {
     Object3d ** objects;
     int objects_count;
     int last_object_index;
+    
+    KDTree * kd_tree;
     
     // Array of pointers to light sources
     LightSource3d ** light_sources;
