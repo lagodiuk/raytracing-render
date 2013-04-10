@@ -106,15 +106,12 @@ KDNode * rec_build(Object3d ** objects, int objects_count, Voxel v, int iter) {
     
     Object3d ** l_objects = NULL;
     int l_objects_count = filter_overlapped_objects(objects, objects_count, vl, &l_objects);
-
+    KDNode * l = rec_build(l_objects, l_objects_count, vl, iter + 1);
+    
     Object3d ** r_objects = NULL;
     int r_objects_count = filter_overlapped_objects(objects, objects_count, vr, &r_objects);
-    
-    KDNode * l = rec_build(l_objects, l_objects_count, vl, iter + 1);
     KDNode * r = rec_build(r_objects, r_objects_count, vr, iter + 1);
-    
-    free(l_objects);
-    free(r_objects);
+
     
     KDNode * node = malloc(sizeof(KDNode));
     node->objects = NULL;
@@ -129,20 +126,36 @@ KDNode * rec_build(Object3d ** objects, int objects_count, Voxel v, int iter) {
 
 int filter_overlapped_objects(Object3d ** objects, int objects_count, Voxel v, Object3d *** overlapped_objects) {
     int i;
-    int count = 0;
+    int j;
+    int count;
+    
+    count = 0;
     for(i = 0; i < objects_count; i++) {
         if(object_in_voxel(objects[i], v)) {
             count++;
         }
     }
-    *overlapped_objects = (Object3d **) calloc(count, sizeof(Object3d *));
-    int j = 0;
-    for(i = 0; i < objects_count; i++) {
-        if(object_in_voxel(objects[i], v)) {
-            (*overlapped_objects)[j++] = objects[i];
-        }
+    
+    i = 0;
+    j = objects_count - 1;
+    Object3d * tmp;
+    
+    // Put all objects, which overlap with voxel to the left part of array
+    while(i < j) {
+        while((i < j) && (object_in_voxel(objects[i], v)))
+            i++;
+        
+        while((j > i) && (!object_in_voxel(objects[j], v)))
+            j--;
+        
+        tmp = objects[i];
+        objects[i] = objects[j];
+        objects[j] = tmp;
+        i++;
+        j--;
     }
     
+    *overlapped_objects = objects;    
     return count;
 }
 
