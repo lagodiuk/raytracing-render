@@ -1,7 +1,11 @@
 #include <math.h>
 #include <stdlib.h>
+
 #include <render.h>
 #include <utils.h>
+
+// Declarations
+// --------------------------------------------------------------
 
 typedef
 struct {
@@ -46,21 +50,35 @@ struct {
 }
 Triangle3d;
 
+Boolean intersect_triangle(void * data,
+                           Point3d vector_start,
+                           Vector3d vector,
+                           Point3d * intersection_point);
+
+void rotate_triangle(void * data,
+                     Float sin_al,
+                     Float cos_al,
+                     Float sin_be,
+                     Float cos_be);
+
+Point3d get_min_triangle_boundary_point(void * data);
+
+Point3d get_max_triangle_boundary_point(void * data);
 
 static inline Color get_triangle_color(void * data,
-                         Point3d intersection_point) {
+                                       Point3d intersection_point) {
 	Triangle3d * triangle = data;
 	return triangle->color;
 }
 
 static inline Vector3d get_triangle_normal_vector(void * data,
-                                    Point3d intersection_point) {
+                                                  Point3d intersection_point) {
   	Triangle3d * triangle = data;
     return vector3df(triangle->A, triangle->B, triangle->C);
 }
 
 static inline Material get_triangle_material(void * data,
-                               Point3d intersection_point) {
+                                             Point3d intersection_point) {
     Triangle3d * triangle = data;
     return triangle->material;
 }
@@ -70,29 +88,17 @@ static inline void release_triangle_data(void * data) {
 	free(triangle);
 }
 
+// Code
+// --------------------------------------------------------------
 
-void rotate_triangle(void * data,
-                     Float sin_al,
-                     Float cos_al,
-                     Float sin_be,
-                     Float cos_be);
-
-Color get_triangle_color(void * data,
-                         Point3d intersection_point);
-
-int intersect_triangle(void * data,
-                       Point3d vector_start,
-                       Vector3d vector,
-                       Point3d * intersection_point);
-
-
-Point3d get_min_triangle_boundary_point(void * data);
-
-Point3d get_max_triangle_boundary_point(void * data);
-
-
-Object3d * new_triangle(Point3d p1, Point3d p2, Point3d p3, Color color, Material material) {
+Object3d * new_triangle(Point3d p1,
+                        Point3d p2,
+                        Point3d p3,
+                        Color color,
+                        Material material) {
+    
 	Triangle3d * triangle = malloc(sizeof(Triangle3d));
+    
 	triangle->p1w = p1;
 	triangle->p2w = p2;
 	triangle->p3w = p3;
@@ -157,7 +163,12 @@ Point3d get_max_triangle_boundary_point(void * data) {
     return point3d(x_max + 1, y_max + 1, z_max + 1);
 }
 
-void rotate_triangle(void * data, Float sin_al, Float cos_al, Float sin_be, Float cos_be) {
+void rotate_triangle(void * data,
+                     Float sin_al,
+                     Float cos_al,
+                     Float sin_be,
+                     Float cos_be) {
+    
 	Triangle3d * triangle = data;
     
 	triangle->p1 = rotate_point(triangle->p1w, sin_al, cos_al, sin_be, cos_be);
@@ -171,7 +182,11 @@ void rotate_triangle(void * data, Float sin_al, Float cos_al, Float sin_be, Floa
 	triangle->D = -(triangle->p1.x * triangle->A + triangle->p1.y * triangle->B + triangle->p1.z * triangle->C);
 }
 
-int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point3d * intersection_point) {
+Boolean intersect_triangle(void * data,
+                           Point3d vector_start,
+                           Vector3d vector,
+                           Point3d * intersection_point) {
+    
 	Triangle3d * tr = data;
     
     Float scalar_product = tr->A * vector.x + tr->B * vector.y + tr->C * vector.z;
@@ -180,7 +195,7 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
         // Ray is perpendicular to triangles normal vector (A, B, C)
         // it means that ray is parellel to triangle
         // so there is no intersection
-        return 0;
+        return False;
     }
     
 	Float k = - (tr->A * vector_start.x
@@ -191,7 +206,7 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
     
     if(k < EPSILON) {
         // Avoid intersection in the opposite direction
-        return 0;
+        return False;
     }
 	
 	Float x = vector_start.x + vector.x * k;
@@ -224,10 +239,9 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
     if(abs(s1 + s2 + s3 - tr->s) < EPSILON) {
         // Triangle is intersected
         *intersection_point = ipt;
-        return 1;
+        return True;
     }
     
     // No intersection
-	return 0;
+	return False;
 }
-

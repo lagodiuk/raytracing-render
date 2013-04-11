@@ -6,186 +6,68 @@
 #include <render.h>
 #include <utils.h>
 #include <kdtree.h>
+#include <color.h>
 
 #define INITIAL_RAY_INTENSITY 100
 #define THRESHOLD_RAY_INTENSITY 10
-#define MAX_RAY_ITERATIONS 10
+#define MAX_RAY_RECURSION_LEVEL 10
 
-int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene);
+// Declarations
+// --------------------------------------------------------------
 
-Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene);
+static inline Boolean is_viewable(Point3d target_point,
+                                  Point3d starting_point,
+                                  Scene * scene);
 
-Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, Float p);
+static inline Color get_lighting_color(Point3d point,
+                                       Vector3d norm_v,
+                                       Scene * scene);
 
-Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v);
+static inline Color get_specular_color(Point3d point,
+                                       Vector3d reflected_ray,
+                                       Scene * scene, Float p);
 
-void trace_i(Scene * scene,
-             Point3d vector_start,
-             Vector3d vector,
-             Color * color,
-             Float intensity,
-             int iteration_num);
+static inline Vector3d reflect_ray(Vector3d incident_ray,
+                                   Vector3d norm_v);
 
-Color calculate_color(Scene * scene,
-                      Point3d vector_start,
-                      Vector3d vector,
-                      Object3d ** obj_ptr,
-                      Point3d * point_ptr,
-                      Float * dist_ptr,
-                      Float intensity,
-                      int iteration_num);
+static inline Color calculate_color(Scene * scene,
+                                    Point3d vector_start,
+                                    Vector3d vector,
+                                    Object3d ** obj_ptr,
+                                    Point3d * point_ptr,
+                                    Float * dist_ptr,
+                                    Float intensity,
+                                    int recursion_level);
 
-int find_intersection(Scene * scene,
-                      Point3d vector_start,
-                      Vector3d vector,
-                      Object3d ** nearest_obj_ptr,
-                      Point3d * nearest_intersection_point_ptr,
-                      Float * nearest_intersection_point_dist_ptr);
+void trace_recursively(Scene * scene,
+                       Point3d vector_start,
+                       Vector3d vector,
+                       Color * color,
+                       Float intensity,
+                       int recursion_level);
 
-
-static inline Float exponential_fog_density(Float distance, void * fog_data) {
-    Float * k = (Float *) fog_data;
-    return 1 - exp(- (*k) * distance);
-}
-
-
-/***************************************************
- *                     Scene                       *
- ***************************************************/
-
-Scene * new_scene(int objects_count, int light_sources_count, Color background_color) {
-    Scene * s = malloc(sizeof(Scene));
-    s->al = 0;
-    s->be = 0;
-    s->objects_count=objects_count;
-    s->objects = calloc(objects_count, sizeof(Object3d *));
-    if(light_sources_count) {
-        s->light_sources = calloc(light_sources_count, sizeof(LightSource3d *));
-    }
-    s->light_sources_count = light_sources_count;
-    s->background_color = background_color;
-    s->last_object_index = -1;
-    s->last_light_source_index = -1;
-    s->fog_parameters = NULL;
-    s->fog_density = NULL;
-    
-    s->kd_tree = build_kd_tree(s->objects, s->last_object_index + 1);
-    return s;
-}
-
-void release_scene(Scene * scene) {
-    int i;
-    
-    for(i = 0; i < scene->objects_count; i++) {
-        if(scene->objects[i]) {
-            release_object3d(scene->objects[i]);
-        }
-    }
-    
-    for(i = 0; i < scene->light_sources_count; i++) {
-        if(scene->light_sources[i]) {
-            free(scene->light_sources[i]);
-        }
-    }
-    
-    free(scene->objects);
-    free(scene->light_sources);
-    
-    if(scene->fog_parameters) {
-        free(scene->fog_parameters);
-    }
-    
-    free(scene);
-}
-
-void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_sources) {
-    scene->al = al;
-    scene->be = be;
-    
-    // Pre-calculating of trigonometric functions
-    Float sin_al = sin(al);
-    Float cos_al = cos(al);
-    Float sin_be = sin(be);
-    Float cos_be = cos(be);
-    
-    int i;
-    Object3d * obj;
-    
-    for(i = 0; i < scene->objects_count; i++) {
-        if(scene->objects[i]) {
-            obj = scene->objects[i];
-            obj->rotate(obj->data, sin_al, cos_al, sin_be, cos_be);
-        }
-    }
-    
-    if((scene->light_sources_count) && (rotate_light_sources)) {
-        Point3d ls_location;
-        
-        for(i = 0; i < scene->light_sources_count; i++) {
-            if(scene->light_sources[i]) {
-                ls_location = scene->light_sources[i]->location_world;
-                scene->light_sources[i]->location =
-                    rotate_point(ls_location, sin_al, cos_al, sin_be, cos_be);
-            }
-        }
-    }
-
-    release_kd_tree(scene->kd_tree);
-    scene->kd_tree = build_kd_tree(scene->objects, scene->last_object_index + 1);
-}
-
-void add_object(Scene * scene, Object3d * object) {
-    Float sin_al = sin(scene->al);
-    Float cos_al = cos(scene->al);
-    Float sin_be = sin(scene->be);
-    Float cos_be = cos(scene->be);
-    
-    object->rotate(object->data, sin_al, cos_al, sin_be, cos_be);
-    
-    scene->objects[++scene->last_object_index] = object;
-    
-    release_kd_tree(scene->kd_tree);
-    scene->kd_tree = build_kd_tree(scene->objects, scene->last_object_index + 1);
-}
-
-void set_exponential_fog(Scene * scene, Float k) {
-    scene->fog_density = exponential_fog_density;
-    
-    Float * k_p = malloc(sizeof(Float));
-    *k_p = k;
-    
-    if(scene->fog_parameters) {
-        free(scene->fog_parameters);
-    }
-    scene->fog_parameters = k_p;
-}
-
-void set_no_fog(Scene * scene) {
-    if(scene->fog_parameters) {
-        free(scene->fog_parameters);
-    }
-    scene->fog_density = NULL;
-}
+// Code
+// --------------------------------------------------------------
 
 void trace(Scene * scene,
            Point3d vector_start,
            Vector3d vector,
            Color * color) {
     
-    trace_i(scene,
-            vector_start,
-            vector,
-            color,
-            INITIAL_RAY_INTENSITY,
-            1);
+    trace_recursively(scene,
+                      vector_start,
+                      vector,
+                      color,
+                      INITIAL_RAY_INTENSITY,
+                      0);
 }
 
-void trace_i(Scene * scene,
-             Point3d vector_start,
-             Vector3d vector,
-             Color * color,
-             Float intensity,
-             int iteration_num) {
+void trace_recursively(Scene * scene,
+                       Point3d vector_start,
+                       Vector3d vector,
+                       Color * color,
+                       Float intensity,
+                       int recursion_level) {
 
     normalize_vector(&vector);
     
@@ -194,11 +76,11 @@ void trace_i(Scene * scene,
     Float nearest_intersection_point_dist = FLOAT_MAX;
     
     if(find_intersection_tree(scene->kd_tree,
-                         vector_start,
-                         vector,
-                         &nearest_obj,
-                         &nearest_intersection_point,
-                         &nearest_intersection_point_dist)) {
+                              vector_start,
+                              vector,
+                              &nearest_obj,
+                              &nearest_intersection_point,
+                              &nearest_intersection_point_dist)) {
 
         *color = calculate_color(scene,
                                  vector_start,
@@ -207,7 +89,7 @@ void trace_i(Scene * scene,
                                  &nearest_intersection_point,
                                  &nearest_intersection_point_dist,
                                  intensity,
-                                 iteration_num);
+                                 recursion_level);
                 
         return;
     }
@@ -215,50 +97,14 @@ void trace_i(Scene * scene,
     *color = scene->background_color;
 }
 
-
-// O(N)
-int find_intersection(Scene * scene,
-                       Point3d vector_start,
-                       Vector3d vector,
-                       Object3d ** nearest_obj_ptr,
-                       Point3d * nearest_intersection_point_ptr,
-                       Float * nearest_intersection_point_dist_ptr) {
-    int i;
-    Object3d * obj = NULL;
-    Point3d intersection_point;
-    Float curr_intersection_point_dist;
-    int intersected = False;
-    
-    // Finding nearest object
-    // and intersection point
-    for(i = 0; i < scene->last_object_index + 1; i++) {
-        if(scene->objects[i]) {
-            obj = scene->objects[i];
-            
-            if(obj->intersect(obj->data, vector_start, vector, &intersection_point)) {
-                curr_intersection_point_dist = module_vector(vector3dp(vector_start, intersection_point));
-                
-                if(curr_intersection_point_dist < *nearest_intersection_point_dist_ptr) {
-                    *nearest_obj_ptr = obj;
-                    *nearest_intersection_point_ptr = intersection_point;
-                    *nearest_intersection_point_dist_ptr = curr_intersection_point_dist;
-                    intersected = True;
-                }
-            }
-        }
-    }
-    
-    return intersected;
-}
-
-Color calculate_color(Scene * scene,
-                     Point3d vector_start,
-                     Vector3d vector,
-                     Object3d ** obj_ptr,
-                     Point3d * point_ptr,
-                     Float * dist_ptr,
-                     Float intensity,
-                     int iteration_num) {
+static inline Color calculate_color(Scene * scene,
+                                    Point3d vector_start,
+                                    Vector3d vector,
+                                    Object3d ** obj_ptr,
+                                    Point3d * point_ptr,
+                                    Float * dist_ptr,
+                                    Float intensity,
+                                    int recursion_level) {
 
     Object3d * obj = *obj_ptr;
     Point3d point = *point_ptr;
@@ -276,7 +122,7 @@ Color calculate_color(Scene * scene,
     Color specular_color;
     
     Vector3d reflected_ray;
-    if((material.Ks) || (material.Kr)) {
+    if((material.Ks) || (material.Kr)) {        
         reflected_ray = reflect_ray(vector, norm);
     }
     
@@ -288,6 +134,7 @@ Color calculate_color(Scene * scene,
     // Diffuse
     if(material.Kd) {
         diffuse_color = obj_color;
+        
         if(scene->light_sources_count) {
             Color light_color = get_lighting_color(point, norm, scene);
             diffuse_color = mul_colors(diffuse_color, light_color);
@@ -297,6 +144,7 @@ Color calculate_color(Scene * scene,
     // Specular
     if(material.Ks) {
         specular_color = scene->background_color;
+        
         if(scene->light_sources_count) {
             specular_color = get_specular_color(point, reflected_ray, scene, material.p);
         }
@@ -307,13 +155,15 @@ Color calculate_color(Scene * scene,
     if(material.Kr) {
         // Avoid deep recursion by tracing rays, which have intensity is greather than threshold
         // and avoid infinite recursion by limiting number of recursive calls
-        if((intensity > THRESHOLD_RAY_INTENSITY) && (iteration_num < MAX_RAY_ITERATIONS)) {
-            trace_i(scene,
-                    point,
-                    reflected_ray,
-                    &reflected_color,
-                    intensity * material.Kr,
-                    iteration_num + 1);
+        if((intensity > THRESHOLD_RAY_INTENSITY)
+           && (recursion_level < MAX_RAY_RECURSION_LEVEL)) {
+            
+            trace_recursively(scene,
+                              point,
+                              reflected_ray,
+                              &reflected_color,
+                              intensity * material.Kr,
+                              recursion_level + 1);
         } else {
             reflected_color = scene->background_color;
         }
@@ -322,16 +172,20 @@ Color calculate_color(Scene * scene,
     // Result
     Color result_color = rgb(0, 0, 0);
     if(material.Ka) {
-        result_color = add_colors(result_color, mul_color(ambient_color, material.Ka));
+        result_color = add_colors(result_color,
+                                  mul_color(ambient_color, material.Ka));
     }
     if(material.Kd) {
-        result_color = add_colors(result_color, mul_color(diffuse_color, material.Kd));
+        result_color = add_colors(result_color,
+                                  mul_color(diffuse_color, material.Kd));
     }
     if(material.Ks) {
-        result_color = add_colors(result_color, mul_color(specular_color, material.Ks));
+        result_color = add_colors(result_color,
+                                  mul_color(specular_color, material.Ks));
     }
     if(material.Kr) {
-        result_color = add_colors(result_color, mul_color(reflected_color, material.Kr));
+        result_color = add_colors(result_color,
+                                  mul_color(reflected_color, material.Kr));
     }
     
     if(scene->fog_density) {
@@ -344,7 +198,9 @@ Color calculate_color(Scene * scene,
     return result_color;
 }
 
-Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene) {
+static inline Color get_lighting_color(Point3d point,
+                                       Vector3d norm_v,
+                                       Scene * scene) {
     Color light_color = rgb(0, 0, 0);
     
     normalize_vector(&norm_v);
@@ -374,7 +230,10 @@ Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene) {
     return light_color;
 }
 
-Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, Float p) {
+static inline Color get_specular_color(Point3d point,
+                                       Vector3d reflected_ray,
+                                       Scene * scene,
+                                       Float p) {
     Color light_color = rgb(0, 0, 0);
     
     normalize_vector(&reflected_ray);
@@ -404,18 +263,25 @@ Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, F
     return light_color;
 }
 
-int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene) {
+static inline Boolean is_viewable(Point3d target_point,
+                                  Point3d starting_point,
+                                  Scene * scene) {
+    
     Vector3d ray = vector3dp(starting_point, target_point);
     normalize_vector(&ray);
     if(is_intersect_anything_tree(scene->kd_tree, starting_point, ray)) {
-        return 0;
+        return False;
     }
     // Ray doesn't intersect any of scene objects
-    return 1;
+    return True;
 }
 
-Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v) {
-    Float numerator = 2 * (incident_ray.x * norm_v.x + incident_ray.y * norm_v.y + incident_ray.z * norm_v.z);
+static inline Vector3d reflect_ray(Vector3d incident_ray,
+                                   Vector3d norm_v) {
+    
+    Float numerator = 2 * (incident_ray.x * norm_v.x
+                           + incident_ray.y * norm_v.y
+                           + incident_ray.z * norm_v.z);
     
     Float norm_module = module_vector(norm_v);
     Float denominator = norm_module * norm_module;
@@ -427,4 +293,52 @@ Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v) {
     Float z = incident_ray.z - norm_v.z * k;
     
     return vector3df(x, y, z);
+}
+
+// Deprecated
+// --------------------------------------------------------------
+
+/*
+ * Brute force function for finding nearest object, which intersected by the ray:
+ * itertaing over all objects of scene, and finding intersections - O(N) complexity.
+ * It is just illustrative function.
+ * 
+ * In fact, currently, the kd-tree is used for this purpose - O(log(N)) complexity
+ *
+ * This function has just historic value for me :-)
+ *
+ * TODO remove this function in future
+ */
+int find_intersection(Scene * scene,
+                      Point3d vector_start,
+                      Vector3d vector,
+                      Object3d ** nearest_obj_ptr,
+                      Point3d * nearest_intersection_point_ptr,
+                      Float * nearest_intersection_point_dist_ptr) {
+    int i;
+    Object3d * obj = NULL;
+    Point3d intersection_point;
+    Float curr_intersection_point_dist;
+    int intersected = False;
+    
+    // Finding nearest object
+    // and intersection point
+    for(i = 0; i < scene->last_object_index + 1; i++) {
+        if(scene->objects[i]) {
+            obj = scene->objects[i];
+            
+            if(obj->intersect(obj->data, vector_start, vector, &intersection_point)) {
+                curr_intersection_point_dist = module_vector(vector3dp(vector_start, intersection_point));
+                
+                if(curr_intersection_point_dist < *nearest_intersection_point_dist_ptr) {
+                    *nearest_obj_ptr = obj;
+                    *nearest_intersection_point_ptr = intersection_point;
+                    *nearest_intersection_point_dist_ptr = curr_intersection_point_dist;
+                    intersected = True;
+                }
+            }
+        }
+    }
+    
+    return intersected;
 }
