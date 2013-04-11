@@ -67,6 +67,12 @@ $(canvas_lib): $(canvas_dir)/canvas.o
 $(render_dir):
 	mkdir -p $@
 
+$(render_dir)/scene.o: ./render/source/scene.c ./render/headers/render.h ./canvas/headers/color.h $(render_dir)
+	gcc -c ./render/source/scene.c $(INCLUDES) -o $@
+
+$(render_dir)/fog.o: ./render/source/fog.c ./render/headers/render.h $(render_dir)
+	gcc -c ./render/source/fog.c $(INCLUDES) -o $@
+
 $(render_dir)/render.o: ./render/source/render.c ./render/headers/render.h ./canvas/headers/color.h $(render_dir)
 	gcc -c ./render/source/render.c $(INCLUDES) -o $@
 
@@ -76,7 +82,7 @@ $(render_dir)/triangle.o: ./render/source/triangle.c ./render/headers/render.h .
 $(render_dir)/kdtree.o: ./render/source/kdtree.c ./render/headers/kdtree.h ./render/headers/render.h $(render_dir)
 	gcc -c ./render/source/kdtree.c $(INCLUDES) -o $@
 
-$(render_lib): $(render_dir)/render.o $(render_dir)/triangle.o $(render_dir)/kdtree.o
+$(render_lib): $(render_dir)/render.o $(render_dir)/triangle.o $(render_dir)/kdtree.o $(render_dir)/scene.o $(render_dir)/fog.o
 	ar -rcs $@ $^
 
 #

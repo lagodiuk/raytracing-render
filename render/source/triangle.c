@@ -48,19 +48,19 @@ Triangle3d;
 
 
 static inline Color get_triangle_color(void * data,
-                         Point3d intersection_point) {
+                                       Point3d intersection_point) {
 	Triangle3d * triangle = data;
 	return triangle->color;
 }
 
 static inline Vector3d get_triangle_normal_vector(void * data,
-                                    Point3d intersection_point) {
+                                                  Point3d intersection_point) {
   	Triangle3d * triangle = data;
     return vector3df(triangle->A, triangle->B, triangle->C);
 }
 
 static inline Material get_triangle_material(void * data,
-                               Point3d intersection_point) {
+                                             Point3d intersection_point) {
     Triangle3d * triangle = data;
     return triangle->material;
 }
@@ -180,7 +180,7 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
         // Ray is perpendicular to triangles normal vector (A, B, C)
         // it means that ray is parellel to triangle
         // so there is no intersection
-        return 0;
+        return False;
     }
     
 	Float k = - (tr->A * vector_start.x
@@ -191,7 +191,7 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
     
     if(k < EPSILON) {
         // Avoid intersection in the opposite direction
-        return 0;
+        return False;
     }
 	
 	Float x = vector_start.x + vector.x * k;
@@ -224,10 +224,10 @@ int intersect_triangle(void * data, Point3d vector_start, Vector3d vector, Point
     if(abs(s1 + s2 + s3 - tr->s) < EPSILON) {
         // Triangle is intersected
         *intersection_point = ipt;
-        return 1;
+        return True;
     }
     
     // No intersection
-	return 0;
+	return False;
 }
 
