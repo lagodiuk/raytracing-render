@@ -46,8 +46,7 @@ void split_voxel(Voxel v,
 
 int filter_overlapped_objects(Object3d ** objects,
                               int objects_count,
-                              Voxel v,
-                              Object3d *** overlapped_objects);
+                              Voxel v);
 
 static inline Boolean vector_plane_intersection(Vector3d vector,
                                                 Point3d vector_start,
@@ -136,13 +135,11 @@ KDNode * rec_build(Object3d ** objects,
     Voxel vr;
     split_voxel(v, p, c, &vl, &vr);
     
-    Object3d ** l_objects = NULL;
-    int l_objects_count = filter_overlapped_objects(objects, objects_count, vl, &l_objects);
-    KDNode * l = rec_build(l_objects, l_objects_count, vl, iter + 1);
+    int l_objects_count = filter_overlapped_objects(objects, objects_count, vl);
+    KDNode * l = rec_build(objects, l_objects_count, vl, iter + 1);
     
-    Object3d ** r_objects = NULL;
-    int r_objects_count = filter_overlapped_objects(objects, objects_count, vr, &r_objects);
-    KDNode * r = rec_build(r_objects, r_objects_count, vr, iter + 1);
+    int r_objects_count = filter_overlapped_objects(objects, objects_count, vr);
+    KDNode * r = rec_build(objects, r_objects_count, vr, iter + 1);
 
     
     KDNode * node = malloc(sizeof(KDNode));
@@ -157,9 +154,8 @@ KDNode * rec_build(Object3d ** objects,
 }
 
 int filter_overlapped_objects(Object3d ** objects,
-                                  int objects_count,
-                                  Voxel v,
-                                  Object3d *** overlapped_objects) {
+                              int objects_count,
+                              Voxel v) {
     
     int i = 0;
     int j = objects_count - 1;
@@ -184,8 +180,7 @@ int filter_overlapped_objects(Object3d ** objects,
         j--;
         overlapped_count++;
     }
-    
-    *overlapped_objects = objects;    
+     
     return overlapped_count;
 }
 
