@@ -53,7 +53,7 @@ $(render_dir):
 	mkdir -p $@
 
 $(render_dir)/canvas.o: ./render/source/canvas.c ./render/headers/canvas.h ./render/headers/color.h $(render_dir)
-	gcc -c ./render/source/canvas.c -I./render/headers/ -o $@
+	gcc -c ./render/source/canvas.c $(INCLUDES) -o $@
 
 $(render_dir)/scene.o: ./render/source/scene.c ./render/headers/render.h ./render/headers/color.h $(render_dir)
 	gcc -c ./render/source/scene.c $(INCLUDES) -o $@
