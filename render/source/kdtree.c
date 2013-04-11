@@ -7,8 +7,9 @@
 #include <kdtree.h>
 #include <utils.h>
 
-#define MAX_ITER 11
-#define OBJECTS_COUNT_THRESHOLD 6
+#define MAX_TREE_DEPTH 11
+
+#define OBJECTS_IN_LEAF 6
 
 #define __hot   __attribute__((hot))
 
@@ -243,7 +244,7 @@ Boolean terminate(Object3d ** objects,
                   int iter) {
     
     // TODO use SAH
-    if((iter < MAX_ITER) && (objects_count > OBJECTS_COUNT_THRESHOLD)) {
+    if((iter < MAX_TREE_DEPTH) && (objects_count > OBJECTS_IN_LEAF)) {
         return False;
     }
     return True;
@@ -544,64 +545,50 @@ Boolean find_intersection_node(KDNode * node,
     Voxel v_l;
     Voxel v_r;
     split_voxel(v, node->plane, node->coord, &v_l, &v_r);
-    
-    if(point_in_voxel(vector_start, v_l)) {
-        front_node = node->l;
-        back_node = node->r;
-        front_voxel = v_l;
-        back_voxel = v_r;
-    } else if(point_in_voxel(vector_start, v_r)) {
-        front_node = node->r;
-        back_node = node->l;
-        front_voxel = v_r;
-        back_voxel = v_l;
-    } else {
-        switch(node->plane) {
-            case XY:
-                if((node->coord.z - v_l.z_min) * (node->coord.z - vector_start.z) > 0) {
-                    front_node = node->l;
-                    back_node = node->r;
-                    front_voxel = v_l;
-                    back_voxel = v_r;
-                } else {
-                    front_node = node->r;
-                    back_node = node->l;
-                    front_voxel = v_r;
-                    back_voxel = v_l;
-                }
-                break;
-                
-            case XZ:
-                if((node->coord.y - v_l.y_min) * (node->coord.y - vector_start.y) > 0) {
-                    front_node = node->l;
-                    back_node = node->r;
-                    front_voxel = v_l;
-                    back_voxel = v_r;
-                } else {
-                    front_node = node->r;
-                    back_node = node->l;
-                    front_voxel = v_r;
-                    back_voxel = v_l;
-                }
-                break;
-            
-            case YZ:
-                if((node->coord.x - v_l.x_min) * (node->coord.x - vector_start.x) > 0) {
-                    front_node = node->l;
-                    back_node = node->r;
-                    front_voxel = v_l;
-                    back_voxel = v_r;
-                } else {
-                    front_node = node->r;
-                    back_node = node->l;
-                    front_voxel = v_r;
-                    back_voxel = v_l;
-                }
-                break;
-        }
-    }
 
-    
+    switch(node->plane) {
+        case XY:
+            if((node->coord.z - v_l.z_min) * (node->coord.z - vector_start.z) > 0) {
+                front_node = node->l;
+                back_node = node->r;
+                front_voxel = v_l;
+                back_voxel = v_r;
+            } else {
+                front_node = node->r;
+                back_node = node->l;
+                front_voxel = v_r;
+                back_voxel = v_l;
+            }
+            break;
+                
+        case XZ:
+            if((node->coord.y - v_l.y_min) * (node->coord.y - vector_start.y) > 0) {
+                front_node = node->l;
+                back_node = node->r;
+                front_voxel = v_l;
+                back_voxel = v_r;
+            } else {
+                front_node = node->r;
+                back_node = node->l;
+                front_voxel = v_r;
+                back_voxel = v_l;
+            }
+            break;
+            
+        case YZ:
+            if((node->coord.x - v_l.x_min) * (node->coord.x - vector_start.x) > 0) {
+                front_node = node->l;
+                back_node = node->r;
+                front_voxel = v_l;
+                back_voxel = v_r;
+            } else {
+                front_node = node->r;
+                back_node = node->l;
+                front_voxel = v_r;
+                back_voxel = v_l;
+            }
+            break;
+    }    
 
     if(find_intersection_node(front_node,
                               front_voxel,
