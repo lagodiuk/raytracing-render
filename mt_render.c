@@ -61,7 +61,11 @@ mt_tasks_t * mt_new_pool(work_func_t work) {
 
     mt_tasks_t *t = (mt_tasks_t *) malloc(sizeof(mt_tasks_t)); 
 
+#ifndef N_WORKERS
     t->n_cpu = 2 * sysconf( _SC_NPROCESSORS_ONLN );
+#else 
+    t->n_cpu = N_WORKERS;
+#endif
     debugf("mt_render_init: %d cores\n", t->n_cpu);
 
     /* initialize workers and threads */

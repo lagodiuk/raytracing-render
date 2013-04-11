@@ -18,9 +18,9 @@ canvas_dir	=	./canvas/lib
 canvas_lib 	=	$(canvas_dir)/libcanvas.a
 
 LIBPATH		=	$(addprefix -L, $(render_dir) $(canvas_dir))
-INCLUDES	=	-Wall -Wextra -O2 $(addprefix -I, ./render/headers ./canvas/headers)
+INCLUDES	=	$(addprefix -I, ./render/headers ./canvas/headers) 
 LINKLIBS	= 	-lcanvas -lrender -lm
-CC_OPTS		=	-Wall -O2 $(CC_OPTS_TEST_GL)
+CC_OPTS		=	-Wall -O2 $(CC_OPTS_TEST_GL) -DN_WORKERS=$(NCPU)
 
 frame_dir	=	./frames
 
@@ -35,18 +35,20 @@ test_video: test $(frame_dir)
 test: test.c scene1.h scene1.o $(canvas_lib) $(render_lib)
 	gcc -O test.c scene1.o $(CC_OPTS) $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@
 
-test_gl: $(canvas_lib) $(render_lib) scene1.o mt_render.o mt_render.h scene1.h test_gl.c 
-	gcc -pthread test_gl.c scene1.o mt_render.o $(CC_OPTS) $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@ \
-		&& ./$@
+rungl: test_gl
+	./$<
+
+test_gl: $(canvas_lib) $(render_lib) scene1.o mt_render.o mt_render.h scene1.h test_gl.c makefile
+	gcc -pthread test_gl.c scene1.o mt_render.o $(CC_OPTS) $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@
 
 $(frame_dir):
 	mkdir -p $@
 
 scene1.o: scene1.c
-	gcc -c $< $(INCLUDES) -o $@
+	gcc -c $< $(INCLUDES) $(CC_OPTS) -o $@
 
 mt_render.o: mt_render.c
-	gcc -c $< $(INCLUDES) -o $@
+	gcc -c $< $(INCLUDES) $(CC_OPTS) -o $@
 
 #
 # Canvas
