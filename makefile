@@ -20,7 +20,10 @@ canvas_lib 	=	$(canvas_dir)/libcanvas.a
 LIBPATH		=	$(addprefix -L, $(render_dir) $(canvas_dir))
 INCLUDES	=	$(addprefix -I, ./render/headers ./canvas/headers) 
 LINKLIBS	= 	-lcanvas -lrender -lm
-CC_OPTS		=	-Wall -O2 $(CC_OPTS_TEST_GL) -DN_WORKERS=$(NCPU)
+CC_OPTS		:=	-Wall -O2 $(CC_OPTS_TEST_GL)
+ifneq ($(NCPU),)
+CC_OPTS		:=	$(CC_OPTS) -DN_WORKERS=$(NCPU)
+endif
 
 frame_dir	=	./frames
 

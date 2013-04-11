@@ -102,11 +102,13 @@ void mt_render_start(mt_tasks_t *t) {
     debugf("mt_render_start: available_workers: %d\n", t->available_workers);
     t->available_workers = 0;      /* make them all busy */
 
+    ret = pthread_cond_broadcast(&t->pcond);
+    assertf(ret, "mt_render_start: pthread_cond_broadcast(start) failed(%d)\n", ret);
+
     ret = pthread_mutex_unlock(&t->pmutex);
     assertf(ret, "mt_render_start: pthread_mutex_unlock(start) failed(%d)\n", ret);
 
-    ret = pthread_cond_broadcast(&t->pcond);
-    assertf(ret, "mt_render_start: pthread_cond_broadcast(start) failed(%d)\n", ret);
+    usleep(5000);
 }
 
 void mt_render_wait(mt_tasks_t *t) {
