@@ -1,8 +1,5 @@
 UNAME := $(shell uname)
 
-# Generating by gcc in Mac OS
-d_sym	= *.dSYM
-
 render_dir 	=	./render/lib
 render_lib	=	$(render_dir)/librender.a
 
@@ -32,10 +29,10 @@ test_video: test $(frame_dir)
 	cd $(frame_dir) && ../test
 	ffmpeg -qscale 2 -r 10 -b 10M  -i '$(frame_dir)/out_%03d.bmp'  movie.mp4
 
-test: test.c scene1.h scene1.o $(canvas_lib) $(render_lib)
+test: test.c scene1.h scene1.o $(render_lib)
 	gcc -O test.c scene1.o $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@
 
-test_gl: $(canvas_lib) $(render_lib) scene1.o mt_render.o mt_render.h scene1.h test_gl.c 
+test_gl: $(render_lib) scene1.o mt_render.o mt_render.h scene1.h test_gl.c 
 	gcc -pthread test_gl.c scene1.o mt_render.o $(CC_OPTS_TEST_GL) $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@ \
 		&& ./$@
 
@@ -84,4 +81,5 @@ clean:
 	rm -f *.o; \
 	rm -f ./test ./test_gl ./test_kd;     \
 	rm -f *.mp4;                \
-	rm -rf $(canvas_dir) $(render_dir) $(frame_dir) $(d_sym)
+	rm -rf *.dSYM	\
+	rm -rf $(render_dir) $(frame_dir)

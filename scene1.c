@@ -1,7 +1,13 @@
+#include <stdio.h>
+
 #include "scene1.h"
 
+#define MAX_POLYGONS_NUMBER 2000
+
+#define SERPINSKY_PYRAMID_LEVEL 2
+
 Scene *makeScene(void) {
-    Scene * scene = new_scene(100, 5, BACKGROUND_COLOR);
+    Scene * scene = new_scene(MAX_POLYGONS_NUMBER, 5, BACKGROUND_COLOR);
     
     add_light_source(scene, light_source_3d(point3d(-90, 90, 90), rgb(255, 255, 255)));
     add_light_source(scene, light_source_3d(point3d(90, -90, 90), rgb(255, 255, 0)));
@@ -14,7 +20,7 @@ Scene *makeScene(void) {
     Float dx = -40;
     Float dy = -40;
     
-    add_serpinsky_pyramid(scene, 2,
+    add_serpinsky_pyramid(scene, SERPINSKY_PYRAMID_LEVEL,
                           point3d(-pyramid_edge/2 + dx, -pyramid_edge * 0.87 / 2 + dy, 0),
                           point3d(pyramid_edge/2 + dx, -pyramid_edge * 0.87 / 2 + dy, 0),
                           point3d(dx, pyramid_edge * 0.87 / 2 + dy, 0),
@@ -33,6 +39,9 @@ Scene *makeScene(void) {
                                       point3d(300, 300, -80),
                                       rgb(55, 255, 55),
                                       material(1, 5, 5, 10, 0, 10)));
+    
+    printf("\nScene created\n");
+    printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
 
     return scene;
 }
