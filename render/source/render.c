@@ -11,13 +11,13 @@
 #define THRESHOLD_RAY_INTENSITY 10
 #define MAX_RAY_ITERATIONS 10
 
-int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene);
+static inline int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene);
 
-Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene);
+static inline Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene);
 
-Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, Float p);
+static inline Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, Float p);
 
-Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v);
+static inline Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v);
 
 void trace_i(Scene * scene,
              Point3d vector_start,
@@ -26,7 +26,7 @@ void trace_i(Scene * scene,
              Float intensity,
              int iteration_num);
 
-Color calculate_color(Scene * scene,
+static inline Color calculate_color(Scene * scene,
                       Point3d vector_start,
                       Vector3d vector,
                       Object3d ** obj_ptr,
@@ -251,7 +251,7 @@ int find_intersection(Scene * scene,
     return intersected;
 }
 
-Color calculate_color(Scene * scene,
+static inline Color calculate_color(Scene * scene,
                      Point3d vector_start,
                      Vector3d vector,
                      Object3d ** obj_ptr,
@@ -344,7 +344,7 @@ Color calculate_color(Scene * scene,
     return result_color;
 }
 
-Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene) {
+static inline Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene) {
     Color light_color = rgb(0, 0, 0);
     
     normalize_vector(&norm_v);
@@ -374,7 +374,7 @@ Color get_lighting_color(Point3d point, Vector3d norm_v, Scene * scene) {
     return light_color;
 }
 
-Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, Float p) {
+static inline Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, Float p) {
     Color light_color = rgb(0, 0, 0);
     
     normalize_vector(&reflected_ray);
@@ -404,7 +404,7 @@ Color get_specular_color(Point3d point, Vector3d reflected_ray, Scene * scene, F
     return light_color;
 }
 
-int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene) {
+static inline int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene) {
     Vector3d ray = vector3dp(starting_point, target_point);
     normalize_vector(&ray);
     if(is_intersect_anything_tree(scene->kd_tree, starting_point, ray)) {
@@ -414,7 +414,7 @@ int is_viewable(Point3d target_point, Point3d starting_point, Scene * scene) {
     return 1;
 }
 
-Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v) {
+static inline Vector3d reflect_ray(Vector3d incident_ray, Vector3d norm_v) {
     Float numerator = 2 * (incident_ray.x * norm_v.x + incident_ray.y * norm_v.y + incident_ray.z * norm_v.z);
     
     Float norm_module = module_vector(norm_v);

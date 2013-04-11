@@ -18,14 +18,14 @@ void split_voxel(Voxel v,
                  Voxel * vl,
                  Voxel * vr);
 
-inline int vector_plane_intersection(Vector3d vector,
+static inline int vector_plane_intersection(Vector3d vector,
                               Point3d vector_start,
                               enum Plane plane,
                               Coord coord,
                               Point3d * result,
                               Float * t);
 
-int voxel_intersection(Vector3d vector,
+static inline int voxel_intersection(Vector3d vector,
                        Point3d vector_start,
                        Voxel v,
                        Float * t_near,
@@ -43,7 +43,7 @@ KDNode * make_leaf(Object3d ** objects, int objects_count);
 
 void find_plane(Object3d ** objects, int objects_count, Voxel v, enum Plane * p, Coord * c);
 
-int point_in_voxel(Point3d p, Voxel v);
+static inline int point_in_voxel(Point3d p, Voxel v);
 
 void release_kd_node(KDNode * node);
 
@@ -60,7 +60,7 @@ int is_intersect_anything_node(KDNode * node,
                                Point3d vector_start,
                                Vector3d vector);
 
-inline int point_in_voxel(Point3d p, Voxel v) {
+static inline int point_in_voxel(Point3d p, Voxel v) {
     return ((p.x > v.x_min - EPSILON) && (p.x < v.x_max + EPSILON) &&
             (p.y > v.y_min - EPSILON) && (p.y < v.y_max + EPSILON) &&
             (p.z > v.z_min - EPSILON) && (p.z < v.z_max + EPSILON));
@@ -295,7 +295,7 @@ KDNode * make_leaf(Object3d ** objects, int objects_count) {
     return leaf;
 }
 
-inline __hot int vector_plane_intersection(Vector3d vector,
+static inline __hot int vector_plane_intersection(Vector3d vector,
                               Point3d vector_start,
                               enum Plane plane,
                               Coord coord,
@@ -341,7 +341,7 @@ inline __hot int vector_plane_intersection(Vector3d vector,
     return True;
 }
 
-int voxel_intersection(Vector3d vector,
+static inline int voxel_intersection(Vector3d vector,
                        Point3d vector_start,
                        Voxel v,
                        Float * t_near,
