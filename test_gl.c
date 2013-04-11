@@ -41,7 +41,7 @@ Point3d camera_point = { X_CAM, Y_CAM, Z_CAM };
 Scene *scene = NULL;
 
 GLuint tex;
-volatile pixel_t canvas[TEX_WIDTH][TEX_HEIGHT] = { 0 };
+pixel_t canvas[TEX_WIDTH][TEX_HEIGHT] = { 0 };
 
 #if USE_MT
 #include "mt_render.h"
