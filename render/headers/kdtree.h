@@ -3,7 +3,8 @@
 
 #include <render.h>
 
-KDTree * build_kd_tree(Object3d ** objects, int objects_count);
+KDTree * build_kd_tree(Object3d ** objects,
+                       int objects_count);
 
 void release_kd_tree(KDTree * tree);
 
