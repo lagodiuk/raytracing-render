@@ -1,5 +1,21 @@
 UNAME := $(shell uname)
 
+# Generating by gcc in Mac OS
+d_sym	= *.dSYM
+
+render_dir 	=	./render/lib
+render_lib	=	$(render_dir)/librender.a
+
+LIBPATH		=	$(addprefix -L, $(render_dir))
+INCLUDES	=	-O2 $(addprefix -I, ./render/headers)
+LINKLIBS	= 	-lrender -lm
+
+frame_dir	=	./frames
+
+#
+# System specific OpenGL compilation options
+#
+
 ifeq ($(UNAME), Darwin)
 CC_OPTS_TEST_GL = -framework GLUT -framework OpenGL -DDARWIN
 endif
@@ -8,23 +24,8 @@ ifeq ($(UNAME), Linux)
 CC_OPTS_TEST_GL = -lglut -DPOSIX
 endif
 
-# Generating by gcc in Mac OS
-d_sym	= *.dSYM
-
-render_dir 	=	./render/lib
-render_lib	=	$(render_dir)/librender.a
-
-canvas_dir	=	./canvas/lib
-canvas_lib 	=	$(canvas_dir)/libcanvas.a
-
-LIBPATH		=	$(addprefix -L, $(render_dir) $(canvas_dir))
-INCLUDES	=	-O2 $(addprefix -I, ./render/headers ./canvas/headers)
-LINKLIBS	= 	-lcanvas -lrender -lm
-
-frame_dir	=	./frames
-
 #
-# Test applications
+# Demo applications
 #
 
 test_video: test $(frame_dir)
@@ -48,41 +49,31 @@ mt_render.o: mt_render.c
 	gcc -c $< $(INCLUDES) -o $@
 
 #
-# Canvas
-#
-
-$(canvas_dir):
-	mkdir -p $@
-
-$(canvas_dir)/canvas.o: ./canvas/source/canvas.c ./canvas/headers/canvas.h ./canvas/headers/color.h $(canvas_dir)
-	gcc -c ./canvas/source/canvas.c -I./canvas/headers/ -o $@
-
-$(canvas_lib): $(canvas_dir)/canvas.o
-	ar -rcs $@ $^
-
-#
 # Render
 #
 
 $(render_dir):
 	mkdir -p $@
 
-$(render_dir)/scene.o: ./render/source/scene.c ./render/headers/render.h ./canvas/headers/color.h $(render_dir)
+$(render_dir)/canvas.o: ./render/source/canvas.c ./render/headers/canvas.h ./render/headers/color.h $(render_dir)
+	gcc -c ./render/source/canvas.c -I./render/headers/ -o $@
+
+$(render_dir)/scene.o: ./render/source/scene.c ./render/headers/render.h ./render/headers/color.h $(render_dir)
 	gcc -c ./render/source/scene.c $(INCLUDES) -o $@
 
 $(render_dir)/fog.o: ./render/source/fog.c ./render/headers/render.h $(render_dir)
 	gcc -c ./render/source/fog.c $(INCLUDES) -o $@
 
-$(render_dir)/render.o: ./render/source/render.c ./render/headers/render.h ./canvas/headers/color.h $(render_dir)
+$(render_dir)/render.o: ./render/source/render.c ./render/headers/render.h ./render/headers/color.h $(render_dir)
 	gcc -c ./render/source/render.c $(INCLUDES) -o $@
 
-$(render_dir)/triangle.o: ./render/source/triangle.c ./render/headers/render.h ./canvas/headers/color.h $(render_dir)
+$(render_dir)/triangle.o: ./render/source/triangle.c ./render/headers/render.h ./render/headers/color.h $(render_dir)
 	gcc -c ./render/source/triangle.c $(INCLUDES) -o $@
 
 $(render_dir)/kdtree.o: ./render/source/kdtree.c ./render/headers/kdtree.h ./render/headers/render.h $(render_dir)
 	gcc -c ./render/source/kdtree.c $(INCLUDES) -o $@
 
-$(render_lib): $(render_dir)/render.o $(render_dir)/triangle.o $(render_dir)/kdtree.o $(render_dir)/scene.o $(render_dir)/fog.o
+$(render_lib): $(render_dir)/render.o $(render_dir)/triangle.o $(render_dir)/kdtree.o $(render_dir)/scene.o $(render_dir)/fog.o $(render_dir)/canvas.o
 	ar -rcs $@ $^
 
 #
