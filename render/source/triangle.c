@@ -88,6 +88,8 @@ static inline void release_triangle_data(void * data) {
 	free(triangle);
 }
 
+int check_same_clock_dir(Point3d pt1, Point3d pt2, Point3d pt3, Vector3d norm);
+
 // Code
 // --------------------------------------------------------------
 
@@ -215,7 +217,7 @@ Boolean intersect_triangle(void * data,
     
     // Intersection point
 	Point3d ipt = point3d(x, y, z);
-    
+    /*
     // Checking if point "ipt" is inside of triangle "p1-p2-p3"
     // using herons square formula:
     // point is inside when: S(p1-p2-ipt) + S(p2-p3-ipt) + S(p1-p3-ipt) = S(p1-p2-p3)
@@ -241,7 +243,39 @@ Boolean intersect_triangle(void * data,
         *intersection_point = ipt;
         return True;
     }
+    */
+    
+    Vector3d norm = vector3df(tr->A, tr->B, tr->C);
+    if(check_same_clock_dir(tr->p1, tr->p2, ipt, norm)
+       && check_same_clock_dir(tr->p2, tr->p3, ipt, norm)
+       && check_same_clock_dir(tr->p3, tr->p1, ipt, norm)) {
+
+        *intersection_point = ipt;
+        return True;
+    }
     
     // No intersection
 	return False;
+}
+
+int check_same_clock_dir(Point3d p1, Point3d p2, Point3d p3, Vector3d norm) {
+    
+    Float testi, testj, testk;
+    Float dotprod;
+    // normal of trinagle
+    testi = (p1.y - p3.y) * (p2.z - p3.z) - (p1.z - p3.z) * (p2.y - p3.y);
+    testj = (p2.x - p3.x) * (p1.z - p3.z) - (p2.z - p3.z) * (p1.x - p3.x);
+    testk = (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x);
+    
+    Vector3d test = vector3df(testi, testj, testk);
+
+    normalize_vector(&norm);
+    normalize_vector(&test);
+    
+    // Dot product with triangle normal
+    dotprod = test.x * norm.x + test.y * norm.y + test.z * norm.z;
+    
+    //answer
+    if(dotprod < 0) return 0;
+    else return 1;
 }
