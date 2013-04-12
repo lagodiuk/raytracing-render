@@ -25,48 +25,48 @@ KDNode * rec_build(Object3d ** objects,
                    Voxel v,
                    int iter);
 
-Boolean terminate(Object3d ** objects,
-                  int objects_count,
-                  Voxel v,
-                  int iter);
+static inline Boolean terminate(Object3d ** objects,
+                                const int objects_count,
+                                const Voxel v,
+                                const int recursion_level);
 
 KDNode * make_leaf(Object3d ** objects,
                    int objects_count);
 
-void find_plane(Object3d ** objects,
-                int objects_count,
-                Voxel v,
-                enum Plane * p,
-                Coord * c);
+static inline void find_plane(Object3d ** objects,
+                              const int objects_count,
+                              const Voxel v,
+                              enum Plane * const p,
+                              Coord * const c);
 
-void split_voxel(Voxel v,
-                 enum Plane p,
-                 Coord c,
-                 Voxel * vl,
-                 Voxel * vr);
+static inline void split_voxel(const Voxel v,
+                               const enum Plane p,
+                               const Coord c,
+                               Voxel * const vl,
+                               Voxel * const vr);
 
-int filter_overlapped_objects(Object3d ** objects,
-                              int objects_count,
-                              Voxel v);
+static inline int filter_overlapped_objects(Object3d ** objects,
+                                            const int objects_count,
+                                            const Voxel v);
 
-static inline Boolean vector_plane_intersection(Vector3d vector,
-                                                Point3d vector_start,
-                                                enum Plane plane,
-                                                Coord coord,
-                                                Point3d * result,
-                                                Float * t);
+static inline Boolean vector_plane_intersection(const Vector3d vector,
+                                                const Point3d vector_start,
+                                                const enum Plane plane,
+                                                const Coord coord,
+                                                Point3d * const result,
+                                                Float * const t);
 
-static inline Boolean voxel_intersection(Vector3d vector,
-                                         Point3d vector_start,
-                                         Voxel v,
-                                         Float * t_near,
-                                         Float * t_far);
+static inline Boolean voxel_intersection(const Vector3d vector,
+                                         const Point3d vector_start,
+                                         const Voxel v,
+                                         Float * const t_near,
+                                         Float * const t_far);
 
-static inline Boolean object_in_voxel(Object3d * obj,
-                                      Voxel v);
+static inline Boolean object_in_voxel(Object3d * const obj,
+                                      const Voxel v);
 
-static inline Boolean point_in_voxel(Point3d p,
-                                     Voxel v);
+static inline Boolean point_in_voxel(const Point3d p,
+                                     const Voxel v);
 
 Boolean find_intersection_node(KDNode * node,
                                Voxel v,
@@ -87,8 +87,8 @@ void release_kd_node(KDNode * node);
 // Code
 // --------------------------------------------------------------
 
-static inline Boolean point_in_voxel(Point3d p,
-                                     Voxel v) {
+static inline Boolean point_in_voxel(const Point3d p,
+                                     const Voxel v) {
     
     return ((p.x > v.x_min - EPSILON) && (p.x < v.x_max + EPSILON) &&
             (p.y > v.y_min - EPSILON) && (p.y < v.y_max + EPSILON) &&
@@ -154,22 +154,19 @@ KDNode * rec_build(Object3d ** objects,
     return node;
 }
 
-int filter_overlapped_objects(Object3d ** objects,
-                              int objects_count,
-                              Voxel v) {
+static inline int filter_overlapped_objects(Object3d ** objects,
+                                            const int objects_count,
+                                            const Voxel v) {
     
     int i = 0;
     int j = objects_count - 1;
-    int overlapped_count = 0;
     
     Object3d * tmp;
     
     // Put all objects, which overlap with voxel to the left part of array
     while(i <= j) {
-        while((i < j) && (object_in_voxel(objects[i], v))) {
+        while((i < j) && (object_in_voxel(objects[i], v)))
             i++;
-            overlapped_count++;
-        }
         
         while((j > i) && (!object_in_voxel(objects[j], v)))
             j--;
@@ -179,17 +176,17 @@ int filter_overlapped_objects(Object3d ** objects,
         objects[j] = tmp;
         i++;
         j--;
-        overlapped_count++;
     }
-     
-    return overlapped_count;
+    
+    // Actually, after the loop, variable 'i' is a count of overlapped objects
+    return i;
 }
 
-void split_voxel(Voxel v,
-                 enum Plane p,
-                 Coord c,
-                 Voxel * vl,
-                 Voxel * vr) {
+static inline void split_voxel(const Voxel v,
+                               const enum Plane p,
+                               const Coord c,
+                               Voxel * const vl,
+                               Voxel * const vr) {
     
     *vl = v;
     *vr = v;
@@ -212,11 +209,11 @@ void split_voxel(Voxel v,
     }
 }
 
-void find_plane(Object3d ** objects,
-                int objects_count,
-                Voxel v,
-                enum Plane * p,
-                Coord * c) {
+static inline void find_plane(Object3d ** objects,
+                              const int objects_count,
+                              const Voxel v,
+                              enum Plane * const p,
+                              Coord * const c) {
     
     // TODO use Surface Area Heuristic (SAH)
     Float dx = v.x_max - v.x_min;
@@ -238,13 +235,13 @@ void find_plane(Object3d ** objects,
     }
 }
 
-Boolean terminate(Object3d ** objects,
-                  int objects_count,
-                  Voxel v,
-                  int iter) {
+static inline Boolean terminate(Object3d ** objects,
+                                const int objects_count,
+                                const Voxel v,
+                                const int recursion_level) {
     
     // TODO use SAH
-    if((iter < MAX_TREE_DEPTH) && (objects_count > OBJECTS_IN_LEAF)) {
+    if((recursion_level < MAX_TREE_DEPTH) && (objects_count > OBJECTS_IN_LEAF)) {
         return False;
     }
     return True;
@@ -288,8 +285,8 @@ Voxel make_initial_voxel(Object3d ** objects,
 }
 
 
-static inline __hot Boolean object_in_voxel(Object3d * obj,
-                                            Voxel v) {
+static inline __hot Boolean object_in_voxel(Object3d * const obj,
+                                            const Voxel v) {
     
     Point3d min_p = obj->get_min_boundary_point(obj->data);
     Point3d max_p = obj->get_max_boundary_point(obj->data);
@@ -327,12 +324,12 @@ KDNode * make_leaf(Object3d ** objects,
     return leaf;
 }
 
-static inline __hot Boolean vector_plane_intersection(Vector3d vector,
-                                                      Point3d vector_start,
-                                                      enum Plane plane,
-                                                      Coord coord,
-                                                      Point3d * result,
-                                                      Float * t) {
+static inline __hot Boolean vector_plane_intersection(const Vector3d vector,
+                                                      const Point3d vector_start,
+                                                      const enum Plane plane,
+                                                      const Coord coord,
+                                                      Point3d * const result,
+                                                      Float * const t) {
     Float k;
     
     switch(plane) {
@@ -363,11 +360,11 @@ static inline __hot Boolean vector_plane_intersection(Vector3d vector,
     return True;
 }
 
-static inline Boolean voxel_intersection(Vector3d vector,
-                                         Point3d vector_start,
-                                         Voxel v,
-                                         Float * t_near,
-                                         Float * t_far) {
+static inline Boolean voxel_intersection(const Vector3d vector,
+                                         const Point3d vector_start,
+                                         const Voxel v,
+                                         Float * const t_near,
+                                         Float * const t_far) {
     
     Float t_min;
     Float t_max;
