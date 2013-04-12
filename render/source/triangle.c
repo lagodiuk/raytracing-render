@@ -236,7 +236,7 @@ Boolean intersect_triangle(void * data,
     // Square of triangle p1-p2-p3 is pre-calculated too
     // S(p1-p2-p3) is tr->s
     
-    if(abs(s1 + s2 + s3 - tr->s) < EPSILON) {
+    if(fabs(s1 + s2 + s3 - tr->s) < EPSILON) {
         // Triangle is intersected
         *intersection_point = ipt;
         return True;
