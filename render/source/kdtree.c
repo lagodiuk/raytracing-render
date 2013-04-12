@@ -482,13 +482,18 @@ Boolean find_intersection_tree(KDTree * tree,
                                Point3d * nearest_intersection_point_ptr,
                                Float * nearest_intersection_point_dist_ptr) {
     
-    return find_intersection_node(tree->root,
-                                  tree->bounding_box,
-                                  vector_start,
-                                  vector,
-                                  nearest_obj_ptr,
-                                  nearest_intersection_point_ptr,
-                                  nearest_intersection_point_dist_ptr);
+    Float t_near;
+    Float t_far;
+    
+    return (voxel_intersection(vector, vector_start, tree->bounding_box, &t_near, &t_far)
+            && ((t_near >= 0) || (t_far >= 0))
+            && find_intersection_node(tree->root,
+                                      tree->bounding_box,
+                                      vector_start,
+                                      vector,
+                                      nearest_obj_ptr,
+                                      nearest_intersection_point_ptr,
+                                      nearest_intersection_point_dist_ptr));
 }
 
 Boolean find_intersection_node(KDNode * node,
@@ -498,18 +503,7 @@ Boolean find_intersection_node(KDNode * node,
                                Object3d ** nearest_obj_ptr,
                                Point3d * nearest_intersection_point_ptr,
                                Float * nearest_intersection_point_dist_ptr) {
-    
-    Float t_near;
-    Float t_far;
-    
-    if(!voxel_intersection(vector, vector_start, v, &t_near, &t_far)) {
-        return False;
-    }
-    
-    if((t_near < 0) && (t_far < 0)) {
-        return False;
-    }
-    
+        
     // Is leaf
     if(node->plane == NONE) {
         if((node->objects_count) && (node->objects)) {
@@ -569,98 +563,89 @@ Boolean find_intersection_node(KDNode * node,
         
     KDNode * front_node;
     KDNode * back_node;
-    
-    Voxel v_l;
-    Voxel v_r;
-    split_voxel(v, node->plane, node->coord, &v_l, &v_r);
 
     switch(node->plane) {
         case XY:
-            if((node->coord.z - v_l.z_min) * (node->coord.z - vector_start.z) > 0) {
+            if((node->coord.z - v.z_min) * (node->coord.z - vector_start.z) > 0) {
                 front_node = node->l;
                 back_node = node->r;
-                front_voxel = v_l;
-                back_voxel = v_r;
+                split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
             } else {
                 front_node = node->r;
                 back_node = node->l;
-                front_voxel = v_r;
-                back_voxel = v_l;
+                split_voxel(v, node->plane, node->coord, &back_voxel, &front_voxel);
             }
             break;
                 
         case XZ:
-            if((node->coord.y - v_l.y_min) * (node->coord.y - vector_start.y) > 0) {
+            if((node->coord.y - v.y_min) * (node->coord.y - vector_start.y) > 0) {
                 front_node = node->l;
                 back_node = node->r;
-                front_voxel = v_l;
-                back_voxel = v_r;
+                split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
             } else {
                 front_node = node->r;
                 back_node = node->l;
-                front_voxel = v_r;
-                back_voxel = v_l;
+                split_voxel(v, node->plane, node->coord, &back_voxel, &front_voxel);
             }
             break;
             
         case YZ:
-            if((node->coord.x - v_l.x_min) * (node->coord.x - vector_start.x) > 0) {
+            if((node->coord.x - v.x_min) * (node->coord.x - vector_start.x) > 0) {
                 front_node = node->l;
                 back_node = node->r;
-                front_voxel = v_l;
-                back_voxel = v_r;
+                split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
             } else {
                 front_node = node->r;
                 back_node = node->l;
-                front_voxel = v_r;
-                back_voxel = v_l;
+                split_voxel(v, node->plane, node->coord, &back_voxel, &front_voxel);
             }
             break;
     }    
 
-    if(find_intersection_node(front_node,
-                              front_voxel,
-                              vector_start,
-                              vector,
-                              nearest_obj_ptr,
-                              nearest_intersection_point_ptr,
-                              nearest_intersection_point_dist_ptr)) return True;
-
-        
-    return find_intersection_node(back_node,
-                                  back_voxel,
-                                  vector_start,
-                                  vector,
-                                  nearest_obj_ptr,
-                                  nearest_intersection_point_ptr,
-                                  nearest_intersection_point_dist_ptr);
+    
+    Float t_near;
+    Float t_far;
+    
+    if(voxel_intersection(vector, vector_start, front_voxel, &t_near, &t_far)
+       && ((t_near >= 0) || (t_far >= 0))
+       && find_intersection_node(front_node,
+                                 front_voxel,
+                                 vector_start,
+                                 vector,
+                                 nearest_obj_ptr,
+                                 nearest_intersection_point_ptr,
+                                 nearest_intersection_point_dist_ptr)) return True;
+            
+    return (voxel_intersection(vector, vector_start, back_voxel, &t_near, &t_far)
+            && ((t_near >= 0) || (t_far >= 0))
+            && find_intersection_node(back_node,
+                                      back_voxel,
+                                      vector_start,
+                                      vector,
+                                      nearest_obj_ptr,
+                                      nearest_intersection_point_ptr,
+                                      nearest_intersection_point_dist_ptr));
 }
 
 Boolean is_intersect_anything_tree(KDTree * tree,
                                Point3d vector_start,
                                Vector3d vector) {
 
-    return is_intersect_anything_node(tree->root,
-                                      tree->bounding_box,
-                                      vector_start,
-                                      vector);
+    Float t_near;
+    Float t_far;
+    
+    return (voxel_intersection(vector, vector_start, tree->bounding_box, &t_near, &t_far)
+            && ((t_near >= 0) || (t_far >= 0))
+            && is_intersect_anything_node(tree->root,
+                                          tree->bounding_box,
+                                          vector_start,
+                                          vector));
 }
 
 Boolean is_intersect_anything_node(KDNode * node,
                                Voxel v,
                                Point3d vector_start,
                                Vector3d vector) {
-    
-    Float t_near;
-    Float t_far;
-    
-    if(!voxel_intersection(vector, vector_start, v, &t_near, &t_far)) {
-        return False;
-    }
-    
-    if((t_near < 0) && (t_far < 0)) {
-        return False;
-    }
     
     // Is leaf
     if(node->plane == NONE) {
@@ -690,7 +675,15 @@ Boolean is_intersect_anything_node(KDNode * node,
     Voxel v_l;
     Voxel v_r;    
     split_voxel(v, node->plane, node->coord, &v_l, &v_r);
+    
+    Float t_near;
+    Float t_far;
         
-    return is_intersect_anything_node(node->l, v_l, vector_start, vector)
-            || is_intersect_anything_node(node->r, v_r, vector_start, vector);
+    if(voxel_intersection(vector, vector_start, v_l, &t_near, &t_far)
+       && ((t_near >= 0) || (t_far >= 0))
+       && is_intersect_anything_node(node->l, v_l, vector_start, vector)) return True;
+    
+    return (voxel_intersection(vector, vector_start, v_r, &t_near, &t_far)
+            && ((t_near >= 0) || (t_far >= 0))
+            && is_intersect_anything_node(node->r, v_r, vector_start, vector));
 }
