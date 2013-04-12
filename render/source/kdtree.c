@@ -338,20 +338,25 @@ static inline __hot Boolean vector_plane_intersection(Vector3d vector,
     switch(plane) {
         case XY:
             k = (coord.z - vector_start.z) / vector.z;
+            *result = point3d(vector_start.x + vector.x * k,
+                              vector_start.y + vector.y * k,
+                              coord.z);
             break;
         
         case XZ:
             k = (coord.y - vector_start.y) / vector.y;
+            *result = point3d(vector_start.x + vector.x * k,
+                              coord.y,
+                              vector_start.z + vector.z * k);
             break;
             
         case YZ:
             k = (coord.x - vector_start.x) / vector.x;
+            *result = point3d(coord.x,
+                              vector_start.y + vector.y * k,
+                              vector_start.z + vector.z * k);
             break;
     }
-    
-    *result = point3d(vector_start.x + vector.x * k,
-                      vector_start.y + vector.y * k,
-                      vector_start.z + vector.z * k);
     
     *t = k;
     
@@ -374,7 +379,8 @@ static inline Boolean voxel_intersection(Vector3d vector,
     
     c.z = v.z_min;
     if(vector_plane_intersection(vector, vector_start, XY, c, &p, &t)
-       && point_in_voxel(p, v)) {
+       && (p.x > v.x_min - EPSILON) && (p.x < v.x_max + EPSILON)
+       && (p.y > v.y_min - EPSILON) && (p.y < v.y_max + EPSILON)) {
         
         if(!intersected) {
             t_min = t;
@@ -388,7 +394,8 @@ static inline Boolean voxel_intersection(Vector3d vector,
     
     c.z = v.z_max;
     if(vector_plane_intersection(vector, vector_start, XY, c, &p, &t)
-       && point_in_voxel(p, v)) {
+       && (p.x > v.x_min - EPSILON) && (p.x < v.x_max + EPSILON)
+       && (p.y > v.y_min - EPSILON) && (p.y < v.y_max + EPSILON)) {
         
         if(!intersected) {
             t_min = t;
@@ -402,7 +409,8 @@ static inline Boolean voxel_intersection(Vector3d vector,
     
     c.y = v.y_min;
     if(vector_plane_intersection(vector, vector_start, XZ, c, &p, &t)
-       && point_in_voxel(p, v)) {
+       && (p.x > v.x_min - EPSILON) && (p.x < v.x_max + EPSILON)
+       && (p.z > v.z_min - EPSILON) && (p.z < v.z_max + EPSILON)) {
         
         if(!intersected) {
             t_min = t;
@@ -416,7 +424,8 @@ static inline Boolean voxel_intersection(Vector3d vector,
     
     c.y = v.y_max;
     if(vector_plane_intersection(vector, vector_start, XZ, c, &p, &t)
-       && point_in_voxel(p, v)) {
+       && (p.x > v.x_min - EPSILON) && (p.x < v.x_max + EPSILON)
+       && (p.z > v.z_min - EPSILON) && (p.z < v.z_max + EPSILON)) {
         
         if(!intersected) {
             t_min = t;
@@ -430,7 +439,8 @@ static inline Boolean voxel_intersection(Vector3d vector,
     
     c.x = v.x_min;
     if(vector_plane_intersection(vector, vector_start, YZ, c, &p, &t)
-       && point_in_voxel(p, v)) {
+       && (p.y > v.y_min - EPSILON) && (p.y < v.y_max + EPSILON)
+       && (p.z > v.z_min - EPSILON) && (p.z < v.z_max + EPSILON)) {
         
         if(!intersected) {
             t_min = t;
@@ -444,7 +454,8 @@ static inline Boolean voxel_intersection(Vector3d vector,
     
     c.x = v.x_max;
     if(vector_plane_intersection(vector, vector_start, YZ, c, &p, &t)
-       && point_in_voxel(p, v)) {
+       && (p.y > v.y_min - EPSILON) && (p.y < v.y_max + EPSILON)
+       && (p.z > v.z_min - EPSILON) && (p.z < v.z_max + EPSILON)) {
         
         if(!intersected) {
             t_min = t;
