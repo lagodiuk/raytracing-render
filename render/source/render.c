@@ -211,7 +211,7 @@ static inline Color get_lighting_color(Point3d point,
     Color color_ls;
     int i;
     
-    for(i = 0; i < scene->last_light_source_index; i++) {
+    for(i = 0; i < scene->last_light_source_index + 1; i++) {
         if(scene->light_sources[i]) {
             ls = scene->light_sources[i];
         
@@ -244,7 +244,7 @@ static inline Color get_specular_color(Point3d point,
     Color color_ls;
     int i;
     
-    for(i = 0; i < scene->last_light_source_index; i++) {
+    for(i = 0; i < scene->last_light_source_index + 1; i++) {
         if(scene->light_sources[i]) {
             ls = scene->light_sources[i];
         
