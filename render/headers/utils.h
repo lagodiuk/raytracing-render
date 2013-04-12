@@ -10,6 +10,10 @@ static inline Float module_vector(Vector3d v) {
     return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
+static inline Float sqr_module_vector(Vector3d v) {
+    return v.x * v.x + v.y * v.y + v.z * v.z;
+}
+
 static inline Float cos_vectors(Vector3d v1, Vector3d v2) {
     Float numerator = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
     Float denominator = module_vector(v1) * module_vector(v2);
