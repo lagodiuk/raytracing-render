@@ -514,9 +514,15 @@ Boolean find_intersection_node(KDNode * node,
     if(node->plane == NONE) {
         if((node->objects_count) && (node->objects)) {
             int i;
+            
             Object3d * obj = NULL;
             Point3d intersection_point;
-            Float curr_intersection_point_dist;
+            Float sqr_curr_dist;
+            
+            Object3d * nearest_obj = NULL;
+            Point3d nearest_intersection_point;
+            Float sqr_nearest_dist;            
+            
             int intersected = False;
             
             // Finding nearest object
@@ -528,15 +534,26 @@ Boolean find_intersection_node(KDNode * node,
                     if((obj->intersect(obj->data, vector_start, vector, &intersection_point))
                        && (point_in_voxel(intersection_point, v))) {
 
-                        curr_intersection_point_dist = module_vector(vector3dp(vector_start, intersection_point));
+                        sqr_curr_dist = sqr_module_vector(vector3dp(vector_start, intersection_point));
                         
-                        if(curr_intersection_point_dist < *nearest_intersection_point_dist_ptr) {
-                            *nearest_obj_ptr = obj;
-                            *nearest_intersection_point_ptr = intersection_point;
-                            *nearest_intersection_point_dist_ptr = curr_intersection_point_dist;
+                        if((sqr_curr_dist < sqr_nearest_dist) || (!intersected)) {
+                            
+                            nearest_obj = obj;
+                            nearest_intersection_point = intersection_point;
+                            sqr_nearest_dist = sqr_curr_dist;
                             intersected = True;
                         }
                     }
+                }
+            }
+            
+            if(intersected) {
+                Float nearest_dist = sqrt(sqr_nearest_dist);
+                
+                if(nearest_dist < *nearest_intersection_point_dist_ptr) {
+                    *nearest_intersection_point_dist_ptr = nearest_dist;
+                    *nearest_obj_ptr = nearest_obj;
+                    *nearest_intersection_point_ptr = nearest_intersection_point;
                 }
             }
             
@@ -658,8 +675,7 @@ Boolean is_intersect_anything_node(KDNode * node,
                 if(node->objects[i]) {
                     obj = node->objects[i];
                     
-                    if((obj->intersect(obj->data, vector_start, vector, &intersection_point))
-                       && (point_in_voxel(intersection_point, v))) {
+                    if(obj->intersect(obj->data, vector_start, vector, &intersection_point)) {
                         
                         return True;
                     }
@@ -675,8 +691,6 @@ Boolean is_intersect_anything_node(KDNode * node,
     Voxel v_r;    
     split_voxel(v, node->plane, node->coord, &v_l, &v_r);
         
-    if(is_intersect_anything_node(node->l, v_l, vector_start, vector)
-       || is_intersect_anything_node(node->r, v_r, vector_start, vector)) return True;
-
-    return False;
+    return is_intersect_anything_node(node->l, v_l, vector_start, vector)
+            || is_intersect_anything_node(node->r, v_r, vector_start, vector);
 }
