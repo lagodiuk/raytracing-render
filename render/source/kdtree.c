@@ -17,69 +17,82 @@
 // Declarations
 // --------------------------------------------------------------
 
-Voxel make_initial_voxel(Object3d ** objects,
-                         int objects_count);
-
-KDNode * rec_build(Object3d ** objects,
-                   int objects_count,
-                   Voxel v,
-                   int iter);
-
-static inline Boolean terminate(Object3d ** objects,
-                                const int objects_count,
-                                const Voxel v,
-                                const int recursion_level);
-
-KDNode * make_leaf(Object3d ** objects,
+Voxel
+make_initial_voxel(Object3d ** objects,
                    int objects_count);
 
-static inline void find_plane(Object3d ** objects,
-                              const int objects_count,
-                              const Voxel v,
-                              enum Plane * const p,
-                              Coord * const c);
+KDNode *
+rec_build(Object3d ** objects,
+          int objects_count,
+          Voxel v,
+          int iter);
 
-static inline void split_voxel(const Voxel v,
-                               const enum Plane p,
-                               const Coord c,
-                               Voxel * const vl,
-                               Voxel * const vr);
+static inline Boolean
+terminate(Object3d ** objects,
+          const int objects_count,
+          const Voxel v,
+          const int recursion_level);
 
-static inline int filter_overlapped_objects(Object3d ** objects,
-                                            const int objects_count,
-                                            const Voxel v);
+KDNode *
+make_leaf(Object3d ** objects,
+          int objects_count);
 
-static inline Boolean vector_plane_intersection(const Vector3d vector,
-                                                const Point3d vector_start,
-                                                const enum Plane plane,
-                                                const Coord coord,
-                                                Point3d * const result,
-                                                Float * const t);
+static inline void
+find_plane(Object3d ** objects,
+           const int objects_count,
+           const Voxel v,
+           enum Plane * const p,
+           Coord * const c);
 
-static inline Boolean voxel_intersection(const Vector3d vector,
-                                         const Point3d vector_start,
-                                         const Voxel v,
-                                         Float * const t_near,
-                                         Float * const t_far);
+static inline void
+split_voxel(const Voxel v,
+            const enum Plane p,
+            const Coord c,
+            Voxel * const vl,
+            Voxel * const vr);
 
-static inline Boolean object_in_voxel(Object3d * const obj,
-                                      const Voxel v);
+static inline int
+filter_overlapped_objects(Object3d ** objects,
+                          const int objects_count,
+                          const Voxel v);
 
-static inline Boolean point_in_voxel(const Point3d p,
-                                     const Voxel v);
+static inline Boolean
+vector_plane_intersection(const Vector3d vector,
+                          const Point3d vector_start,
+                          const enum Plane plane,
+                          const Coord coord,
+                          Point3d * const result,
+                          Float * const t);
 
-Boolean find_intersection_node(KDNode * node,
-                               Voxel v,
-                               Point3d vector_start,
-                               Vector3d vector,
-                               Object3d ** nearest_obj_ptr,
-                               Point3d * nearest_intersection_point_ptr,
-                               Float * nearest_intersection_point_dist_ptr);
+static inline Boolean
+voxel_intersection(const Vector3d vector,
+                   const Point3d vector_start,
+                   const Voxel v,
+                   Float * const t_near,
+                   Float * const t_far);
 
-Boolean is_intersect_anything_node(KDNode * node,
-                                   Voxel v,
-                                   Point3d vector_start,
-                                   Vector3d vector);
+static inline Boolean
+object_in_voxel(Object3d * const obj,
+                const Voxel v);
+
+static inline Boolean
+point_in_voxel(const Point3d p,
+               const Voxel v);
+
+Boolean
+find_intersection_node(KDNode * const node,
+                       const Voxel v,
+                       const Point3d vector_start,
+                       const Vector3d vector,
+                       Object3d ** const nearest_obj_ptr,
+                       Point3d * const nearest_intersection_point_ptr,
+                       Float * const nearest_intersection_point_dist_ptr);
+
+Boolean
+is_intersect_anything_node(KDNode * const node,
+                           const Voxel v,
+                           const Point3d vector_start,
+                           const Vector3d vector);
 
 void release_kd_node(KDNode * node);
 
@@ -472,12 +485,13 @@ static inline Boolean voxel_intersection(const Vector3d vector,
     return intersected;
 }
 
-Boolean find_intersection_tree(KDTree * tree,
-                               Point3d vector_start,
-                               Vector3d vector,
-                               Object3d ** nearest_obj_ptr,
-                               Point3d * nearest_intersection_point_ptr,
-                               Float * nearest_intersection_point_dist_ptr) {
+Boolean
+find_intersection_tree(KDTree * const tree,
+                       const Point3d vector_start,
+                       const Vector3d vector,
+                       Object3d ** const nearest_obj_ptr,
+                       Point3d * const nearest_intersection_point_ptr,
+                       Float * const nearest_intersection_point_dist_ptr) {
     
     Float t_near;
     Float t_far;
@@ -493,13 +507,14 @@ Boolean find_intersection_tree(KDTree * tree,
                                       nearest_intersection_point_dist_ptr));
 }
 
-Boolean find_intersection_node(KDNode * node,
-                               Voxel v,
-                               Point3d vector_start,
-                               Vector3d vector,
-                               Object3d ** nearest_obj_ptr,
-                               Point3d * nearest_intersection_point_ptr,
-                               Float * nearest_intersection_point_dist_ptr) {
+Boolean
+find_intersection_node(KDNode * const node,
+                       const Voxel v,
+                       const Point3d vector_start,
+                       const Vector3d vector,
+                       Object3d ** const nearest_obj_ptr,
+                       Point3d * const nearest_intersection_point_ptr,
+                       Float * const nearest_intersection_point_dist_ptr) {
         
     // Is leaf
     if(node->plane == NONE) {
@@ -624,9 +639,10 @@ Boolean find_intersection_node(KDNode * node,
                                       nearest_intersection_point_dist_ptr));
 }
 
-Boolean is_intersect_anything_tree(KDTree * tree,
-                               Point3d vector_start,
-                               Vector3d vector) {
+Boolean
+is_intersect_anything_tree(KDTree * const tree,
+                           const Point3d vector_start,
+                           const Vector3d vector) {
 
     Float t_near;
     Float t_far;
@@ -639,10 +655,11 @@ Boolean is_intersect_anything_tree(KDTree * tree,
                                           vector));
 }
 
-Boolean is_intersect_anything_node(KDNode * node,
-                               Voxel v,
-                               Point3d vector_start,
-                               Vector3d vector) {
+Boolean
+is_intersect_anything_node(KDNode * const node,
+                           const Voxel v,
+                           const Point3d vector_start,
+                           const Vector3d vector) {
     
     // Is leaf
     if(node->plane == NONE) {

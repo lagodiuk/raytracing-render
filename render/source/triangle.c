@@ -44,43 +44,39 @@ struct {
 }
 Triangle3d;
 
-Boolean intersect_triangle(void * data,
-                           Point3d vector_start,
-                           Vector3d vector,
-                           Point3d * intersection_point);
+inline static Boolean
+intersect_triangle(const void * data,
+                   const Point3d vector_start,
+                   const Vector3d vector,
+                   Point3d * const intersection_point);
 
-void rotate_triangle(void * data,
-                     Float sin_al,
-                     Float cos_al,
-                     Float sin_be,
-                     Float cos_be);
+void
+rotate_triangle(void * data,
+                const Float sin_al,
+                const Float cos_al,
+                const Float sin_be,
+                const Float cos_be);
 
-Point3d get_min_triangle_boundary_point(void * data);
+Point3d
+get_min_triangle_boundary_point(const void * data);
 
-Point3d get_max_triangle_boundary_point(void * data);
+Point3d
+get_max_triangle_boundary_point(const void * data);
 
-static inline Color get_triangle_color(void * data,
-                                       Point3d intersection_point) {
-	Triangle3d * triangle = data;
-	return triangle->color;
-}
+static inline Color
+get_triangle_color(const void * data,
+                   const Point3d intersection_point);
 
-static inline Vector3d get_triangle_normal_vector(void * data,
-                                                  Point3d intersection_point) {
-  	Triangle3d * triangle = data;
-    return vector3df(triangle->A, triangle->B, triangle->C);
-}
+static inline Vector3d
+get_triangle_normal_vector(const void * data,
+                           const Point3d intersection_point);
 
-static inline Material get_triangle_material(void * data,
-                                             Point3d intersection_point) {
-    Triangle3d * triangle = data;
-    return triangle->material;
-}
+static inline Material
+get_triangle_material(const void * data,
+                      const Point3d intersection_point);
 
-static inline void release_triangle_data(void * data) {
-	Triangle3d * triangle = data;
-	free(triangle);
-}
+static inline void
+release_triangle_data(void * data);
 
 static inline Boolean
 check_same_clock_dir(const Point3d pt1,
@@ -91,11 +87,12 @@ check_same_clock_dir(const Point3d pt1,
 // Code
 // --------------------------------------------------------------
 
-Object3d * new_triangle(Point3d p1,
-                        Point3d p2,
-                        Point3d p3,
-                        Color color,
-                        Material material) {
+Object3d *
+new_triangle(const Point3d p1,
+             const Point3d p2,
+             const Point3d p3,
+             const Color color,
+             const Material material) {
     
 	Triangle3d * triangle = malloc(sizeof(Triangle3d));
     
@@ -123,8 +120,36 @@ Object3d * new_triangle(Point3d p1,
 	return obj;
 }
 
-Point3d get_min_triangle_boundary_point(void * data) {
-	Triangle3d * t = data;
+static inline Color
+get_triangle_color(const void * data,
+                   const Point3d intersection_point) {
+	const Triangle3d * triangle = data;
+	return triangle->color;
+}
+
+static inline Vector3d
+get_triangle_normal_vector(const void * data,
+                           const Point3d intersection_point) {
+  	const Triangle3d * triangle = data;
+    return vector3df(triangle->A, triangle->B, triangle->C);
+}
+
+static inline Material
+get_triangle_material(const void * data,
+                      const Point3d intersection_point) {
+    const Triangle3d * triangle = data;
+    return triangle->material;
+}
+
+static inline void
+release_triangle_data(void * data) {
+	Triangle3d * triangle = data;
+	free(triangle);
+}
+
+Point3d
+get_min_triangle_boundary_point(const void * data) {
+	const Triangle3d * t = data;
     
     Float x_min = t->p1.x;
     Float y_min = t->p1.y;
@@ -141,8 +166,9 @@ Point3d get_min_triangle_boundary_point(void * data) {
     return point3d(x_min - 1, y_min - 1, z_min - 1);
 }
 
-Point3d get_max_triangle_boundary_point(void * data) {
-	Triangle3d * t = data;
+Point3d
+get_max_triangle_boundary_point(const void * data) {
+	const Triangle3d * t = data;
     
     Float x_max = t->p1.x;
     Float y_max = t->p1.y;
@@ -159,11 +185,12 @@ Point3d get_max_triangle_boundary_point(void * data) {
     return point3d(x_max + 1, y_max + 1, z_max + 1);
 }
 
-void rotate_triangle(void * data,
-                     Float sin_al,
-                     Float cos_al,
-                     Float sin_be,
-                     Float cos_be) {
+void
+rotate_triangle(void * data,
+                const Float sin_al,
+                const Float cos_al,
+                const Float sin_be,
+                const Float cos_be) {
     
 	Triangle3d * triangle = data;
     
@@ -171,19 +198,21 @@ void rotate_triangle(void * data,
 	triangle->p2 = rotate_point(triangle->p2w, sin_al, cos_al, sin_be, cos_be);
 	triangle->p3 = rotate_point(triangle->p3w, sin_al, cos_al, sin_be, cos_be);
     
-	Point3d norm = rotate_point(point3d(triangle->Aw, triangle->Bw, triangle->Cw), sin_al, cos_al, sin_be, cos_be);
+	Point3d norm = rotate_point(point3d(triangle->Aw, triangle->Bw, triangle->Cw),
+                                sin_al, cos_al, sin_be, cos_be);
 	triangle->A = norm.x;
 	triangle->B = norm.y;
 	triangle->C = norm.z;
 	triangle->D = -(triangle->p1.x * triangle->A + triangle->p1.y * triangle->B + triangle->p1.z * triangle->C);
 }
 
-Boolean intersect_triangle(void * data,
-                           Point3d vector_start,
-                           Vector3d vector,
-                           Point3d * intersection_point) {
+inline static Boolean
+intersect_triangle(const void * data,
+                   const Point3d vector_start,
+                   const Vector3d vector,
+                   Point3d * const intersection_point) {
     
-	Triangle3d * tr = data;
+	const Triangle3d * tr = data;
     
     Float scalar_product = tr->A * vector.x + tr->B * vector.y + tr->C * vector.z;
     
@@ -198,7 +227,7 @@ Boolean intersect_triangle(void * data,
                  + tr->B * vector_start.y
                  + tr->C * vector_start.z
                  + tr->D)
-    / scalar_product;
+            / scalar_product;
     
     if(k < EPSILON) {
         // Avoid intersection in the opposite direction
@@ -225,15 +254,17 @@ Boolean intersect_triangle(void * data,
 	return False;
 }
 
-static inline Boolean check_same_clock_dir(const Point3d p1,
-                                           const Point3d p2,
-                                           const Point3d p3,
-                                           const Vector3d norm) {
+static inline Boolean
+check_same_clock_dir(const Point3d p1,
+                     const Point3d p2,
+                     const Point3d p3,
+                     const Vector3d norm) {
     
     Float testi;
     Float testj;
     Float testk;
     Float dotprod;
+    
     // normal of trinagle
     testi = (p1.y - p3.y) * (p2.z - p3.z) - (p1.z - p3.z) * (p2.y - p3.y);
     testj = (p2.x - p3.x) * (p1.z - p3.z) - (p2.z - p3.z) * (p1.x - p3.x);
