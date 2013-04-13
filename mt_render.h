@@ -27,7 +27,7 @@ typedef struct mt_tasks {
 } mt_tasks_t;
 
 
-mt_tasks_t * mt_new_pool(work_func_t *);
+mt_tasks_t * mt_new_pool(work_func_t);
 
 void mt_render_start(mt_tasks_t *);
 

@@ -20,7 +20,7 @@
 
 #include "scene1.h"
 
-#define USE_MT  (1)
+#define USE_MT  (0)
 
 GLint win_width = 512;
 GLint win_height = 512;
@@ -47,7 +47,7 @@ pixel_t canvas[TEX_WIDTH][TEX_HEIGHT] = { 0 };
 
 mt_tasks_t *tasks = NULL;
 
-static int render_task(mt_worker_t *w) {
+int render_task(struct mt_worker *w) {
     pixel_t px;
 
     GLint height = TEX_HEIGHT / w->state->n_cpu;
@@ -90,6 +90,7 @@ void prepare_canvas(void) {
 
 
 void display(void) {
+    /*
     static int frames = 0;
     static struct timespec last_time = { 0 };
     struct timespec this_time = { 0 };
@@ -102,6 +103,7 @@ void display(void) {
         frames = 0;
     }
     //printf("%d) time: %d.%09d\n", frames, (int)this_time.tv_sec, (int)this_time.tv_nsec);
+    */
 
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
@@ -120,7 +122,7 @@ void display(void) {
     glDisable(GL_TEXTURE_2D);
 
     glFlush();
-    ++frames;
+    //++frames;
 }
 
 void reshape(GLint w, GLint h) {
