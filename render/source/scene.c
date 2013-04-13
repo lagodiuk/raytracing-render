@@ -10,12 +10,17 @@
 // Declarations
 // --------------------------------------------------------------
 
-static inline void rebuild_kd_tree(Scene * scene);
+static inline void
+rebuild_kd_tree(Scene * scene);
 
 // Code
 // --------------------------------------------------------------
 
-Scene * new_scene(int objects_count, int light_sources_count, Color background_color) {
+Scene *
+new_scene(const int objects_count,
+          const int light_sources_count,
+          const Color background_color) {
+    
     Scene * s = malloc(sizeof(Scene));
     s->al = 0;
     s->be = 0;
@@ -35,7 +40,8 @@ Scene * new_scene(int objects_count, int light_sources_count, Color background_c
     return s;
 }
 
-void release_scene(Scene * scene) {
+void
+release_scene(Scene * scene) {
     int i;
     
     for(i = 0; i < scene->objects_count; i++) {
@@ -61,7 +67,12 @@ void release_scene(Scene * scene) {
     free(scene);
 }
 
-void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_sources) {
+void
+rotate_scene(Scene * const scene,
+             const Float al,
+             const Float be,
+             const Boolean rotate_light_sources) {
+    
     scene->al = al;
     scene->be = be;
     
@@ -98,7 +109,10 @@ void rotate_scene(Scene * scene, Float al, Float be, Boolean rotate_light_source
     rebuild_kd_tree(scene);
 }
 
-void add_object(Scene * scene, Object3d * object) {
+void
+add_object(Scene * const scene,
+           Object3d * const object) {
+    
     Float sin_al = sin(scene->al);
     Float cos_al = cos(scene->al);
     Float sin_be = sin(scene->be);
@@ -112,7 +126,16 @@ void add_object(Scene * scene, Object3d * object) {
     rebuild_kd_tree(scene);
 }
 
-static inline void rebuild_kd_tree(Scene * scene) {
+void
+add_light_source(Scene * const scene,
+                 LightSource3d * const light_source) {
+    
+    scene->light_sources[++scene->last_light_source_index] = light_source;
+}
+
+static inline void
+rebuild_kd_tree(Scene * scene) {
+    
     release_kd_tree(scene->kd_tree);
     scene->kd_tree = build_kd_tree(scene->objects, scene->last_object_index + 1);
 }
