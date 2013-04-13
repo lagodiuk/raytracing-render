@@ -27,11 +27,6 @@ static inline void normalize_vector(Vector3d * v) {
     v->z = v->z / module;
 }
 
-static inline Float herons_square(Float a, Float b, Float c) {
-    Float p = (a + b + c) / 2;
-    return sqrt(p * (p - a) * (p - b) * (p - c));
-}
-
 static inline Point3d rotate_point(Point3d p, Float sin_al, Float cos_al, Float sin_be, Float cos_be) {
 	Float x = p.x * cos_al - p.y * sin_al;
 	Float y = p.x * sin_al * cos_be + p.y * cos_al * cos_be - p.z * sin_be;

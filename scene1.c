@@ -2,15 +2,15 @@
 
 #include "scene1.h"
 
-#define MAX_POLYGONS_NUMBER 2000
+#define MAX_POLYGONS_NUMBER 8000
 
 #define SERPINSKY_PYRAMID_LEVEL 2
 
 Scene *makeScene(void) {
     Scene * scene = new_scene(MAX_POLYGONS_NUMBER, 5, BACKGROUND_COLOR);
     
-    add_light_source(scene, light_source_3d(point3d(-90, 90, 90), rgb(255, 255, 255)));
-    add_light_source(scene, light_source_3d(point3d(90, -90, 90), rgb(255, 255, 0)));
+    add_light_source(scene, light_source_3d(point3d(-90, 90, 190), rgb(255, 255, 255)));
+    add_light_source(scene, light_source_3d(point3d(90, -90, 190), rgb(255, 255, 0)));
 
     set_exponential_fog(scene, 0.005);
 

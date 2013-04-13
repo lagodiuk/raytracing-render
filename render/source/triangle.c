@@ -33,12 +33,6 @@ struct {
 	Float B;
 	Float C;
 	Float D;
-    // Pre-calculated lengths of the sides of a triangle
-    Float d_p1_p2;
-    Float d_p2_p3;
-    Float d_p3_p1;
-    // Pre-calculated square of triangle
-    Float s;
     
     /************
      * Material *
@@ -88,7 +82,11 @@ static inline void release_triangle_data(void * data) {
 	free(triangle);
 }
 
-int check_same_clock_dir(Point3d pt1, Point3d pt2, Point3d pt3, Vector3d norm);
+static inline Boolean
+check_same_clock_dir(const Point3d pt1,
+                     const Point3d pt2,
+                     const Point3d pt3,
+                     const Vector3d norm);
 
 // Code
 // --------------------------------------------------------------
@@ -108,10 +106,6 @@ Object3d * new_triangle(Point3d p1,
 	triangle->Bw = (p2.x - p3.x) * (p1.z - p3.z) - (p2.z - p3.z) * (p1.x - p3.x);
 	triangle->Cw = (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x);
 	triangle->Dw = -(p1.x * triangle->Aw + p1.y * triangle->Bw + p1.z * triangle->Cw);
-    triangle->d_p1_p2 = module_vector(vector3dp(p1, p2));
-    triangle->d_p2_p3 = module_vector(vector3dp(p2, p3));
-    triangle->d_p3_p1 = module_vector(vector3dp(p3, p1));
-    triangle->s = herons_square(triangle->d_p1_p2, triangle->d_p2_p3, triangle->d_p3_p1);
     triangle->color = color;
     triangle->material = material;
     
@@ -217,33 +211,6 @@ Boolean intersect_triangle(void * data,
     
     // Intersection point
 	Point3d ipt = point3d(x, y, z);
-    /*
-    // Checking if point "ipt" is inside of triangle "p1-p2-p3"
-    // using herons square formula:
-    // point is inside when: S(p1-p2-ipt) + S(p2-p3-ipt) + S(p1-p3-ipt) = S(p1-p2-p3)
-    
-    // Calculating length of the sides: p1-ipt, p2-ipt, p3-ipt
-	Float d_p1_ipt = module_vector(vector3dp(tr->p1, ipt));
-	Float d_p2_ipt = module_vector(vector3dp(tr->p2, ipt));
-	Float d_p3_ipt = module_vector(vector3dp(tr->p3, ipt));
-    // length of other sides are pre-calculated:
-    // p1-p2 is tr->d_p1_p2
-    // p2-p3 is tr->d_p2_p3
-    // p3-p1 is tr->d_p3_p1
-    
-    // Calculating S(p1-p2-ipt), S(p2-p3-ipt) and S(p1-p3-ipt)
-    Float s1 = herons_square(tr->d_p1_p2, d_p1_ipt, d_p2_ipt);
-    Float s2 = herons_square(tr->d_p2_p3, d_p2_ipt, d_p3_ipt);
-    Float s3 = herons_square(tr->d_p3_p1, d_p3_ipt, d_p1_ipt);
-    // Square of triangle p1-p2-p3 is pre-calculated too
-    // S(p1-p2-p3) is tr->s
-    
-    if(fabs(s1 + s2 + s3 - tr->s) < EPSILON) {
-        // Triangle is intersected
-        *intersection_point = ipt;
-        return True;
-    }
-    */
     
     Vector3d norm = vector3df(tr->A, tr->B, tr->C);
     if(check_same_clock_dir(tr->p1, tr->p2, ipt, norm)
@@ -258,24 +225,26 @@ Boolean intersect_triangle(void * data,
 	return False;
 }
 
-int check_same_clock_dir(Point3d p1, Point3d p2, Point3d p3, Vector3d norm) {
+static inline Boolean check_same_clock_dir(const Point3d p1,
+                                           const Point3d p2,
+                                           const Point3d p3,
+                                           const Vector3d norm) {
     
-    Float testi, testj, testk;
+    Float testi;
+    Float testj;
+    Float testk;
     Float dotprod;
     // normal of trinagle
     testi = (p1.y - p3.y) * (p2.z - p3.z) - (p1.z - p3.z) * (p2.y - p3.y);
     testj = (p2.x - p3.x) * (p1.z - p3.z) - (p2.z - p3.z) * (p1.x - p3.x);
     testk = (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x);
     
-    Vector3d test = vector3df(testi, testj, testk);
-
-    normalize_vector(&norm);
-    normalize_vector(&test);
-    
     // Dot product with triangle normal
-    dotprod = test.x * norm.x + test.y * norm.y + test.z * norm.z;
+    dotprod = testi * norm.x + testj * norm.y + testk * norm.z;
     
     //answer
-    if(dotprod < 0) return 0;
-    else return 1;
+    if(dotprod < 0)
+        return False;
+    else
+        return True;
 }
