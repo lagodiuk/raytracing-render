@@ -39,6 +39,15 @@ float delta_al = M_PI / 6;
 Point3d camera_point = { X_CAM, Y_CAM, Z_CAM };
 Scene *scene = NULL;
 
+// Needed for FPS counting
+#include <time.h>
+#include <signal.h>
+int frames = 0;
+int dt = 0;
+float fps = 0;
+void calc_fps_handler(int sig);
+void register_fps_counter(int period);
+
 GLuint tex;
 pixel_t canvas[TEX_WIDTH][TEX_HEIGHT] = { 0 };
 
@@ -90,21 +99,6 @@ void prepare_canvas(void) {
 
 
 void display(void) {
-    /*
-    static int frames = 0;
-    static struct timespec last_time = { 0 };
-    struct timespec this_time = { 0 };
-    clock_gettime(CLOCK_MONOTONIC, &this_time);
-
-    if (this_time.tv_sec >= last_time.tv_sec + 10) {
-        printf("FPS: %f\n", frames / 10.0);
-
-        last_time = this_time;
-        frames = 0;
-    }
-    //printf("%d) time: %d.%09d\n", frames, (int)this_time.tv_sec, (int)this_time.tv_nsec);
-    */
-
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
 
@@ -122,7 +116,7 @@ void display(void) {
     glDisable(GL_TEXTURE_2D);
 
     glFlush();
-    //++frames;
+    ++frames;
 }
 
 void reshape(GLint w, GLint h) {
@@ -179,6 +173,24 @@ int main(int argc, char *argv[]) {
     rotate_scene(scene, delta_al, M_PI * 3 / 5, ROTATE_LIGHT_SOURCES);
     prepare_canvas();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_WIDTH, TEX_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, canvas);
-
+        
+    register_fps_counter(10);
     glutMainLoop();
+}
+
+void register_fps_counter(int period) {
+    dt = period;
+    struct sigaction action;
+    action.sa_handler = calc_fps_handler;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    sigaction(SIGALRM, &action, NULL);
+    alarm(dt);
+}
+
+void calc_fps_handler(int sig) {
+    fps = ((float) frames) / dt;
+    printf("FPS: %f\n", fps);
+    frames = 0;
+    alarm(dt);
 }
