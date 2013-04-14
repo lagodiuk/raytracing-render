@@ -5,9 +5,6 @@
 
 #include "mt_render.h"
 
-#define MT_LOG    (1)
-#define MT_DEBUG  (1)
-
 #if MT_LOG
 # define logf(...) do { printf(__VA_ARGS__); } while (0)
 # if MT_DEBUG
@@ -20,6 +17,26 @@
 #endif
 
 #define assertf(cond, ...) do { if (cond) { fprintf(stderr, __VA_ARGS__); exit(1); } } while (0)
+
+static void broadcast_start(mt_tasks_t *t) {
+    /* broadcast start condition for workers */
+    int ret = 0;
+
+    ret = pthread_mutex_lock(&t->pmutex);
+    assertf(ret, "mt_render_start: pthread_mutex_lock(start) failed(%d)\n", ret);
+    debugf("mt_render_start: after mutex_lock()\n");
+
+    t->start_flag = true;
+    t->available_workers = 0;
+
+    ret = pthread_mutex_unlock(&t->pmutex);
+    assertf(ret, "mt_render_start: pthread_mutex_unlock(start) failed(%d)\n", ret);
+    debugf("mt_render_start: after mutex_unlock()\n");
+
+    ret = pthread_cond_broadcast(&t->pcond);
+    assertf(ret, "mt_render_start: pthread_cond_broadcast(start) failed(%d)\n", ret);
+    debugf("mt_render_start: after cond_broadcast()\n");
+}
 
 static void wait_for_start(mt_worker_t *w) {
     int ret;
@@ -41,10 +58,28 @@ static void wait_for_start(mt_worker_t *w) {
     debugf("task_thread[%d]: after mutex_unlock(start)\n", w->num);
 }
 
+static void broadcast_done(mt_worker_t *w) {
+    int ret;
+    mt_tasks_t *t = w->state;
+
+    ret = pthread_mutex_lock(&t->pmutex);
+    assertf(ret, "Thread[%d]: pthread_mutex_lock(ready) failed(%d)\n", w->num, ret);
+
+    debugf("Thread[%d]: done\n", w->num);
+    ++ t->available_workers;
+
+    ret = pthread_mutex_unlock(&t->pmutex);
+    assertf(ret, "Thread[%d]: pthread_mutex_unlock(ready) failed(%d)\n", w->num, ret);
+
+    ret = pthread_cond_broadcast(&t->pcond);
+    assertf(ret, "Thread[%d]: pthread_cond_broadcast(ready) failed(%d)\n", w->num, ret);
+    debugf("task_thread[%d]: after cond_broadcast(ready)\n", w->num);
+}
+
 static void wait_for_done(mt_tasks_t *t, mt_worker_t *w) {
     int ret;
 #   define SIGN_SIZE   128
-    const char signit[SIGN_SIZE];
+    char signit[SIGN_SIZE];
     if (w)  snprintf(signit, SIGN_SIZE, "task_thread[%d]", w->num);
     else    strncpy(signit, "mt_render_wait", SIGN_SIZE);
 
@@ -62,24 +97,6 @@ static void wait_for_done(mt_tasks_t *t, mt_worker_t *w) {
     ret = pthread_mutex_unlock(&t->pmutex);
     assertf(ret, "%s: pthread_mutex_unlock() failed(%d)\n", signit, ret);
     debugf("%s: after mutex_unlock(all_ready)\n", signit);
-}
-
-static void broadcast_done(mt_worker_t *w) {
-    int ret;
-    mt_tasks_t *t = w->state;
-
-    ret = pthread_mutex_lock(&t->pmutex);
-    assertf(ret, "Thread[%d]: pthread_mutex_lock(ready) failed(%d)\n", w->num, ret);
-
-    debugf("Thread[%d]: done\n", w->num);
-    ++ t->available_workers;
-
-    ret = pthread_mutex_unlock(&t->pmutex);
-    assertf(ret, "Thread[%d]: pthread_mutex_unlock(ready) failed(%d)\n", w->num, ret);
-
-    ret = pthread_cond_broadcast(&t->pcond);
-    assertf(ret, "Thread[%d]: pthread_cond_broadcast(ready) failed(%d)\n", w->num, ret);
-    debugf("task_thread[%d]: after cond_broadcast(ready)\n", w->num);
 }
 
 static void *task_thread(void *arg) {
@@ -101,6 +118,8 @@ static void *task_thread(void *arg) {
 
         wait_for_done(t, w);
     }
+
+    return 0;
 }
 
 mt_tasks_t * mt_new_pool(work_func_t work) {
@@ -144,31 +163,10 @@ mt_tasks_t * mt_new_pool(work_func_t work) {
 }
 
 void mt_render_start(mt_tasks_t *t) {
-    /* broadcast start condition for workers */
-    int ret = 0;
-
-    ret = pthread_mutex_lock(&t->pmutex);
-    assertf(ret, "mt_render_start: pthread_mutex_lock(start) failed(%d)\n", ret);
-    debugf("mt_render_start: after mutex_lock()\n");
-
-    logf("mt_render_start: available_workers: %d\n", t->available_workers);
-    t->start_flag = true;
-    t->available_workers = 0;
-
-    ret = pthread_cond_broadcast(&t->pcond);
-    assertf(ret, "mt_render_start: pthread_cond_broadcast(start) failed(%d)\n", ret);
-
-    ret = pthread_mutex_unlock(&t->pmutex);
-    assertf(ret, "mt_render_start: pthread_mutex_unlock(start) failed(%d)\n", ret);
-    debugf("mt_render_start: after mutex_unlock()\n");
-
-    ret = pthread_cond_broadcast(&t->pcond);
-    assertf(ret, "mt_render_start: pthread_cond_broadcast(start) failed(%d)\n", ret);
-    debugf("mt_render_start: after cond_broadcast()\n");
+    broadcast_start(t);
 }
 
 void mt_render_wait(mt_tasks_t *t) {
-    /* wait for ready condition */
     wait_for_done(t, NULL);
 }
 
