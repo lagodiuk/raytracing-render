@@ -3,6 +3,10 @@
 
 #include <pthread.h>
 
+#define bool    int
+#define true    1
+#define false   0
+
 struct mt_worker;
 struct mt_tasks;
 
@@ -24,6 +28,7 @@ typedef struct mt_tasks {
     pthread_mutex_t pmutex;
     pthread_cond_t pcond;
     int available_workers;
+    bool start_flag;
 } mt_tasks_t;
 
 
