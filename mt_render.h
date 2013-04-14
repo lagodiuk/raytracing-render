@@ -7,6 +7,9 @@
 #define true    1
 #define false   0
 
+#define MT_LOG    (1)
+#define MT_DEBUG  (0)
+
 struct mt_worker;
 struct mt_tasks;
 
@@ -16,7 +19,7 @@ typedef struct mt_worker {
     pthread_t pthr;
     int num;
     struct mt_tasks *state;
-    
+
     work_func_t work;
     void *data;
 } mt_worker_t;

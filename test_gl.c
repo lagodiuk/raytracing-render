@@ -41,7 +41,7 @@ Point3d camera_point = { X_CAM, Y_CAM, Z_CAM };
 Scene *scene = NULL;
 
 GLuint tex;
-pixel_t canvas[TEX_WIDTH][TEX_HEIGHT] = { 0 };
+pixel_t canvas[TEX_WIDTH][TEX_HEIGHT];
 
 #if USE_MT
 #include "mt_render.h"
@@ -67,7 +67,7 @@ int render_task(struct mt_worker *w) {
     return 0;
 }
 
-#else 
+#else
 static int render_seq() {
     pixel_t px;
     GLint i, j;
@@ -166,7 +166,7 @@ int main(int argc, char *argv[]) {
     glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
 
     glutCreateWindow("Raytracing");
-    
+
     glClearColor(0.0, 1.0, 0.0, 1.0);
     glViewport(0, 0, win_width, win_height);
     glGenTextures(1, &tex);
@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
 
     glutDisplayFunc(display);
     glutIdleFunc(animate);
-   
+
     scene = makeScene();
 
 #if USE_MT
