@@ -33,12 +33,6 @@ struct {
 	Float B;
 	Float C;
 	Float D;
-    // Pre-calculated lengths of the sides of a triangle
-    Float d_p1_p2;
-    Float d_p2_p3;
-    Float d_p3_p1;
-    // Pre-calculated square of triangle
-    Float s;
     
     /************
      * Material *
@@ -50,52 +44,55 @@ struct {
 }
 Triangle3d;
 
-Boolean intersect_triangle(void * data,
-                           Point3d vector_start,
-                           Vector3d vector,
-                           Point3d * intersection_point);
+inline static Boolean
+intersect_triangle(const void * data,
+                   const Point3d vector_start,
+                   const Vector3d vector,
+                   Point3d * const intersection_point);
 
-void rotate_triangle(void * data,
-                     Float sin_al,
-                     Float cos_al,
-                     Float sin_be,
-                     Float cos_be);
+void
+rotate_triangle(void * data,
+                const Float sin_al,
+                const Float cos_al,
+                const Float sin_be,
+                const Float cos_be);
 
-Point3d get_min_triangle_boundary_point(void * data);
+Point3d
+get_min_triangle_boundary_point(const void * data);
 
-Point3d get_max_triangle_boundary_point(void * data);
+Point3d
+get_max_triangle_boundary_point(const void * data);
 
-static inline Color get_triangle_color(void * data,
-                                       Point3d intersection_point) {
-	Triangle3d * triangle = data;
-	return triangle->color;
-}
+static inline Color
+get_triangle_color(const void * data,
+                   const Point3d intersection_point);
 
-static inline Vector3d get_triangle_normal_vector(void * data,
-                                                  Point3d intersection_point) {
-  	Triangle3d * triangle = data;
-    return vector3df(triangle->A, triangle->B, triangle->C);
-}
+static inline Vector3d
+get_triangle_normal_vector(const void * data,
+                           const Point3d intersection_point);
 
-static inline Material get_triangle_material(void * data,
-                                             Point3d intersection_point) {
-    Triangle3d * triangle = data;
-    return triangle->material;
-}
+static inline Material
+get_triangle_material(const void * data,
+                      const Point3d intersection_point);
 
-static inline void release_triangle_data(void * data) {
-	Triangle3d * triangle = data;
-	free(triangle);
-}
+static inline void
+release_triangle_data(void * data);
+
+static inline Boolean
+check_same_clock_dir(const Point3d pt1,
+                     const Point3d pt2,
+                     const Point3d pt3,
+                     const Vector3d norm);
 
 // Code
 // --------------------------------------------------------------
 
-Object3d * new_triangle(Point3d p1,
-                        Point3d p2,
-                        Point3d p3,
-                        Color color,
-                        Material material) {
+Object3d *
+new_triangle(const Point3d p1,
+             const Point3d p2,
+             const Point3d p3,
+             const Color color,
+             const Material material) {
     
 	Triangle3d * triangle = malloc(sizeof(Triangle3d));
     
@@ -106,10 +103,6 @@ Object3d * new_triangle(Point3d p1,
 	triangle->Bw = (p2.x - p3.x) * (p1.z - p3.z) - (p2.z - p3.z) * (p1.x - p3.x);
 	triangle->Cw = (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x);
 	triangle->Dw = -(p1.x * triangle->Aw + p1.y * triangle->Bw + p1.z * triangle->Cw);
-    triangle->d_p1_p2 = module_vector(vector3dp(p1, p2));
-    triangle->d_p2_p3 = module_vector(vector3dp(p2, p3));
-    triangle->d_p3_p1 = module_vector(vector3dp(p3, p1));
-    triangle->s = herons_square(triangle->d_p1_p2, triangle->d_p2_p3, triangle->d_p3_p1);
     triangle->color = color;
     triangle->material = material;
     
@@ -127,8 +120,36 @@ Object3d * new_triangle(Point3d p1,
 	return obj;
 }
 
-Point3d get_min_triangle_boundary_point(void * data) {
-	Triangle3d * t = data;
+static inline Color
+get_triangle_color(const void * data,
+                   const Point3d intersection_point) {
+	const Triangle3d * triangle = data;
+	return triangle->color;
+}
+
+static inline Vector3d
+get_triangle_normal_vector(const void * data,
+                           const Point3d intersection_point) {
+  	const Triangle3d * triangle = data;
+    return vector3df(triangle->A, triangle->B, triangle->C);
+}
+
+static inline Material
+get_triangle_material(const void * data,
+                      const Point3d intersection_point) {
+    const Triangle3d * triangle = data;
+    return triangle->material;
+}
+
+static inline void
+release_triangle_data(void * data) {
+	Triangle3d * triangle = data;
+	free(triangle);
+}
+
+Point3d
+get_min_triangle_boundary_point(const void * data) {
+	const Triangle3d * t = data;
     
     Float x_min = t->p1.x;
     Float y_min = t->p1.y;
@@ -145,8 +166,9 @@ Point3d get_min_triangle_boundary_point(void * data) {
     return point3d(x_min - 1, y_min - 1, z_min - 1);
 }
 
-Point3d get_max_triangle_boundary_point(void * data) {
-	Triangle3d * t = data;
+Point3d
+get_max_triangle_boundary_point(const void * data) {
+	const Triangle3d * t = data;
     
     Float x_max = t->p1.x;
     Float y_max = t->p1.y;
@@ -163,11 +185,12 @@ Point3d get_max_triangle_boundary_point(void * data) {
     return point3d(x_max + 1, y_max + 1, z_max + 1);
 }
 
-void rotate_triangle(void * data,
-                     Float sin_al,
-                     Float cos_al,
-                     Float sin_be,
-                     Float cos_be) {
+void
+rotate_triangle(void * data,
+                const Float sin_al,
+                const Float cos_al,
+                const Float sin_be,
+                const Float cos_be) {
     
 	Triangle3d * triangle = data;
     
@@ -175,19 +198,21 @@ void rotate_triangle(void * data,
 	triangle->p2 = rotate_point(triangle->p2w, sin_al, cos_al, sin_be, cos_be);
 	triangle->p3 = rotate_point(triangle->p3w, sin_al, cos_al, sin_be, cos_be);
     
-	Point3d norm = rotate_point(point3d(triangle->Aw, triangle->Bw, triangle->Cw), sin_al, cos_al, sin_be, cos_be);
+	Point3d norm = rotate_point(point3d(triangle->Aw, triangle->Bw, triangle->Cw),
+                                sin_al, cos_al, sin_be, cos_be);
 	triangle->A = norm.x;
 	triangle->B = norm.y;
 	triangle->C = norm.z;
 	triangle->D = -(triangle->p1.x * triangle->A + triangle->p1.y * triangle->B + triangle->p1.z * triangle->C);
 }
 
-Boolean intersect_triangle(void * data,
-                           Point3d vector_start,
-                           Vector3d vector,
-                           Point3d * intersection_point) {
+inline static Boolean
+intersect_triangle(const void * data,
+                   const Point3d vector_start,
+                   const Vector3d vector,
+                   Point3d * const intersection_point) {
     
-	Triangle3d * tr = data;
+	const Triangle3d * tr = data;
     
     Float scalar_product = tr->A * vector.x + tr->B * vector.y + tr->C * vector.z;
     
@@ -202,7 +227,7 @@ Boolean intersect_triangle(void * data,
                  + tr->B * vector_start.y
                  + tr->C * vector_start.z
                  + tr->D)
-    / scalar_product;
+            / scalar_product;
     
     if(k < EPSILON) {
         // Avoid intersection in the opposite direction
@@ -216,32 +241,41 @@ Boolean intersect_triangle(void * data,
     // Intersection point
 	Point3d ipt = point3d(x, y, z);
     
-    // Checking if point "ipt" is inside of triangle "p1-p2-p3"
-    // using herons square formula:
-    // point is inside when: S(p1-p2-ipt) + S(p2-p3-ipt) + S(p1-p3-ipt) = S(p1-p2-p3)
-    
-    // Calculating length of the sides: p1-ipt, p2-ipt, p3-ipt
-	Float d_p1_ipt = module_vector(vector3dp(tr->p1, ipt));
-	Float d_p2_ipt = module_vector(vector3dp(tr->p2, ipt));
-	Float d_p3_ipt = module_vector(vector3dp(tr->p3, ipt));
-    // length of other sides are pre-calculated:
-    // p1-p2 is tr->d_p1_p2
-    // p2-p3 is tr->d_p2_p3
-    // p3-p1 is tr->d_p3_p1
-    
-    // Calculating S(p1-p2-ipt), S(p2-p3-ipt) and S(p1-p3-ipt)
-    Float s1 = herons_square(tr->d_p1_p2, d_p1_ipt, d_p2_ipt);
-    Float s2 = herons_square(tr->d_p2_p3, d_p2_ipt, d_p3_ipt);
-    Float s3 = herons_square(tr->d_p3_p1, d_p3_ipt, d_p1_ipt);
-    // Square of triangle p1-p2-p3 is pre-calculated too
-    // S(p1-p2-p3) is tr->s
-    
-    if(abs(s1 + s2 + s3 - tr->s) < EPSILON) {
-        // Triangle is intersected
+    Vector3d norm = vector3df(tr->A, tr->B, tr->C);
+    if(check_same_clock_dir(tr->p1, tr->p2, ipt, norm)
+       && check_same_clock_dir(tr->p2, tr->p3, ipt, norm)
+       && check_same_clock_dir(tr->p3, tr->p1, ipt, norm)) {
+
         *intersection_point = ipt;
         return True;
     }
     
     // No intersection
 	return False;
+}
+
+static inline Boolean
+check_same_clock_dir(const Point3d p1,
+                     const Point3d p2,
+                     const Point3d p3,
+                     const Vector3d norm) {
+    
+    Float testi;
+    Float testj;
+    Float testk;
+    Float dotprod;
+    
+    // normal of trinagle
+    testi = (p1.y - p3.y) * (p2.z - p3.z) - (p1.z - p3.z) * (p2.y - p3.y);
+    testj = (p2.x - p3.x) * (p1.z - p3.z) - (p2.z - p3.z) * (p1.x - p3.x);
+    testk = (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x);
+    
+    // Dot product with triangle normal
+    dotprod = testi * norm.x + testj * norm.y + testk * norm.z;
+    
+    //answer
+    if(dotprod < 0)
+        return False;
+    else
+        return True;
 }
