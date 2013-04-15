@@ -70,28 +70,28 @@ struct {
 	void * data;
         
 	void (*rotate)(void * data,
-                   Float sin_al,
-                   Float cos_al,
-                   Float sin_be,
-                   Float cos_be);
+                   const Float sin_al,
+                   const Float cos_al,
+                   const Float sin_be,
+                   const Float cos_be);
     
-	Boolean (*intersect)(void * data,
-                         Point3d vector_start,
-                         Vector3d vector,
-                         Point3d * intersection_point);
+	Boolean (*intersect)(const void * data,
+                         const Point3d vector_start,
+                         const Vector3d vector,
+                         Point3d * const intersection_point);
     
-	Color (*get_color)(void * data,
-                       Point3d intersection_point);
+	Color (*get_color)(const void * data,
+                       const Point3d intersection_point);
     
-    Vector3d (*get_normal_vector)(void * data,
-                                  Point3d intersection_point);
+    Vector3d (*get_normal_vector)(const void * data,
+                                  const Point3d intersection_point);
     
-    Material (*get_material)(void * data,
-                             Point3d intersection_point);
+    Material (*get_material)(const void * data,
+                             const Point3d intersection_point);
     
-    Point3d (*get_min_boundary_point)(void * data);
+    Point3d (*get_min_boundary_point)(const void * data);
     
-    Point3d (*get_max_boundary_point)(void * data);
+    Point3d (*get_max_boundary_point)(const void * data);
     
 	void (*release_data)(void * data);
 }
@@ -162,8 +162,8 @@ struct {
     Color background_color;
     
     // Required to return value from interval [0..1]
-    Float (*fog_density)(Float distance,
-                         void * fog_parameters);    
+    Float (*fog_density)(const Float distance,
+                         const void * fog_parameters);    
     void * fog_parameters;
 }
 Scene;
@@ -172,87 +172,103 @@ Scene;
  *                     Scene                       *
  ***************************************************/
 
-Scene *new_scene(int objects_count,
-                 int light_sources_count,
-                 Color background_color);
+Scene *
+new_scene(const int objects_count,
+          const int light_sources_count,
+          const Color background_color);
 
-void release_scene(Scene * scene);
+void
+release_scene(Scene * scene);
 
-void rotate_scene(Scene * scene,
-                  Float al,
-                  Float be,
-                  Boolean rotate_light_sources);
+void
+rotate_scene(Scene * const scene,
+             const Float al,
+             const Float be,
+             const Boolean rotate_light_sources);
 
-void add_object(Scene * scene,
-                Object3d * object);
+void
+add_object(Scene * const scene,
+           Object3d * const object);
 
-void set_exponential_fog(Scene * scene,
-                         Float k);
+void
+set_exponential_fog(Scene * const scene,
+                    const Float k);
 
-void set_no_fog(Scene * scene);
+void
+set_no_fog(Scene * const scene);
 
-void trace(Scene * scene,
-           Point3d vector_start,
-           Vector3d vector,
-           Color * color);
+void
+trace(Scene * scene,
+      Point3d vector_start,
+      Vector3d vector,
+      Color * color);
 
-static inline void add_light_source(Scene * scene,
-                                    LightSource3d * light_source) {    
-    scene->light_sources[++scene->last_light_source_index] = light_source;
-}
+void
+add_light_source(Scene * const scene,
+                 LightSource3d * const light_source);
 
 /***************************************************
  *                    3D objects                   *
  ***************************************************/
 
-Object3d * new_triangle(Point3d p1,
-                        Point3d p2,
-                        Point3d p3,
-                        Color color,
-                        Material material);
+Object3d *
+new_triangle(const Point3d p1,
+             const Point3d p2,
+             const Point3d p3,
+             const Color color,
+             const Material material);
 
 /***************************************************
  *                Helpful functions                *
  ***************************************************/
 
-static inline void release_object3d(Object3d * obj);
+static inline void
+release_object3d(Object3d * obj);
 
-static inline Point3d point3d(Float x,
-                              Float y,
-                              Float z);
+static inline Point3d
+point3d(const Float x,
+        const Float y,
+        const Float z);
 
-static inline Vector3d vector3dp(Point3d start_point,
-                                 Point3d end_point);
+static inline Vector3d
+vector3dp(const Point3d start_point,
+          const Point3d end_point);
 
-static inline Vector3d vector3df(Float x,
-                                 Float y,
-                                 Float z);
+static inline Vector3d
+vector3df(const Float x,
+          const Float y,
+          const Float z);
 
-static inline LightSource3d * light_source_3d(Point3d location,
-                                              Color color);
+static inline LightSource3d *
+light_source_3d(const Point3d location,
+                const Color color);
 
-static inline Material material(Float Ka,
-                                Float Kd,
-                                Float Ks,
-                                Float Kr,
-                                Float Kt,
-                                Float p);
+static inline Material
+material(const Float Ka,
+         const Float Kd,
+         const Float Ks,
+         const Float Kr,
+         const Float Kt,
+         const Float p);
 
-static inline void release_object3d(Object3d * obj) {
+static inline void
+release_object3d(Object3d * obj) {
     obj->release_data(obj->data);
     free(obj);
 }
 
-static inline Point3d point3d(Float x,
-                              Float y,
-                              Float z) {
+static inline Point3d
+point3d(const Float x,
+        const Float y,
+        const Float z) {
     
 	Point3d p = {.x = x, .y = y, .z = z};
 	return p;
 }
 
-static inline Vector3d vector3dp(Point3d start_point,
-                                 Point3d end_point) {
+static inline Vector3d
+vector3dp(const Point3d start_point,
+          const Point3d end_point) {
     
 	Vector3d v = {.x = (end_point.x - start_point.x),
                   .y = (end_point.y - start_point.y),
@@ -260,16 +276,18 @@ static inline Vector3d vector3dp(Point3d start_point,
 	return v;
 }
 
-static inline Vector3d vector3df(Float x,
-                                 Float y,
-                                 Float z) {
+static inline Vector3d
+vector3df(const Float x,
+          const Float y,
+          const Float z) {
     
 	Vector3d v = {.x = x, .y = y, .z = z};
     return v;
 }
 
-static inline LightSource3d * light_source_3d(Point3d location,
-                                              Color color) {
+static inline LightSource3d *
+light_source_3d(const Point3d location,
+                const Color color) {
     
 	LightSource3d * ls_p = malloc(sizeof(LightSource3d));
     
@@ -280,12 +298,13 @@ static inline LightSource3d * light_source_3d(Point3d location,
 	return ls_p;
 }
 
-static inline Material material(Float Ka,
-                                Float Kd,
-                                Float Ks,
-                                Float Kr,
-                                Float Kt,
-                                Float p) {
+static inline Material
+material(const Float Ka,
+         const Float Kd,
+         const Float Ks,
+         const Float Kr,
+         const Float Kt,
+         const Float p) {
     
     Float sum = Ka + Kd + Ks + Kr + Kt;
     Material m = {.Ka = Ka / sum,
