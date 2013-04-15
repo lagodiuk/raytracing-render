@@ -3,6 +3,7 @@
 #include <math.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 // Mac OS X
 #ifdef DARWIN
@@ -40,17 +41,25 @@ float delta_al = M_PI / 6;
 Point3d camera_point = { X_CAM, Y_CAM, Z_CAM };
 Scene *scene = NULL;
 
-// Needed for FPS counting
-#include <time.h>
-#include <signal.h>
-int frames = 0;
-int dt = 0;
-float fps = 0;
-void calc_fps_handler(int sig);
-void register_fps_counter(int period);
-
 GLuint tex;
 pixel_t canvas[TEX_WIDTH][TEX_HEIGHT];
+
+// Needed for FPS counting
+#define FPS_INTERVAL    10
+int frames = 0;
+struct timeval last_time;
+
+void fps_handler(void) {
+    ++frames;
+    struct timeval this_time = { 0 };
+    gettimeofday(&this_time, NULL);
+    if (this_time.tv_sec >= last_time.tv_sec + FPS_INTERVAL) {
+        last_time = this_time;
+        float fps = frames / (float)FPS_INTERVAL;
+        printf("FPS: %f\n", fps);
+        frames = 0;
+    }
+}
 
 #if USE_MT
 #include "mt_render.h"
@@ -125,7 +134,7 @@ void display(void) {
     GLenum glerr = glGetError();
     if (glerr) printf(__FILE__": glGetError() -> %d\n", glerr);
 
-    ++frames;
+    fps_handler();
 }
 
 void reshape(GLint w, GLint h) {
@@ -185,23 +194,6 @@ int main(int argc, char *argv[]) {
     prepare_canvas();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_WIDTH, TEX_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, canvas);
         
-    register_fps_counter(10);
     glutMainLoop();
 }
 
-void register_fps_counter(int period) {
-    dt = period;
-    struct sigaction action;
-    action.sa_handler = calc_fps_handler;
-    sigemptyset(&action.sa_mask);
-    action.sa_flags = 0;
-    sigaction(SIGALRM, &action, NULL);
-    alarm(dt);
-}
-
-void calc_fps_handler(int sig) {
-    fps = ((float) frames) / dt;
-    printf("FPS: %f\n", fps);
-    frames = 0;
-    alarm(dt);
-}
