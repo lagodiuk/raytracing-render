@@ -29,13 +29,13 @@ static void broadcast_start(mt_tasks_t *t) {
     t->start_flag = true;
     t->available_workers = 0;
 
-    ret = pthread_mutex_unlock(&t->pmutex);
-    assertf(ret, "mt_render_start: pthread_mutex_unlock(start) failed(%d)\n", ret);
-    debugf("mt_render_start: after mutex_unlock()\n");
-
     ret = pthread_cond_broadcast(&t->pcond);
     assertf(ret, "mt_render_start: pthread_cond_broadcast(start) failed(%d)\n", ret);
     debugf("mt_render_start: after cond_broadcast()\n");
+
+    ret = pthread_mutex_unlock(&t->pmutex);
+    assertf(ret, "mt_render_start: pthread_mutex_unlock(start) failed(%d)\n", ret);
+    debugf("mt_render_start: after mutex_unlock()\n");
 }
 
 static void wait_for_start(mt_worker_t *w) {
@@ -52,6 +52,7 @@ static void wait_for_start(mt_worker_t *w) {
         assertf(ret, "task_thread[%d]: pthread_cond_wait() failed(%d)\n", w->num, ret);
         debugf("task_thread[%d]: after cond_wait(start)\n", w->num);
     }
+    debugf("Thread[%d]: started\n", w->num);
 
     ret = pthread_mutex_unlock(&t->pmutex);
     assertf(ret, "Thread[%d]: pthread_mutex_unlock() failed(%d)\n", w->num, ret);
@@ -68,12 +69,14 @@ static void broadcast_done(mt_worker_t *w) {
     debugf("Thread[%d]: done\n", w->num);
     ++ t->available_workers;
 
+    if (t->available_workers == t->n_cpu) {
+        ret = pthread_cond_broadcast(&t->pcond);
+        assertf(ret, "Thread[%d]: pthread_cond_broadcast(ready) failed(%d)\n", w->num, ret);
+        debugf("task_thread[%d]: after cond_broadcast(ready)\n", w->num);
+    }
+
     ret = pthread_mutex_unlock(&t->pmutex);
     assertf(ret, "Thread[%d]: pthread_mutex_unlock(ready) failed(%d)\n", w->num, ret);
-
-    ret = pthread_cond_broadcast(&t->pcond);
-    assertf(ret, "Thread[%d]: pthread_cond_broadcast(ready) failed(%d)\n", w->num, ret);
-    debugf("task_thread[%d]: after cond_broadcast(ready)\n", w->num);
 }
 
 static void wait_for_done(mt_tasks_t *t, mt_worker_t *w) {
