@@ -11,7 +11,7 @@
 
 #define OBJECTS_IN_LEAF 6
 
-#if __GNUC_PREREQ(4,3)
+#if defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 3
 # define __hot   __attribute__((hot))
 #else
 # define __hot
