@@ -23,23 +23,12 @@ struct {
 	Float Bw;
 	Float Cw;
 	Float Dw;
-    // Projection vertexes of triangle
-	Point3d p1;
-	Point3d p2;
-	Point3d p3;
-    // Projection norm vector (A, B, C)
-    // A * x + B * y + C * z + D = 0
-	Float A;
-	Float B;
-	Float C;
-	Float D;
     
     /************
      * Material *
      ************/
     
     Color color;
-
     Material material;
 }
 Triangle3d;
@@ -49,13 +38,6 @@ intersect_triangle(const void * data,
                    const Point3d vector_start,
                    const Vector3d vector,
                    Point3d * const intersection_point);
-
-void
-rotate_triangle(void * data,
-                const Float sin_al,
-                const Float cos_al,
-                const Float sin_be,
-                const Float cos_be);
 
 Point3d
 get_min_triangle_boundary_point(const void * data);
@@ -108,7 +90,6 @@ new_triangle(const Point3d p1,
     
 	Object3d * obj = malloc(sizeof(Object3d));
 	obj->data = triangle;
-	obj->rotate = rotate_triangle;
 	obj->release_data = release_triangle_data;
 	obj->get_color = get_triangle_color;
 	obj->intersect = intersect_triangle;
@@ -131,7 +112,7 @@ static inline Vector3d
 get_triangle_normal_vector(const void * data,
                            const Point3d intersection_point) {
   	const Triangle3d * triangle = data;
-    return vector3df(triangle->A, triangle->B, triangle->C);
+    return vector3df(triangle->Aw, triangle->Bw, triangle->Cw);
 }
 
 static inline Material
@@ -151,17 +132,17 @@ Point3d
 get_min_triangle_boundary_point(const void * data) {
 	const Triangle3d * t = data;
     
-    Float x_min = t->p1.x;
-    Float y_min = t->p1.y;
-    Float z_min = t->p1.z;
+    Float x_min = t->p1w.x;
+    Float y_min = t->p1w.y;
+    Float z_min = t->p1w.z;
     
-    x_min = (x_min < t->p2.x) ? x_min : t->p2.x;
-    y_min = (y_min < t->p2.y) ? y_min : t->p2.y;
-    z_min = (z_min < t->p2.z) ? z_min : t->p2.z;
+    x_min = (x_min < t->p2w.x) ? x_min : t->p2w.x;
+    y_min = (y_min < t->p2w.y) ? y_min : t->p2w.y;
+    z_min = (z_min < t->p2w.z) ? z_min : t->p2w.z;
     
-    x_min = (x_min < t->p3.x) ? x_min : t->p3.x;
-    y_min = (y_min < t->p3.y) ? y_min : t->p3.y;
-    z_min = (z_min < t->p3.z) ? z_min : t->p3.z;
+    x_min = (x_min < t->p3w.x) ? x_min : t->p3w.x;
+    y_min = (y_min < t->p3w.y) ? y_min : t->p3w.y;
+    z_min = (z_min < t->p3w.z) ? z_min : t->p3w.z;
     
     return point3d(x_min - 1, y_min - 1, z_min - 1);
 }
@@ -170,40 +151,19 @@ Point3d
 get_max_triangle_boundary_point(const void * data) {
 	const Triangle3d * t = data;
     
-    Float x_max = t->p1.x;
-    Float y_max = t->p1.y;
-    Float z_max = t->p1.z;
+    Float x_max = t->p1w.x;
+    Float y_max = t->p1w.y;
+    Float z_max = t->p1w.z;
     
-    x_max = (x_max > t->p2.x) ? x_max : t->p2.x;
-    y_max = (y_max > t->p2.y) ? y_max : t->p2.y;
-    z_max = (z_max > t->p2.z) ? z_max : t->p2.z;
+    x_max = (x_max > t->p2w.x) ? x_max : t->p2w.x;
+    y_max = (y_max > t->p2w.y) ? y_max : t->p2w.y;
+    z_max = (z_max > t->p2w.z) ? z_max : t->p2w.z;
     
-    x_max = (x_max > t->p3.x) ? x_max : t->p3.x;
-    y_max = (y_max > t->p3.y) ? y_max : t->p3.y;
-    z_max = (z_max > t->p3.z) ? z_max : t->p3.z;
+    x_max = (x_max > t->p3w.x) ? x_max : t->p3w.x;
+    y_max = (y_max > t->p3w.y) ? y_max : t->p3w.y;
+    z_max = (z_max > t->p3w.z) ? z_max : t->p3w.z;
     
     return point3d(x_max + 1, y_max + 1, z_max + 1);
-}
-
-void
-rotate_triangle(void * data,
-                const Float sin_al,
-                const Float cos_al,
-                const Float sin_be,
-                const Float cos_be) {
-    
-	Triangle3d * triangle = data;
-    
-	triangle->p1 = rotate_point(triangle->p1w, sin_al, cos_al, sin_be, cos_be);
-	triangle->p2 = rotate_point(triangle->p2w, sin_al, cos_al, sin_be, cos_be);
-	triangle->p3 = rotate_point(triangle->p3w, sin_al, cos_al, sin_be, cos_be);
-    
-	Point3d norm = rotate_point(point3d(triangle->Aw, triangle->Bw, triangle->Cw),
-                                sin_al, cos_al, sin_be, cos_be);
-	triangle->A = norm.x;
-	triangle->B = norm.y;
-	triangle->C = norm.z;
-	triangle->D = -(triangle->p1.x * triangle->A + triangle->p1.y * triangle->B + triangle->p1.z * triangle->C);
 }
 
 inline static Boolean
@@ -214,7 +174,7 @@ intersect_triangle(const void * data,
     
 	const Triangle3d * tr = data;
     
-    Float scalar_product = tr->A * vector.x + tr->B * vector.y + tr->C * vector.z;
+    Float scalar_product = tr->Aw * vector.x + tr->Bw * vector.y + tr->Cw * vector.z;
     
     if(abs(scalar_product) < EPSILON) {
         // Ray is perpendicular to triangles normal vector (A, B, C)
@@ -223,10 +183,10 @@ intersect_triangle(const void * data,
         return False;
     }
     
-	Float k = - (tr->A * vector_start.x
-                 + tr->B * vector_start.y
-                 + tr->C * vector_start.z
-                 + tr->D)
+	Float k = - (tr->Aw * vector_start.x
+                 + tr->Bw * vector_start.y
+                 + tr->Cw * vector_start.z
+                 + tr->Dw)
             / scalar_product;
     
     if(k < EPSILON) {
@@ -241,10 +201,10 @@ intersect_triangle(const void * data,
     // Intersection point
 	Point3d ipt = point3d(x, y, z);
     
-    Vector3d norm = vector3df(tr->A, tr->B, tr->C);
-    if(check_same_clock_dir(tr->p1, tr->p2, ipt, norm)
-       && check_same_clock_dir(tr->p2, tr->p3, ipt, norm)
-       && check_same_clock_dir(tr->p3, tr->p1, ipt, norm)) {
+    Vector3d norm = vector3df(tr->Aw, tr->Bw, tr->Cw);
+    if(check_same_clock_dir(tr->p1w, tr->p2w, ipt, norm)
+       && check_same_clock_dir(tr->p2w, tr->p3w, ipt, norm)
+       && check_same_clock_dir(tr->p3w, tr->p1w, ipt, norm)) {
 
         *intersection_point = ipt;
         return True;

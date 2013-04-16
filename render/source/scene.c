@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <float.h>
 #include <math.h>
 
@@ -36,7 +37,7 @@ new_scene(const int objects_count,
     s->fog_parameters = NULL;
     s->fog_density = NULL;
     
-    s->kd_tree = build_kd_tree(s->objects, s->last_object_index + 1);
+    s->kd_tree = NULL;
     return s;
 }
 
@@ -63,7 +64,8 @@ release_scene(Scene * scene) {
         free(scene->fog_parameters);
     }
     
-    release_kd_tree(scene->kd_tree);    
+    if(scene->kd_tree)
+        release_kd_tree(scene->kd_tree);
     free(scene);
 }
 
@@ -76,51 +78,31 @@ rotate_scene(Scene * const scene,
     scene->al = al;
     scene->be = be;
     
-    // Pre-calculating of trigonometric functions
-    Float sin_al = sin(al);
-    Float cos_al = cos(al);
-    Float sin_be = sin(be);
-    Float cos_be = cos(be);
+    scene->sin_be = sin(scene->al);
+    scene->cos_be = cos(scene->al);
+    scene->sin_al = sin(scene->be);
+    scene->cos_al = cos(scene->be);
     
     int i;
-    Object3d * obj;
-    
-    for(i = 0; i < scene->objects_count; i++) {
-        if(scene->objects[i]) {
-            obj = scene->objects[i];
-            
-            obj->rotate(obj->data, sin_al, cos_al, sin_be, cos_be);
-        }
-    }
-    
-    if((scene->light_sources_count) && (rotate_light_sources)) {
-        Point3d ls_location;
-        
+    LightSource3d * light;
+    if(!rotate_light_sources) {
         for(i = 0; i < scene->light_sources_count; i++) {
             if(scene->light_sources[i]) {
-                ls_location = scene->light_sources[i]->location_world;
-                
-                scene->light_sources[i]->location =
-                    rotate_point(ls_location, sin_al, cos_al, sin_be, cos_be);
+                light = scene->light_sources[i];
+                light->location = rotate_point(light->location_world,
+                                               scene->sin_al,
+                                               scene->cos_al,
+                                               scene->sin_be,
+                                               scene->cos_be);
             }
         }
     }
-    
-    rebuild_kd_tree(scene);
 }
 
 void
 add_object(Scene * const scene,
            Object3d * const object) {
-    
-    Float sin_al = sin(scene->al);
-    Float cos_al = cos(scene->al);
-    Float sin_be = sin(scene->be);
-    Float cos_be = cos(scene->be);
-    
-    // Rotate object into current projection of scene
-    object->rotate(object->data, sin_al, cos_al, sin_be, cos_be);
-    
+        
     scene->objects[++scene->last_object_index] = object;
     
     rebuild_kd_tree(scene);
@@ -135,7 +117,7 @@ add_light_source(Scene * const scene,
 
 static inline void
 rebuild_kd_tree(Scene * scene) {
-    
-    release_kd_tree(scene->kd_tree);
+    if(scene->kd_tree)
+        release_kd_tree(scene->kd_tree);
     scene->kd_tree = build_kd_tree(scene->objects, scene->last_object_index + 1);
 }

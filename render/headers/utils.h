@@ -39,11 +39,27 @@ rotate_point(const Point3d p,
              const Float cos_al,
              const Float sin_be,
              const Float cos_be) {
+
+	Float x = p.z * sin_al * sin_be + p.y * cos_al * sin_be + p.x * cos_be;
+	Float y = p.z * sin_al * cos_be + p.y * cos_al * cos_be - p.x * sin_be;
+	Float z = p.z * cos_al - p.y * sin_al;
     
-	Float x = p.x * cos_al - p.y * sin_al;
-	Float y = p.x * sin_al * cos_be + p.y * cos_al * cos_be - p.z * sin_be;
-	Float z = p.x * sin_al * sin_be + p.y * cos_al * sin_be + p.z * cos_be;
 	return point3d(x, y, z);
+}
+
+static inline Vector3d
+rotate_vector(const Vector3d v,
+             const Float sin_al,
+             const Float cos_al,
+             const Float sin_be,
+             const Float cos_be) {
+    
+
+    Float x = v.z * sin_al * sin_be + v.y * cos_al * sin_be + v.x * cos_be;
+	Float y = v.z * sin_al * cos_be + v.y * cos_al * cos_be - v.x * sin_be;
+	Float z = v.z * cos_al - v.y * sin_al;
+    
+	return vector3df(x, y, z);
 }
 
 #endif
