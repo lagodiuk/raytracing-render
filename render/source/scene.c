@@ -75,25 +75,28 @@ rotate_scene(Scene * const scene,
              const Float be,
              const Boolean rotate_light_sources) {
     
-    scene->al = al;
-    scene->be = be;
+    scene->be = al;
+    scene->al = be;
     
-    scene->sin_be = sin(scene->al);
-    scene->cos_be = cos(scene->al);
-    scene->sin_al = sin(scene->be);
-    scene->cos_al = cos(scene->be);
+    scene->sin_al = sin(scene->al);
+    scene->cos_al = cos(scene->al);
+    scene->sin_be = sin(scene->be);
+    scene->cos_be = cos(scene->be);
     
     int i;
     LightSource3d * light;
-    if(!rotate_light_sources) {
-        for(i = 0; i < scene->light_sources_count; i++) {
-            if(scene->light_sources[i]) {
-                light = scene->light_sources[i];
+    for(i = 0; i < scene->light_sources_count; i++) {
+        if(scene->light_sources[i]) {
+            light = scene->light_sources[i];
+            
+            if(!rotate_light_sources) {
                 light->location = rotate_point(light->location_world,
                                                scene->sin_al,
                                                scene->cos_al,
                                                scene->sin_be,
                                                scene->cos_be);
+            } else {
+                light->location = light->location_world;
             }
         }
     }
