@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
+#include <string.h>
 
 #include <render.h>
 #include <kdtree.h>
@@ -328,17 +329,13 @@ KDNode * make_leaf(Object3d ** objects,
     leaf->l = NULL;
     leaf->r = NULL;
     if(objects_count) {
-        leaf->objects = (Object3d **) calloc(objects_count, sizeof(Object3d *));
+        leaf->objects = (Object3d **) malloc(objects_count * sizeof(Object3d *));
     } else {
         leaf->objects = NULL;
     }
     
-    int i;
-    if(objects_count) {
-        for(i = 0; i < objects_count; i++) {
-            leaf->objects[i] = objects[i];
-        }
-    }
+    memcpy(leaf->objects, objects, objects_count * sizeof(Object3d *));
+    
     return leaf;
 }
 
