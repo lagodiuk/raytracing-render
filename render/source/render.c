@@ -54,9 +54,12 @@ void trace(Scene * scene,
            Vector3d vector,
            Color * color) {
     
+    Point3d r_vector_start = rotate_point(vector_start, scene->sin_al, scene->cos_al, scene->sin_be, scene->cos_be);
+    Vector3d r_vector = rotate_vector(vector, scene->sin_al, scene->cos_al, scene->sin_be, scene->cos_be);
+    
     trace_recursively(scene,
-                      vector_start,
-                      vector,
+                      r_vector_start,
+                      r_vector,
                       color,
                       INITIAL_RAY_INTENSITY,
                       0);
