@@ -125,6 +125,7 @@ void release_kd_node(KDNode * node) {
         release_kd_node(node->r);
     if(node->objects)
         free(node->objects);
+    free(node);
 }
 
 inline KDTree * build_kd_tree(Object3d ** objects,
