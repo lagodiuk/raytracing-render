@@ -68,12 +68,6 @@ Material;
 typedef 
 struct {
 	void * data;
-        
-	void (*rotate)(void * data,
-                   const Float sin_al,
-                   const Float cos_al,
-                   const Float sin_be,
-                   const Float cos_be);
     
 	Boolean (*intersect)(const void * data,
                          const Point3d vector_start,
@@ -146,6 +140,10 @@ struct {
     // Angles of projection
     Float al;
     Float be;
+    Float sin_be;
+    Float cos_be;
+    Float sin_al;
+    Float cos_al;
     
     // Array of pointers to 3d objects of scene
     Object3d ** objects;
