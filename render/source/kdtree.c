@@ -11,7 +11,11 @@
 
 #define OBJECTS_IN_LEAF 6
 
-#define __hot   __attribute__((hot))
+#if defined(__GNUC__) && (__GNUC__ * 100 +  __GNUC_MINOR__) >= 403
+# define __hot   __attribute__((hot))
+#else
+# define __hot
+#endif
 
 
 // Declarations
