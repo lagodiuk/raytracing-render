@@ -54,8 +54,9 @@ void fps_handler(void) {
     struct timeval this_time = { 0 };
     gettimeofday(&this_time, NULL);
     if (this_time.tv_sec >= last_time.tv_sec + FPS_INTERVAL) {
+        float dt = this_time.tv_sec - last_time.tv_sec;
         last_time = this_time;
-        float fps = frames / (float)FPS_INTERVAL;
+        float fps = frames / dt;
         printf("FPS: %f\n", fps);
         frames = 0;
     }
