@@ -15,10 +15,16 @@ frame_dir	=	./frames
 
 ifeq ($(UNAME), Darwin)
 CC_OPTS_TEST_GL = -framework GLUT -framework OpenGL -DDARWIN
+# Generating by gcc in Mac OS
+d_sym	= *.dSYM
+else
+CC_OPTS_TEST_GL = -lglut -DPOSIX
 endif
 
-ifeq ($(UNAME), Linux)
-CC_OPTS_TEST_GL = -lglut -DPOSIX
+LINK_OPTS	:=	$(CC_OPTS_TEST_GL)
+CC_OPTS		:=	-Wall -O2
+ifneq ($(NCPU),)
+CC_OPTS		:=	$(CC_OPTS) -DN_WORKERS=$(NCPU)
 endif
 
 #
@@ -30,20 +36,22 @@ test_video: test $(frame_dir)
 	ffmpeg -qscale 2 -r 10 -b 10M  -i '$(frame_dir)/out_%03d.bmp'  movie.mp4
 
 test: test.c scene1.h scene1.o $(render_lib)
-	gcc -O test.c scene1.o $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@
+	gcc -O test.c scene1.o $(CC_OPTS) $(INCLUDES) $(LINK_OPTS) $(LIBPATH) $(LINKLIBS) -o $@
+
+rungl: test_gl
+	./$<
 
 test_gl: $(render_lib) scene1.o mt_render.o mt_render.h scene1.h test_gl.c 
-	gcc -pthread test_gl.c scene1.o mt_render.o $(CC_OPTS_TEST_GL) $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@ \
-		&& ./$@
+	gcc -pthread test_gl.c scene1.o mt_render.o $(CC_OPTS) $(INCLUDES) $(LINK_OPTS) $(LIBPATH) $(LINKLIBS) -o $@
 
 $(frame_dir):
 	mkdir -p $@
 
 scene1.o: scene1.c
-	gcc -c $< $(INCLUDES) -o $@
+	gcc -c $< $(INCLUDES) $(CC_OPTS) -o $@
 
 mt_render.o: mt_render.c
-	gcc -c $< $(INCLUDES) -o $@
+	gcc -c $< $(INCLUDES) $(CC_OPTS) -o $@
 
 #
 # Render
@@ -78,8 +86,8 @@ $(render_lib): $(render_dir)/render.o $(render_dir)/triangle.o $(render_dir)/kdt
 #
 .PHONY: clean
 clean:
-	rm -f *.o; \
+	rm -f *.o;                            \
 	rm -f ./test ./test_gl ./test_kd;     \
-	rm -f *.mp4;                \
-	rm -rf *.dSYM	\
+	rm -f *.mp4;                          \
+	rm -rf *.dSYM                         \
 	rm -rf $(render_dir) $(frame_dir)
