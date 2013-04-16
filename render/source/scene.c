@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <float.h>
 #include <math.h>
 
@@ -81,6 +82,21 @@ rotate_scene(Scene * const scene,
     scene->cos_be = cos(scene->al);
     scene->sin_al = sin(scene->be);
     scene->cos_al = cos(scene->be);
+    
+    int i;
+    LightSource3d * light;
+    if(!rotate_light_sources) {
+        for(i = 0; i < scene->light_sources_count; i++) {
+            if(scene->light_sources[i]) {
+                light = scene->light_sources[i];
+                light->location = rotate_point(light->location_world,
+                                               scene->sin_al,
+                                               scene->cos_al,
+                                               scene->sin_be,
+                                               scene->cos_be);
+            }
+        }
+    }
 }
 
 void
