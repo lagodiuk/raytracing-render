@@ -185,8 +185,15 @@ rotate_scene(Scene * const scene,
              const Boolean rotate_light_sources);
 
 void
+add_object_and_prepare_scene(Scene * const scene,
+                             Object3d * const object);
+
+void
 add_object(Scene * const scene,
            Object3d * const object);
+
+void
+prepare_scene(Scene * const scene);
 
 void
 set_exponential_fog(Scene * const scene,

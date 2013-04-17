@@ -8,7 +8,7 @@
 #include <kdtree.h>
 #include <utils.h>
 
-#define MAX_TREE_DEPTH 15
+#define MAX_TREE_DEPTH 11
 
 #define OBJECTS_IN_LEAF 6
 
@@ -26,13 +26,13 @@ Voxel
 make_initial_voxel(Object3d ** objects,
                    int objects_count);
 
-KDNode *
+inline KDNode *
 rec_build(Object3d ** objects,
           int objects_count,
           Voxel v,
           int iter);
 
-KDNode *
+inline KDNode *
 make_leaf(Object3d ** objects,
           int objects_count);
 
@@ -79,7 +79,7 @@ static inline Boolean
 point_in_voxel(const Point3d p,
                const Voxel v);
 
-Boolean
+inline Boolean
 find_intersection_node(KDNode * const node,
                        const Voxel v,
                        const Point3d vector_start,
@@ -88,7 +88,7 @@ find_intersection_node(KDNode * const node,
                        Point3d * const nearest_intersection_point_ptr,
                        Float * const nearest_intersection_point_dist_ptr);
 
-Boolean
+inline Boolean
 is_intersect_anything_node(KDNode * const node,
                            const Voxel v,
                            const Point3d vector_start,
@@ -138,7 +138,7 @@ build_kd_tree(Object3d ** objects,
     return tree;
 }
 
-KDNode *
+inline KDNode *
 rec_build(Object3d ** objects,
           int objects_count,
           Voxel v,
@@ -320,7 +320,7 @@ object_in_voxel(Object3d * const obj,
     return True;
 }
 
-KDNode *
+inline KDNode *
 make_leaf(Object3d ** objects,
           int objects_count) {
     
@@ -512,7 +512,7 @@ find_intersection_tree(KDTree * const tree,
                                       nearest_intersection_point_dist_ptr));
 }
 
-Boolean
+inline Boolean
 find_intersection_node(KDNode * const node,
                        const Voxel v,
                        const Point3d vector_start,
@@ -660,7 +660,7 @@ is_intersect_anything_tree(KDTree * const tree,
                                           vector));
 }
 
-Boolean
+inline Boolean
 is_intersect_anything_node(KDNode * const node,
                            const Voxel v,
                            const Point3d vector_start,
