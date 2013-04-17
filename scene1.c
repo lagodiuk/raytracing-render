@@ -40,6 +40,8 @@ Scene *makeScene(void) {
                                       rgb(55, 255, 55),
                                       material(1, 5, 5, 10, 0, 10)));
     
+    prepare_scene(scene);
+    
     printf("\nScene created\n");
     printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
 

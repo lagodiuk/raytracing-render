@@ -103,12 +103,24 @@ rotate_scene(Scene * const scene,
 }
 
 void
-add_object(Scene * const scene,
-           Object3d * const object) {
+add_object_and_prepare_scene(Scene * const scene,
+                             Object3d * const object) {
         
     scene->objects[++scene->last_object_index] = object;
     
     rebuild_kd_tree(scene);
+}
+
+void
+add_object(Scene * const scene,
+           Object3d * const object) {
+    
+    scene->objects[++scene->last_object_index] = object;
+}
+
+void
+prepare_scene(Scene * const scene) {
+    rebuild_kd_tree(scene);    
 }
 
 void
