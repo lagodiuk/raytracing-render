@@ -223,12 +223,22 @@ check_same_clock_dir(const Point3d p1,
     Float testi;
     Float testj;
     Float testk;
+    
     Float dotprod;
     
     // normal of trinagle
-    testi = (p1.y - p3.y) * (p2.z - p3.z) - (p1.z - p3.z) * (p2.y - p3.y);
-    testj = (p2.x - p3.x) * (p1.z - p3.z) - (p2.z - p3.z) * (p1.x - p3.x);
-    testk = (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x);
+    Float p1p3_x = p1.x - p3.x;
+    Float p2p3_x = p2.x - p3.x;
+    
+    Float p1p3_y = p1.y - p3.y;
+    Float p2p3_y = p2.y - p3.y;
+    
+    Float p1p3_z = p1.z - p3.z;
+    Float p2p3_z = p2.z - p3.z;
+    
+    testi = p1p3_y * p2p3_z - p1p3_z * p2p3_y;
+    testj = p2p3_x * p1p3_z - p2p3_z * p1p3_x;
+    testk = p1p3_x * p2p3_y - p1p3_y * p2p3_x;
     
     // Dot product with triangle normal
     dotprod = testi * norm.x + testj * norm.y + testk * norm.z;
