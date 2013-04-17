@@ -196,5 +196,7 @@ int main(int argc, char *argv[]) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_WIDTH, TEX_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, canvas);
         
     glutMainLoop();
+
+    return 0;
 }
 
