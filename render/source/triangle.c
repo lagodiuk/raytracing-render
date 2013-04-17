@@ -176,7 +176,7 @@ intersect_triangle(const void * data,
     
     Float scalar_product = tr->Aw * vector.x + tr->Bw * vector.y + tr->Cw * vector.z;
     
-    if(abs(scalar_product) < EPSILON) {
+    if(fabs(scalar_product) < EPSILON) {
         // Ray is perpendicular to triangles normal vector (A, B, C)
         // it means that ray is parellel to triangle
         // so there is no intersection
