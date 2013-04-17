@@ -71,17 +71,21 @@ release_scene(Scene * scene) {
 
 void
 rotate_scene(Scene * const scene,
-             const Float al,
              const Float be,
+             const Float al,
              const Boolean rotate_light_sources) {
     
-    scene->be = al;
-    scene->al = be;
-    
-    scene->sin_al = sin(scene->al);
-    scene->cos_al = cos(scene->al);
-    scene->sin_be = sin(scene->be);
-    scene->cos_be = cos(scene->be);
+    if(fabs(scene->be - be) > EPSILON) {
+        scene->be = be;
+        scene->sin_be = sin(scene->be);
+        scene->cos_be = cos(scene->be);
+    }
+
+    if(fabs(scene->al - al) > EPSILON) {
+        scene->al = al;
+        scene->sin_al = sin(scene->al);
+        scene->cos_al = cos(scene->al);
+    }
     
     int i;
     LightSource3d * light;
