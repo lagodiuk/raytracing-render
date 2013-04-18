@@ -248,6 +248,9 @@ split_voxel(const Voxel v,
  * splitted_SAH = split_cost
  *                + left_voxel_surface_area * number_of_objects_in_left_voxel
  *                + right_voxel_surface_area * number_of_objects_in_right_voxel
+ *
+ *
+ * see: http://stackoverflow.com/a/4633332/653511
  */
 static inline void
 find_plane(Object3d ** objects,
