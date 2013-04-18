@@ -8,9 +8,13 @@
 #include <kdtree.h>
 #include <utils.h>
 
-#define MAX_TREE_DEPTH 11
+#define MAX_TREE_DEPTH 8
 
 #define OBJECTS_IN_LEAF 6
+
+#define MAX_SPLITS_OF_VOXEL 10
+
+#define SPLIT_COST 0.5
 
 #if defined(__GNUC__) && (__GNUC__ * 100 +  __GNUC_MINOR__) >= 403
 # define __hot   __attribute__((hot))
@@ -43,6 +47,11 @@ find_plane(Object3d ** objects,
            const int tree_depth,
            enum Plane * const p,
            Coord * const c);
+
+static inline int
+objects_in_voxel(Object3d ** objects,
+                 const int objects_count,
+                 const Voxel v);
 
 static inline void
 split_voxel(const Voxel v,
@@ -231,6 +240,18 @@ split_voxel(const Voxel v,
     }
 }
 
+/*
+ * Using Surface Area Heuristic (SAH) for finding best split pane
+ *
+ * SAH = voxel_surface_area * number_of_objects_in_voxel
+ *
+ * splitted_SAH = split_cost
+ *                + left_voxel_surface_area * number_of_objects_in_left_voxel
+ *                + right_voxel_surface_area * number_of_objects_in_right_voxel
+ *
+ *
+ * see: http://stackoverflow.com/a/4633332/653511
+ */
 static inline void
 find_plane(Object3d ** objects,
            const int objects_count,
@@ -244,24 +265,104 @@ find_plane(Object3d ** objects,
         return;
     }
     
-    // TODO use Surface Area Heuristic (SAH)
-    Float dx = v.x_max - v.x_min;
-    Float dy = v.y_max - v.y_min;
-    Float dz = v.z_max - v.z_min;
+    Float hx = v.x_max - v.x_min;
+    Float hy = v.y_max - v.y_min;
+    Float hz = v.z_max - v.z_min;
+    
+    Float Sxy = hx * hy;
+    Float Sxz = hx * hz;
+    Float Syz = hy * hz;
+    
+    int max_splits = MAX_SPLITS_OF_VOXEL;
+    float split_cost = SPLIT_COST;
+    
+    // Assume that at the beginning best SAH has initial voxel
+    Float bestSAH = (Sxy + Sxz + Syz) * objects_count;
+    // initial voxel doesn't have split pane
+    *p = NONE;
+    
+    Float currSAH;
+    Coord curr_split_coord;
+    int i;
+    Voxel vl;
+    Voxel vr;
+    Float a;
+    
+    // Let's find split surface, which have the least SAH
+    
+    // XY
+    for(i = 1; i < max_splits; i++) {
 
-    if((dx >= dy) && (dx >= dz)) {
-        *p = YZ;
-        c->x = v.x_min + dx / 2.0;
-        return;
-    } else if((dy >= dx) && (dy >= dz)) {
-        *p = XZ;
-        c->y = v.y_min + dy / 2.0;
-        return;
-    } else {
-        *p = XY;
-        c->z = v.z_min + dz / 2.0;
-        return;
+        a = ((float) i) / max_splits;
+        
+        // Current coordinate of split surface
+        curr_split_coord.z = v.z_min + a * hz;
+        
+        split_voxel(v, XY, curr_split_coord, &vl, &vr);
+        
+        currSAH = (Sxy +      a  * (Sxz + Syz)) * objects_in_voxel(objects, objects_count, vl)
+                + (Sxy + (1 - a) * (Sxz + Syz)) * objects_in_voxel(objects, objects_count, vr) + split_cost;
+        
+        if(currSAH < bestSAH) {
+            bestSAH = currSAH;
+            *p = XY;
+            *c = curr_split_coord;
+        }
     }
+    
+    // XZ
+    for(i = 1; i < max_splits; i++) {
+        
+        a = ((float) i) / max_splits;
+
+        // Current coordinate of split surface       
+        curr_split_coord.y = v.y_min + a * hy;
+        
+        split_voxel(v, XZ, curr_split_coord, &vl, &vr);
+        
+        currSAH = (Sxz +      a  * (Sxy + Syz)) * objects_in_voxel(objects, objects_count, vl)
+                + (Sxz + (1 - a) * (Sxy + Syz)) * objects_in_voxel(objects, objects_count, vr) + split_cost;
+        
+        if(currSAH < bestSAH) {
+            bestSAH = currSAH;
+            *p = XZ;
+            *c = curr_split_coord;
+        }
+    }
+    
+    // YZ
+    for(i = 1; i < max_splits; i++) {
+        
+        a = ((float) i) / max_splits;
+        
+        // Current coordinate of split surface
+        curr_split_coord.x = v.x_min + a * hx;
+        
+        split_voxel(v, YZ, curr_split_coord, &vl, &vr);
+        
+        currSAH = (Syz +      a  * (Sxy + Sxz)) * objects_in_voxel(objects, objects_count, vl)
+                + (Syz + (1 - a) * (Sxy + Sxz)) * objects_in_voxel(objects, objects_count, vr) + split_cost;
+        
+        if(currSAH < bestSAH) {
+            bestSAH = currSAH;
+            *p = YZ;
+            *c = curr_split_coord;
+        }
+    }
+}
+
+static inline int
+objects_in_voxel(Object3d ** objects,
+                 const int objects_count,
+                 const Voxel v) {
+    
+    int i;
+    int count = 0;
+    for(i = 0; i < objects_count; i++)
+        if(object_in_voxel(objects[i], v))
+            ++count;
+    
+    return count;
 }
 
 Voxel
