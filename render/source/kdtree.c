@@ -45,6 +45,18 @@ find_plane(Object3d ** objects,
            Coord * const c);
 
 static inline void
+doSAH(Object3d ** objects,
+      const int objects_count,
+      const Voxel v,
+      enum Plane * const p,
+      Coord * const c);
+
+static inline int
+objects_in_voxel(Object3d ** objects,
+                 const int objects_count,
+                 const Voxel v);
+
+static inline void
 split_voxel(const Voxel v,
             const enum Plane p,
             const Coord c,
@@ -244,6 +256,9 @@ find_plane(Object3d ** objects,
         return;
     }
     
+    doSAH(objects, objects_count, v, p, c);
+    
+/*
     // TODO use Surface Area Heuristic (SAH)
     Float dx = v.x_max - v.x_min;
     Float dy = v.y_max - v.y_min;
@@ -262,6 +277,110 @@ find_plane(Object3d ** objects,
         c->z = v.z_min + dz / 2.0;
         return;
     }
+*/
+}
+
+static inline void
+doSAH(Object3d ** objects,
+    const int objects_count,
+    const Voxel v,
+    enum Plane * const p,
+    Coord * const c) {
+   
+    Float hx = v.x_max - v.x_min;
+    Float hy = v.y_max - v.y_min;
+    Float hz = v.z_max - v.z_min;
+    
+    Float Sxy = hx * hy;
+    Float Sxz = hx * hz;
+    Float Syz = hy * hz;
+    
+    int max_splits = 10;
+    float delt = 0.5;
+    
+    Float sah = (Sxy + Sxz + Syz) * objects_count;
+    *p = NONE;
+    
+    Float currSah;
+    Coord co;
+    int i;
+    Voxel vl;
+    Voxel vr;
+    Float a;
+    
+    //if((hz >= hx) && (hz >= hy)) {
+    // XY
+    for(i = 1; i < max_splits; i++) {
+
+        a = ((float) i) / max_splits;
+        
+        co.z = v.z_min + a * hz;
+        
+        split_voxel(v, XY, co, &vl, &vr);
+        
+        currSah = (Sxy +      a  * (Sxz + Syz)) * objects_in_voxel(objects, objects_count, vl)
+                + (Sxy + (1 - a) * (Sxz + Syz)) * objects_in_voxel(objects, objects_count, vr) + delt;
+        
+        if(currSah < sah) {
+            sah = currSah;
+            *p = XY;
+            *c = co;
+        }
+    }
+    //}
+    //else if((hy >= hx) && (hy >= hz)) {
+    // XZ
+    for(i = 1; i < max_splits; i++) {
+
+        a = ((float) i) / max_splits;
+        
+        co.y = v.y_min + a * hy;
+        
+        split_voxel(v, XZ, co, &vl, &vr);
+        
+        currSah = (Sxz +      a  * (Sxy + Syz)) * objects_in_voxel(objects, objects_count, vl)
+                + (Sxz + (1 - a) * (Sxy + Syz)) * objects_in_voxel(objects, objects_count, vr) + delt;
+        
+        if(currSah < sah) {
+            sah = currSah;
+            *p = XZ;
+            *c = co;
+        }
+    }
+    //} else {
+    // YZ
+    for(i = 1; i < max_splits; i++) {
+        
+        a = ((float) i) / max_splits;
+        
+        co.x = v.x_min + a * hx;
+        
+        split_voxel(v, YZ, co, &vl, &vr);
+        
+        currSah = (Syz +      a  * (Sxy + Sxz)) * objects_in_voxel(objects, objects_count, vl)
+                + (Syz + (1 - a) * (Sxy + Sxz)) * objects_in_voxel(objects, objects_count, vr) + delt;
+        
+        if(currSah < sah) {
+            sah = currSah;
+            *p = YZ;
+            *c = co;
+        }
+    }
+    //}
+}
+
+static inline int
+objects_in_voxel(Object3d ** objects,
+                 const int objects_count,
+                 const Voxel v) {
+    
+    int i;
+    int count = 0;
+    for(i = 0; i < objects_count; i++)
+        if(object_in_voxel(objects[i], v))
+            ++count;
+    
+    return count;
 }
 
 Voxel
