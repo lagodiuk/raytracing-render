@@ -22,7 +22,7 @@
 
 #include "scene1.h"
 
-#define USE_MT  (0)
+#define USE_MT  (1)
 
 GLint win_width = 512;
 GLint win_height = 512;

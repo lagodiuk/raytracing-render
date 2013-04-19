@@ -124,6 +124,12 @@ static inline Color calculate_color(Scene * scene,
     Color reflected_color;
     Color specular_color;
     
+    Float fog_density = 0;
+    if(scene->fog_density) {
+        fog_density = scene->fog_density(dist, scene->fog_parameters);
+    }
+    
+    
     Vector3d reflected_ray;
     if((material.Ks) || (material.Kr)) {        
         reflected_ray = reflect_ray(vector, norm);
@@ -165,7 +171,7 @@ static inline Color calculate_color(Scene * scene,
                               point,
                               reflected_ray,
                               &reflected_color,
-                              intensity * material.Kr,
+                              intensity * material.Kr * (1 - fog_density),
                               recursion_level + 1);
         } else {
             reflected_color = scene->background_color;
@@ -192,7 +198,6 @@ static inline Color calculate_color(Scene * scene,
     }
     
     if(scene->fog_density) {
-        Float fog_density = scene->fog_density(dist, scene->fog_parameters);
         result_color = add_colors(
                                   mul_color(scene->background_color, fog_density),
                                   mul_color(result_color, 1 - fog_density));
