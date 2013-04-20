@@ -223,6 +223,12 @@ new_triangle(const Point3d p1,
              const Color color,
              const Material material);
 
+Object3d *
+new_sphere(const Point3d center,
+           const Float radius,
+           const Color color,
+           const Material material);
+
 /***************************************************
  *                Helpful functions                *
  ***************************************************/
