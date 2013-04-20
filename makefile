@@ -75,10 +75,13 @@ $(render_dir)/render.o: ./render/source/render.c ./render/headers/render.h ./ren
 $(render_dir)/triangle.o: ./render/source/triangle.c ./render/headers/render.h ./render/headers/color.h $(render_dir)
 	gcc -c ./render/source/triangle.c $(INCLUDES) -o $@
 
+$(render_dir)/sphere.o: ./render/source/sphere.c ./render/headers/render.h ./render/headers/color.h $(render_dir)
+	gcc -c ./render/source/sphere.c $(INCLUDES) -o $@
+
 $(render_dir)/kdtree.o: ./render/source/kdtree.c ./render/headers/kdtree.h ./render/headers/render.h $(render_dir)
 	gcc -c ./render/source/kdtree.c $(INCLUDES) -o $@
 
-$(render_lib): $(render_dir)/render.o $(render_dir)/triangle.o $(render_dir)/kdtree.o $(render_dir)/scene.o $(render_dir)/fog.o $(render_dir)/canvas.o
+$(render_lib): $(render_dir)/render.o $(render_dir)/triangle.o $(render_dir)/sphere.o $(render_dir)/kdtree.o $(render_dir)/scene.o $(render_dir)/fog.o $(render_dir)/canvas.o
 	ar -rcs $@ $^
 
 #

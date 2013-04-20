@@ -12,7 +12,7 @@ Scene *makeScene(void) {
     add_light_source(scene, light_source_3d(point3d(-90, 90, 190), rgb(255, 255, 255)));
     add_light_source(scene, light_source_3d(point3d(90, -90, 190), rgb(255, 255, 0)));
 
-    set_exponential_fog(scene, 0.005);
+    set_exponential_fog(scene, 0.004);
 
     add_cube(scene, point3d(60, 60, -60), 90, material(3, 7, 0, 0, 0, 0));
     
@@ -39,6 +39,11 @@ Scene *makeScene(void) {
                                       point3d(300, 300, -80),
                                       rgb(55, 255, 55),
                                       material(1, 5, 5, 10, 0, 10)));
+    
+    add_object(scene, new_sphere(point3d(130, -100, -30),
+                                 50.0,
+                                 rgb(250, 30, 30),
+                                 material(1, 5, 5, 10, 0, 10)));
     
     prepare_scene(scene);
     
