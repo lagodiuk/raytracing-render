@@ -38,22 +38,15 @@ static inline Color add_colors(Color c1, Color c2) {
 	return rgb((Byte) r, (Byte) g, (Byte) b);
 }
 
-/*
- * mul( rgb(125, 0, 125), rgb(0, 125, 0) ) == rgb (0, 0, 0)
- * mul( rgb(125, 125, 0), rgb(0, 125, 0) ) == rgb (0, 125, 0)
- * mul( rgb(0, 255, 0), rgb(0, 125, 0) ) == rgb (0, 178, 0)
- */
 static inline Color mul_colors(Color c1, Color c2) {
-    int r = (int) sqrt((double) c1.r * c2.r);
-	int g = (int) sqrt((double) c1.g * c2.g);
-	int b = (int) sqrt((double) c1.b * c2.b);
-    r = (r < MAX_R) ? r : MAX_R;
-	g = (g < MAX_G) ? g : MAX_G;
-	b = (b < MAX_B) ? b : MAX_B;
+    uint16_t r = (c1.r + c2.r) >> 1;
+	uint16_t g = (c1.g + c2.g) >> 1;
+	uint16_t b = (c1.b + c2.b) >> 1;
+
    	return rgb((Byte) r, (Byte) g, (Byte) b);
 }
 
-static inline Color mul_color(Color c, float k) {
+static inline Color mul_color(Color c, double k) {
 	return rgb((Byte) (c.r * k), (Byte) (c.g * k), (Byte) (c.b * k));
 }
 
