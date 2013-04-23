@@ -152,9 +152,10 @@ intersect_sphere(const void * data,
         return False;
     
     const Float sqrt_D = sqrt(D);
+    const Float a_2 = 2 * a;
     
-    const Float t1 = (-b + sqrt_D) / (2 * a);
-    const Float t2 = (-b - sqrt_D) / (2 * a);
+    const Float t1 = (-b + sqrt_D) / a_2;
+    const Float t2 = (-b - sqrt_D) / a_2;
     
     const Float min_t = (t1 < t2) ? t1 : t2;
     const Float max_t = (t1 > t2) ? t1 : t2;
