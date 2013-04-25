@@ -62,4 +62,23 @@ rotate_vector(const Vector3d v,
 	return vector3df(x, y, z);
 }
 
+static inline
+Vector3d reflect_ray(Vector3d incident_ray,
+                     Vector3d norm_v) {
+    
+    Float numerator = 2 * (incident_ray.x * norm_v.x
+                           + incident_ray.y * norm_v.y
+                           + incident_ray.z * norm_v.z);
+    
+    Float norm_module = module_vector(norm_v);
+    Float denominator = norm_module * norm_module;
+    
+    Float k = numerator / denominator;
+    
+    Float x = incident_ray.x - norm_v.x * k;
+    Float y = incident_ray.y - norm_v.y * k;
+    Float z = incident_ray.z - norm_v.z * k;
+    
+    return vector3df(x, y, z);
+}
 #endif
