@@ -26,7 +26,7 @@ Scene *makeScene(void) {
                           point3d(dx, pyramid_edge * 0.87 / 2 + dy, 0),
                           point3d(dx, dy, pyramid_edge * 0.87),
                           material(1, 5, 0, 0, 0, 0), rgb(240, 210, 40));
-    
+    /*
     add_object(scene, new_triangle(
                                      point3d(-300, -300, -80),
                                      point3d(300, -300, -80),
@@ -39,6 +39,45 @@ Scene *makeScene(void) {
                                       point3d(300, 300, -80),
                                       rgb(55, 255, 55),
                                       material(1, 5, 5, 10, 0, 10)));
+    */
+    /*
+    int i;
+    int j;
+    int a = 150;
+    
+    for(i = -1; i < 1; i++) {
+        for(j = -1; j < 1; j++) {
+            add_object(scene, new_triangle(
+                                           point3d(i * a, j * a, -80),
+                                           point3d((i + 1) * a, j * a, -80),
+                                           point3d(i * a, (j + 1) * a, -80),
+                                           rgb(55, 255, 55),
+                                           material(1, 5, 5, 10, 0, 10)));
+            add_object(scene, new_triangle(
+                                           point3d((i + 1) * a, (j + 1) * a, -80),
+                                           point3d((i + 1) * a, j * a, -80),
+                                           point3d(i * a, (j + 1) * a, -80),
+                                           rgb(55, 255, 55),
+                                           material(1, 5, 5, 10, 0, 10)));
+        }
+    }
+    */
+    
+    /*
+    int i;
+    int j;
+    int a = 100;
+    
+    for(i = -20; i < 20; i++) {
+        for(j = -20; j < 20; j++) {
+            add_object(scene, new_sphere(point3d(i * a, j * a, -100),
+                                         20.0,
+                                         rgb(50, 30, 230),
+                                         material(1, 5, 5, 10, 0, 10)));
+        }
+    }
+     */
+    
     
     add_object(scene, new_sphere(point3d(130, -100, -30),
                                  50.0,
