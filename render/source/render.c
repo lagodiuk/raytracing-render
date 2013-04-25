@@ -286,9 +286,23 @@ is_viewable(Point3d target_point,
             Scene * scene) {
     
     Vector3d ray = vector3dp(starting_point, target_point);
+    Float target_dist = module_vector(ray);
+    
     normalize_vector(&ray);
-    if(is_intersect_anything_tree(scene->kd_tree, starting_point, ray)) {
-        return False;
+    
+    Object3d * nearest_obj = NULL;
+    Point3d nearest_intersection_point;
+    Float nearest_intersection_point_dist = FLOAT_MAX;
+    
+    if(find_intersection_tree(scene->kd_tree,
+                              starting_point,
+                              ray,
+                              &nearest_obj,
+                              &nearest_intersection_point,
+                              &nearest_intersection_point_dist)) {
+
+        // Check if intersection point is closer than target_point
+        return (target_dist < nearest_intersection_point_dist);
     }
     // Ray doesn't intersect any of scene objects
     return True;
