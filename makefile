@@ -4,7 +4,7 @@ render_dir 	=	./render/lib
 render_lib	=	$(render_dir)/librender.a
 
 LIBPATH		=	$(addprefix -L, $(render_dir))
-INCLUDES	=	-O2 $(addprefix -I, ./render/headers)
+INCLUDES	=	-O2 $(addprefix -I, ./render/include)
 LINKLIBS	= 	-lrender -lm
 
 frame_dir	=	./frames
@@ -60,26 +60,26 @@ mt_render.o: mt_render.c
 $(render_dir):
 	mkdir -p $@
 
-$(render_dir)/canvas.o: ./render/source/canvas.c ./render/headers/canvas.h ./render/headers/color.h $(render_dir)
-	gcc -c ./render/source/canvas.c $(INCLUDES) -o $@
+$(render_dir)/canvas.o: ./render/src/canvas.c ./render/include/canvas.h ./render/include/color.h $(render_dir)
+	gcc -c ./render/src/canvas.c $(INCLUDES) -o $@
 
-$(render_dir)/scene.o: ./render/source/scene.c ./render/headers/render.h ./render/headers/color.h $(render_dir)
-	gcc -c ./render/source/scene.c $(INCLUDES) -o $@
+$(render_dir)/scene.o: ./render/src/scene.c ./render/include/render.h ./render/include/color.h $(render_dir)
+	gcc -c ./render/src/scene.c $(INCLUDES) -o $@
 
-$(render_dir)/fog.o: ./render/source/fog.c ./render/headers/render.h $(render_dir)
-	gcc -c ./render/source/fog.c $(INCLUDES) -o $@
+$(render_dir)/fog.o: ./render/src/fog.c ./render/include/render.h $(render_dir)
+	gcc -c ./render/src/fog.c $(INCLUDES) -o $@
 
-$(render_dir)/render.o: ./render/source/render.c ./render/headers/render.h ./render/headers/color.h $(render_dir)
-	gcc -c ./render/source/render.c $(INCLUDES) -o $@
+$(render_dir)/render.o: ./render/src/render.c ./render/include/render.h ./render/include/color.h $(render_dir)
+	gcc -c ./render/src/render.c $(INCLUDES) -o $@
 
-$(render_dir)/triangle.o: ./render/source/triangle.c ./render/headers/render.h ./render/headers/color.h $(render_dir)
-	gcc -c ./render/source/triangle.c $(INCLUDES) -o $@
+$(render_dir)/triangle.o: ./render/src/triangle.c ./render/include/render.h ./render/include/color.h $(render_dir)
+	gcc -c ./render/src/triangle.c $(INCLUDES) -o $@
 
-$(render_dir)/sphere.o: ./render/source/sphere.c ./render/headers/render.h ./render/headers/color.h $(render_dir)
-	gcc -c ./render/source/sphere.c $(INCLUDES) -o $@
+$(render_dir)/sphere.o: ./render/src/sphere.c ./render/include/render.h ./render/include/color.h $(render_dir)
+	gcc -c ./render/src/sphere.c $(INCLUDES) -o $@
 
-$(render_dir)/kdtree.o: ./render/source/kdtree.c ./render/headers/kdtree.h ./render/headers/render.h $(render_dir)
-	gcc -c ./render/source/kdtree.c $(INCLUDES) -o $@
+$(render_dir)/kdtree.o: ./render/src/kdtree.c ./render/include/kdtree.h ./render/include/render.h $(render_dir)
+	gcc -c ./render/src/kdtree.c $(INCLUDES) -o $@
 
 $(render_lib): $(render_dir)/render.o $(render_dir)/triangle.o $(render_dir)/sphere.o $(render_dir)/kdtree.o $(render_dir)/scene.o $(render_dir)/fog.o $(render_dir)/canvas.o
 	ar -rcs $@ $^
