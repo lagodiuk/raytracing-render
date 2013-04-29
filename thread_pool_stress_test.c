@@ -9,7 +9,7 @@ void
 dummy_work(void * arg) {
     int i;
     int j;
-    for(i = 0; i < 200; i++) {
+    for(i = 0; i < 50; i++) {
         for(j = 0; j < 10000000; j++)
             rand(); // a trick against -O2 optimization of gcc
         printf("Hello %i\n", *((int *) arg));
@@ -30,8 +30,10 @@ int main() {
         tasks[i] = new_task(dummy_work, args + i);
     }
     
-    for(i = 0; i < 3; i++)
+    for(i = 0; i < 50; i++) {
         execute_and_wait(tasks, TASKS_NUM, pool);
+        printf("Pool queue size: %i\n", get_size(pool->tasks));
+    }
     
     for(i = 0; i < TASKS_NUM; i++) {
         free(tasks[i]);

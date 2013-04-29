@@ -78,23 +78,43 @@ new_task(void (* func)(void *), void * arg) {
 }
 
 void
+execute(Task * task,
+        ThreadPool * pool) {
+    
+    pthread_mutex_lock(&(pool->tasks_lock));
+    
+    task->status = ACTIVE;
+    add(task, pool->tasks);
+    
+    pthread_mutex_unlock(&(pool->tasks_lock));
+    pthread_cond_signal(&(pool->tasks_cond));
+}
+
+void
+wait_for_task(Task * task) {
+    pthread_mutex_lock(&(task->status_lock));
+    while(task->status != DONE)
+        pthread_cond_wait(&(task->status_cond), &(task->status_lock));
+    pthread_mutex_unlock(&(task->status_lock));
+}
+
+void
 execute_and_wait(Task ** tasks,
                  int count,
                  ThreadPool * pool) {
     
-    int i;
     pthread_mutex_lock(&(pool->tasks_lock));
+    
+    int i;
     for(i = 0; i < count; i++) {
         tasks[i]->status = ACTIVE;
         add(tasks[i], pool->tasks);
     }
+    
     pthread_mutex_unlock(&(pool->tasks_lock));
     pthread_cond_broadcast(&(pool->tasks_cond));
     
     for(i = 0; i < count; i++) {
-        pthread_mutex_lock(&(tasks[i]->status_lock));
-        while(tasks[i]->status != DONE)
-            pthread_cond_wait(&(tasks[i]->status_cond), &(tasks[i]->status_lock));
-        pthread_mutex_unlock(&(tasks[i]->status_lock));
+        wait_for_task(tasks[i]);
     }
 }
