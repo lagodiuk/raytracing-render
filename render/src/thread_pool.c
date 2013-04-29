@@ -39,10 +39,8 @@ worker_thread_loop(void * arg) {
     while(1) {
         pthread_mutex_lock(&(pool->tasks_lock));
         
-        while(is_empty(pool->tasks)) {
+        while(is_empty(pool->tasks))
             pthread_cond_wait(&(pool->tasks_cond), &(pool->tasks_lock));
-            continue;
-        }
         
         Task * task = (Task *) get(pool->tasks);
         
