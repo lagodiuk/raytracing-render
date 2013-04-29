@@ -30,8 +30,12 @@ int main() {
         tasks[i] = new_task(dummy_work, args + i);
     }
     
-    for(i = 0; i < 100; i++)
+    for(i = 0; i < 3; i++)
         execute_and_wait(tasks, TASKS_NUM, pool);
+    
+    for(i = 0; i < TASKS_NUM; i++) {
+        free(tasks[i]);
+    }
     
     return 0;
 }

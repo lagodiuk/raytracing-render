@@ -31,6 +31,7 @@ endif
 
 thread_pool_stress_test: thread_pool_stress_test.c $(render_lib)
 	gcc thread_pool_stress_test.c $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@
+	./thread_pool_stress_test
 
 test_video: test $(frame_dir)
 	cd $(frame_dir) && ../test
