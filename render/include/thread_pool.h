@@ -2,6 +2,7 @@
 #define __THREAD_POOL_H__
 
 #include <queue.h>
+#include <pthread.h>
 
 typedef
 struct {
