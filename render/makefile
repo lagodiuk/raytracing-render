@@ -5,11 +5,8 @@ INCLUDES	=	-O2 $(addprefix -I, ./include)
 $(lib_dir):
 	mkdir -p $@
 
-$(lib_dir)/queue.o: ./src/queue.c ./include/queue.h $(lib_dir)
-	gcc -c ./src/queue.c $(INCLUDES) -o $@
-
 $(lib_dir)/thread_pool.o: ./src/thread_pool.c ./include/queue.h ./include/thread_pool.h $(lib_dir)
-	gcc -c ./src/thread_pool.c $(INCLUDES) -o $@
+	gcc -c ./src/thread_pool.c $(INCLUDES) -lpthread -o $@
 
 $(lib_dir)/canvas.o: ./src/canvas.c ./include/canvas.h ./include/color.h $(lib_dir)
 	gcc -c ./src/canvas.c $(INCLUDES) -o $@
@@ -32,7 +29,7 @@ $(lib_dir)/sphere.o: ./src/sphere.c ./include/render.h ./include/color.h $(lib_d
 $(lib_dir)/kdtree.o: ./src/kdtree.c ./include/kdtree.h ./include/render.h $(lib_dir)
 	gcc -c ./src/kdtree.c $(INCLUDES) -o $@
 
-$(render_lib): $(lib_dir)/render.o $(lib_dir)/triangle.o $(lib_dir)/sphere.o $(lib_dir)/kdtree.o $(lib_dir)/scene.o $(lib_dir)/fog.o $(lib_dir)/canvas.o $(lib_dir)/queue.o $(lib_dir)/thread_pool.o
+$(render_lib): $(lib_dir)/render.o $(lib_dir)/triangle.o $(lib_dir)/sphere.o $(lib_dir)/kdtree.o $(lib_dir)/scene.o $(lib_dir)/fog.o $(lib_dir)/canvas.o $(lib_dir)/thread_pool.o
 	ar -rcs $@ $^
 
 .PHONY: clean

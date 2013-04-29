@@ -100,36 +100,3 @@ execute_and_wait(Task ** tasks,
         pthread_cond_wait(&(pool->completed_tasks_num_cond), &(pool->completed_tasks_num_lock));
     pthread_mutex_unlock(&(pool->completed_tasks_num_lock));
 }
-
-//------------------------------------------------
-
-void
-print_hello(void * arg) {
-    int i;
-    int j;
-    for(i = 0; i < 5; i++) {
-        for(j = 0; j < 90000000; j++)
-            ;
-        printf("Hello %s\n", (char *) arg);
-        fflush(stdout);
-    }
-}
-
-int main() {    
-    ThreadPool * pool = new_thread_pool(8);
-    
-    Task * tasks[3];
-    tasks[0] = new_task(print_hello, "World");
-    tasks[1] = new_task(print_hello, "POSIX");
-    tasks[2] = new_task(print_hello, "Facebook");
-    
-    execute_and_wait(tasks, 3, pool);
-    
-    execute_and_wait(tasks, 3, pool);
-    
-    int i;
-    for(i = 0; i < 5; i++)
-        execute_and_wait(tasks, 3, pool);
-    
-    return 0;
-}

@@ -5,7 +5,7 @@ render_lib	=	$(render_dir)/librender.a
 
 LIBPATH		=	$(addprefix -L, $(render_dir))
 INCLUDES	=	-O2 $(addprefix -I, ./render/include)
-LINKLIBS	= 	-lrender -lm
+LINKLIBS	= 	-lrender -lm -lpthread
 
 frame_dir	=	./frames
 
@@ -28,6 +28,9 @@ endif
 #
 # Demo applications
 #
+
+thread_pool_stress_test: thread_pool_stress_test.c $(render_lib)
+	gcc thread_pool_stress_test.c $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@
 
 test_video: test $(frame_dir)
 	cd $(frame_dir) && ../test
@@ -64,6 +67,6 @@ $(render_lib):
 clean:
 	(cd ./render && make clean)	    &&\
 	rm -f *.o;                            \
-	rm -f ./test ./test_gl ./test_kd;     \
+	rm -f ./test ./test_gl ./test_kd ./thread_pool_stress_test;     \
 	rm -f *.mp4;                          \
 	rm -rf $(frame_dir)			\
