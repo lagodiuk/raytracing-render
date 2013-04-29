@@ -43,8 +43,15 @@ Task *
 new_task(void (* func)(void *), void * arg);
 
 void
-execute(Task ** tasks,
-        int count,
+execute(Task * task,
         ThreadPool * pool);
+
+void
+wait_for_task(Task * task);
+
+void
+execute_and_wait(Task ** tasks,
+                 int count,
+                 ThreadPool * pool);
 
 #endif
