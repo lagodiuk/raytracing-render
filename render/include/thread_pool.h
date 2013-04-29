@@ -8,11 +8,7 @@ typedef
 struct {
     Queue * tasks;
     pthread_mutex_t tasks_lock;
-    pthread_cond_t tasks_cond;
-    
-    int completed_tasks_num;
-    pthread_mutex_t completed_tasks_num_lock;
-    pthread_cond_t completed_tasks_num_cond;
+    pthread_cond_t tasks_cond;    
     
     pthread_t * threads;
     int threads_num;
@@ -23,11 +19,20 @@ enum
 TaskType
 {NORMAL, TERMINATE};
 
+enum
+TaskStatus
+{ACTIVE, DONE};
+
 typedef
 struct {
     enum TaskType type;
+    
     void (* func)(void *);
     void * arg;
+    
+    enum TaskStatus status;
+    pthread_mutex_t status_lock;
+    pthread_cond_t status_cond;
 }
 Task;
 

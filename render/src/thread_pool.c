@@ -11,18 +11,15 @@ worker_thread_loop(void * arg);
 
 ThreadPool *
 new_thread_pool(int threads_num) {
-    pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
-    pthread_cond_t cnd = PTHREAD_COND_INITIALIZER;
     
     ThreadPool * pool = malloc(sizeof(ThreadPool));
     
     pool->tasks = new_queue();
+    
+    pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+    pthread_cond_t cnd = PTHREAD_COND_INITIALIZER;
     pool->tasks_lock = mtx;
     pool->tasks_cond = cnd;
-    
-    pool->completed_tasks_num = 0;
-    pool->completed_tasks_num_lock = mtx;
-    pool->completed_tasks_num_cond = cnd;
     
     pool->threads = calloc(threads_num, sizeof(pthread_t));
     pool->threads_num = threads_num;
@@ -57,10 +54,10 @@ worker_thread_loop(void * arg) {
         
         task->func(task->arg);
         
-        pthread_mutex_lock(&(pool->completed_tasks_num_lock));
-        pool->completed_tasks_num++;
-        pthread_mutex_unlock(&(pool->completed_tasks_num_lock));
-        pthread_cond_signal(&(pool->completed_tasks_num_cond));
+        pthread_mutex_lock(&(task->status_lock));
+        task->status = DONE;
+        pthread_mutex_unlock(&(task->status_lock));
+        pthread_cond_signal(&(task->status_cond));
     }
     
     return NULL;
@@ -71,7 +68,14 @@ new_task(void (* func)(void *), void * arg) {
     Task * task = malloc(sizeof(Task));
     task->type = NORMAL;
     task->func = func;
-    task->arg = arg;    
+    task->arg = arg;
+    
+    pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+    pthread_cond_t cnd = PTHREAD_COND_INITIALIZER;
+    
+    task->status_lock = mtx;
+    task->status_cond = cnd;
+    
     return task;
 }
 
@@ -79,24 +83,20 @@ void
 execute_and_wait(Task ** tasks,
                  int count,
                  ThreadPool * pool) {
-
-    int curr_num_completed_tasks;
-    pthread_mutex_lock(&(pool->completed_tasks_num_lock));
-    curr_num_completed_tasks = pool->completed_tasks_num;
-    pthread_mutex_unlock(&(pool->completed_tasks_num_lock));
-    
-    int expected_num_completed_tasks = curr_num_completed_tasks + count;
     
     int i;
     pthread_mutex_lock(&(pool->tasks_lock));
     for(i = 0; i < count; i++) {
+        tasks[i]->status = ACTIVE;
         add(tasks[i], pool->tasks);
     }
     pthread_mutex_unlock(&(pool->tasks_lock));
     pthread_cond_broadcast(&(pool->tasks_cond));
     
-    pthread_mutex_lock(&(pool->completed_tasks_num_lock));
-    while(pool->completed_tasks_num < expected_num_completed_tasks)
-        pthread_cond_wait(&(pool->completed_tasks_num_cond), &(pool->completed_tasks_num_lock));
-    pthread_mutex_unlock(&(pool->completed_tasks_num_lock));
+    for(i = 0; i < count; i++) {
+        pthread_mutex_lock(&(tasks[i]->status_lock));
+        while(tasks[i]->status != DONE)
+            pthread_cond_wait(&(tasks[i]->status_cond), &(tasks[i]->status_lock));
+        pthread_mutex_unlock(&(tasks[i]->status_lock));
+    }
 }
