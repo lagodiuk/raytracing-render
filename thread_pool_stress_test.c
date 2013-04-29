@@ -30,7 +30,7 @@ int main() {
         tasks[i] = new_task(dummy_work, args + i);
     }
     
-    for(i = 0; i < 50; i++) {
+    for(i = 0; i < 10; i++) {
         execute_and_wait(tasks, TASKS_NUM, pool);
         printf("Pool queue size: %i\n", get_size(pool->tasks));
     }
