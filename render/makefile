@@ -6,7 +6,7 @@ $(lib_dir):
 	mkdir -p $@
 
 $(lib_dir)/thread_pool.o: ./src/thread_pool.c ./include/queue.h ./include/thread_pool.h $(lib_dir)
-	gcc -c ./src/thread_pool.c $(INCLUDES) -lpthread -o $@
+	gcc -c ./src/thread_pool.c $(INCLUDES) -pthread -o $@
 
 $(lib_dir)/canvas.o: ./src/canvas.c ./include/canvas.h ./include/color.h $(lib_dir)
 	gcc -c ./src/canvas.c $(INCLUDES) -o $@

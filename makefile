@@ -5,7 +5,7 @@ render_lib	=	$(render_dir)/librender.a
 
 LIBPATH		=	$(addprefix -L, $(render_dir))
 INCLUDES	=	-O2 $(addprefix -I, ./render/include)
-LINKLIBS	= 	-lrender -lm -lpthread
+LINKLIBS	= 	-lrender -lm -pthread
 
 frame_dir	=	./frames
 
