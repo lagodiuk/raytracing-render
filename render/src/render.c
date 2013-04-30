@@ -23,7 +23,10 @@ struct {
 RenderSceneData;
 
 void
-render_part_of_scene(void * arg);
+render_part_of_scene_task(void * arg);
+
+void
+render_part_of_scene(RenderSceneData * data);
 
 RenderSceneData *
 new_render_scene_data(const Scene * const scene,
@@ -68,8 +71,7 @@ new_render_scene_data(const Scene * const scene,
 }
 
 void
-render_part_of_scene(void * arg) {
-    RenderSceneData * data = (RenderSceneData *) arg;
+render_part_of_scene(RenderSceneData * data) {
     
     Float dx = data->dx;
     Float dy = data->dy;
@@ -103,4 +105,10 @@ render_part_of_scene(void * arg) {
             set_pixel(i, j, col, canvas);
         }
     }
+}
+
+void
+render_part_of_scene_task(void * arg) {
+    RenderSceneData * data = (RenderSceneData *) arg;
+    render_part_of_scene(data);
 }
