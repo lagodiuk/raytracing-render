@@ -82,6 +82,8 @@ void
 destroy_task(Task * task) {
     pthread_mutex_destroy(task->status_lock);
     pthread_cond_destroy(task->status_cond);
+    free(task->status_lock);
+    free(task->status_cond);
     free(task);
 }
 

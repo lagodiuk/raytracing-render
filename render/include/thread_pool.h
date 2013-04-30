@@ -48,7 +48,7 @@ Task *
 new_task(void (* func)(void *), void * arg);
 
 void
-destroy_task(Task *);
+destroy_task(Task * task);
 
 void
 execute_task(Task * task,
