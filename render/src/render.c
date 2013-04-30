@@ -50,14 +50,32 @@ render_scene(Scene * scene,
         free(data);
         return;
     }
-    /*
+    
     int tasks_num = get_threads_num(thread_pool);
     Task ** tasks = calloc(tasks_num, sizeof(Task *));
+
+    int slice_width = canvas->w / tasks_num;
+    
     int i;
+    RenderSceneData * data;
+    
     for(i = 0; i < tasks_num; i++) {
-        
+        data = new_render_scene_data(scene, camera_position, proj_plane_dist, canvas);
+
+        data->x_min = slice_width * i;
+        data->x_max = slice_width * (i + 1);
+
+        tasks[i] = new_task(render_part_of_scene_task, data);
     }
-     */
+    
+    execute_tasks(tasks, tasks_num, thread_pool);
+    wait_for_tasks(tasks, tasks_num);
+    
+    for(i = 0; i < tasks_num; i++) {
+        free(tasks[i]->arg);
+        free(tasks[i]);
+    }
+    free(tasks);
 }
 
 RenderSceneData *

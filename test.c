@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <math.h>
 
-#define PICTURES_COUNT 80
+#include <thread_pool.h>
 
 #include "scene1.h"
+
+#define PICTURES_COUNT 80
 
 int main() {
     Scene *scene = makeScene();
@@ -16,6 +18,8 @@ int main() {
     char filename[30];
 
     int k;
+    ThreadPool * thread_pool = new_thread_pool(8);
+    
     for(k = 1; k <= PICTURES_COUNT; k++) {
         rotate_scene(scene,
                      k * delta_al,
@@ -26,7 +30,7 @@ int main() {
                      camera_point,
                      PROJ_PLANE_Z,
                      canv,
-                     NULL);
+                     thread_pool);
         
         sprintf(filename, "out_%03d.bmp", k);
         write_bmp(filename, canv);
