@@ -99,9 +99,9 @@ wait_for_task(Task * task) {
 }
 
 void
-execute_and_wait(Task ** tasks,
-                 int count,
-                 ThreadPool * pool) {
+execute_tasks(Task ** tasks,
+              int count,
+              ThreadPool * pool) {
     
     pthread_mutex_lock(&(pool->tasks_lock));
     
@@ -113,7 +113,12 @@ execute_and_wait(Task ** tasks,
     
     pthread_mutex_unlock(&(pool->tasks_lock));
     pthread_cond_broadcast(&(pool->tasks_cond));
-    
+}
+
+void
+wait_for_tasks(Task ** tasks,
+               int count) {
+    int i;
     for(i = 0; i < count; i++) {
         wait_for_task(tasks[i]);
     }
