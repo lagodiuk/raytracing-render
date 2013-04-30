@@ -29,10 +29,10 @@ void
 render_part_of_scene(RenderSceneData * data);
 
 RenderSceneData *
-new_render_scene_data(const Scene * const scene,
+new_render_scene_data(Scene * scene,
                       const Point3d camera_position,
                       const Float proj_plane_dist,
-                      const Canvas * const canvas);
+                      Canvas * canvas);
 
 void
 render_scene(Scene * scene,
@@ -73,16 +73,16 @@ render_scene(Scene * scene,
     
     for(i = 0; i < tasks_num; i++) {
         free(tasks[i]->arg);
-        free(tasks[i]);
+        destroy_task(tasks[i]);
     }
     free(tasks);
 }
 
 RenderSceneData *
-new_render_scene_data(const Scene * const scene,
+new_render_scene_data(Scene * scene,
                       const Point3d camera_position,
                       const Float proj_plane_dist,
-                      const Canvas * const canvas) {
+                      Canvas * canvas) {
     
     RenderSceneData * data = malloc(sizeof(RenderSceneData));
     data->scene = scene;
