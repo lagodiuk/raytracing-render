@@ -7,8 +7,8 @@
 typedef
 struct {
     Queue * tasks;
-    pthread_mutex_t tasks_lock;
-    pthread_cond_t tasks_cond;    
+    pthread_mutex_t * tasks_lock;
+    pthread_cond_t * tasks_cond;
     
     pthread_t * threads;
     int threads_num;
@@ -31,8 +31,8 @@ struct {
     void * arg;
     
     enum TaskStatus status;
-    pthread_mutex_t status_lock;
-    pthread_cond_t status_cond;
+    pthread_mutex_t * status_lock;
+    pthread_cond_t * status_cond;
 }
 Task;
 
@@ -46,6 +46,9 @@ new_thread_pool(int threads_num);
 
 Task *
 new_task(void (* func)(void *), void * arg);
+
+void
+destroy_task(Task *);
 
 void
 execute_task(Task * task,
