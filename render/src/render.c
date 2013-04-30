@@ -41,12 +41,23 @@ render_scene(Scene * scene,
              Canvas * canvas,
              ThreadPool * thread_pool) {
     
-    RenderSceneData * data =
-        new_render_scene_data(scene, camera_position, proj_plane_dist, canvas);
-    
-    render_part_of_scene(data);
-    
-    free(data);
+    if(!thread_pool) {
+        RenderSceneData * data =
+            new_render_scene_data(scene, camera_position, proj_plane_dist, canvas);
+        
+        render_part_of_scene(data);
+        
+        free(data);
+        return;
+    }
+    /*
+    int tasks_num = get_threads_num(thread_pool);
+    Task ** tasks = calloc(tasks_num, sizeof(Task *));
+    int i;
+    for(i = 0; i < tasks_num; i++) {
+        
+    }
+     */
 }
 
 RenderSceneData *

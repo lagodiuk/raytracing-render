@@ -36,6 +36,11 @@ struct {
 }
 Task;
 
+inline static int
+get_threads_num(ThreadPool * pool) {
+    return pool->threads_num;
+}
+
 ThreadPool *
 new_thread_pool(int threads_num);
 
@@ -43,15 +48,19 @@ Task *
 new_task(void (* func)(void *), void * arg);
 
 void
-execute(Task * task,
-        ThreadPool * pool);
+execute_task(Task * task,
+             ThreadPool * pool);
 
 void
 wait_for_task(Task * task);
 
 void
-execute_and_wait(Task ** tasks,
-                 int count,
-                 ThreadPool * pool);
+execute_tasks(Task ** tasks,
+              int count,
+              ThreadPool * pool);
+
+void
+wait_for_tasks(Task ** tasks,
+               int count);
 
 #endif
