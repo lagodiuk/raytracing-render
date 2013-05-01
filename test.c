@@ -18,7 +18,7 @@ int main() {
     char filename[30];
 
     int k;
-    ThreadPool * thread_pool = new_thread_pool(8);
+    ThreadPool * thread_pool = new_thread_pool(4);
     
     for(k = 1; k <= PICTURES_COUNT; k++) {
         rotate_scene(scene,
