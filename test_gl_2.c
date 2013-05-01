@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <time.h>
 #include <unistd.h>
@@ -75,8 +76,8 @@ static int render_seq() {
     
     for (j = 0; j < TEX_HEIGHT; ++j)
         for (i = 0; i < TEX_WIDTH; ++i) {
-            c = get_pixel(j, i, canv);
-            // TODO px = (pixel_t) c;
+            c = get_pixel(i, j, canv);
+            memcpy(&px, &c, sizeof(pixel_t));
             canvas[j][i] = px;
         }
     return 0;
