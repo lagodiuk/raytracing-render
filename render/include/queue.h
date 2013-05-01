@@ -56,7 +56,7 @@ add(void * obj,
     e->obj = obj;
     e->prev = NULL;
     
-    if(q->head)
+    if(q->size)
         q->head->prev = e;
     q->head = e;
     
