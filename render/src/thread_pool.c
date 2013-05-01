@@ -24,7 +24,7 @@ new_thread_pool(int threads_num) {
     
     int i;
     for(i = 0; i < threads_num; i++) {
-        pthread_create(&(pool->threads[i]), NULL, worker_thread_loop, pool);
+        pthread_create(&pool->threads[i], NULL, worker_thread_loop, pool);
     }
     
     return pool;
