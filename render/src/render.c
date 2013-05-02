@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include <render.h>
 #include <canvas.h>
