@@ -19,6 +19,25 @@ struct {
 Queue;
 
 static inline Queue *
+new_queue();
+
+static inline void
+release_queue(Queue * q);
+
+static inline void
+add(void * obj,
+    Queue * q);
+
+static inline void *
+get(Queue * q);
+
+static inline int
+get_size(Queue * q);
+
+static inline int
+is_empty(Queue * q);
+
+static inline Queue *
 new_queue() {
     Queue * q = malloc(sizeof(Queue));
     q->head = NULL;
@@ -26,9 +45,6 @@ new_queue() {
     q->size = 0;
     return q;
 }
-
-static inline void *
-get(Queue * q);
 
 static inline void
 release_queue(Queue * q) {
@@ -45,7 +61,7 @@ get_size(Queue * q) {
 
 static inline int
 is_empty(Queue * q) {
-    return q->size == 0;
+    return !q->size;
 }
 
 static inline void
@@ -56,27 +72,36 @@ add(void * obj,
     e->obj = obj;
     e->prev = NULL;
     
-    if(q->head)
+    if(q->size)
         q->head->prev = e;
-    q->head = e;
-    
-    if(!q->tail)
+    else
         q->tail = e;
+    
+    q->head = e;
     
     q->size++;
 }
 
 static inline void *
 get(Queue * q) {
-    if(is_empty(q))
+    
+    if(!q->size) // is empty
         return NULL;
     
-    void * obj = q->tail->obj;
-    Elem * to_remove = q->tail;
-    q->tail = to_remove->prev;
-    free(to_remove);
+    Elem * t = q->tail;
+    
+    void * obj = t->obj;
+    q->tail = t->prev;
+    
+    free(t);
     
     q->size--;
+    
+    if(!q->size) {
+        q->head = NULL;
+        q->tail = NULL;
+    }
+    
     return obj;
 }
 
