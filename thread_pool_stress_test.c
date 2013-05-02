@@ -31,7 +31,8 @@ int main() {
     }
     
     for(i = 0; i < 10; i++) {
-        execute_and_wait(tasks, TASKS_NUM, pool);
+        execute_tasks(tasks, TASKS_NUM, pool);
+        wait_for_tasks(tasks, TASKS_NUM);
         printf("Pool queue size: %i\n", get_size(pool->tasks));
     }
     

@@ -1,8 +1,10 @@
-#ifndef __RENDEER_H__
-#define __RENDEER_H__
+#ifndef __RENDER_H__
+#define __RENDER_H__
 
 #include <float.h>
 #include <color.h>
+#include <canvas.h>
+#include <thread_pool.h>
 
 typedef
 int
@@ -167,6 +169,17 @@ struct {
 Scene;
 
 /***************************************************
+ *                     Render                      *
+ ***************************************************/
+
+void
+render_scene(Scene * scene,
+             Point3d camera_position,
+             Float proj_plane_dist,
+             Canvas * canvas,
+             ThreadPool * thread_pool);
+
+/***************************************************
  *                     Scene                       *
  ***************************************************/
 
@@ -326,4 +339,4 @@ material(const Float Ka,
                   .p = p};
     return m;
 }
-#endif
+#endif //__RENDER_H__
