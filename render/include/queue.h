@@ -74,11 +74,10 @@ add(void * obj,
     
     if(q->size)
         q->head->prev = e;
+    else
+        q->tail = e;
     
     q->head = e;
-    
-    if(!q->size)
-        q->tail = e;
     
     q->size++;
 }
@@ -89,10 +88,12 @@ get(Queue * q) {
     if(!q->size) // is empty
         return NULL;
     
-    void * obj = q->tail->obj;
-    Elem * to_remove = q->tail;
-    q->tail = to_remove->prev;
-    free(to_remove);
+    Elem * t = q->tail;
+    
+    void * obj = t->obj;
+    q->tail = t->prev;
+    
+    free(t);
     
     q->size--;
     
