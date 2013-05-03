@@ -6,15 +6,15 @@
 typedef
 struct Elem {
     void * obj;
-    struct Elem * prev;
+    struct Elem * volatile prev;
 }
 Elem;
 
 typedef
 struct {
-    Elem * head;
-    Elem * tail;
-    int size;
+    Elem * volatile head;
+    Elem * volatile tail;
+    volatile int size;
 }
 Queue;
 

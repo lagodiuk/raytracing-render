@@ -30,7 +30,7 @@ struct {
     void (* func)(void *);
     void * arg;
     
-    enum TaskStatus status;
+    volatile enum TaskStatus status;
     pthread_mutex_t status_lock;
     pthread_cond_t status_cond;
 }
