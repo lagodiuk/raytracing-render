@@ -162,7 +162,7 @@ int main(int argc, char *argv[]) {
 
     scene = makeScene();
     canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
-    thread_pool = new_thread_pool(16);
+    thread_pool = new_thread_pool(9);
 
     rotate_scene(scene, delta_al, M_PI * 3 / 5, ROTATE_LIGHT_SOURCES);
     prepare_canvas();

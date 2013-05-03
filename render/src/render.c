@@ -65,7 +65,10 @@ render_scene(Scene * scene,
 
         data->x_min = slice_width * i;
         data->x_max = slice_width * (i + 1);
-
+        
+        if(i == tasks_num - 1)
+            data->x_max = canvas->w;
+            
         tasks[i] = new_task(render_part_of_scene_task, data);
     }
     
