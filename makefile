@@ -6,6 +6,7 @@ render_lib	=	$(render_dir)/librender.a
 LIBPATH		=	$(addprefix -L, $(render_dir))
 INCLUDES	=	-O2 $(addprefix -I, ./render/include)
 LINKLIBS	= 	-lrender -lm -pthread
+THREADS_NUM	=	9
 
 frame_dir	=	./frames
 
@@ -44,7 +45,7 @@ rungl: test_gl
 	./$<
 
 rungl_2: test_gl_2
-	./$<
+	./$< $(THREADS_NUM)
 
 test_gl: $(render_lib) scene1.o mt_render.o mt_render.h scene1.h test_gl.c 
 	gcc -pthread test_gl.c scene1.o mt_render.o $(CC_OPTS) $(INCLUDES) $(LINK_OPTS) $(LIBPATH) $(LINKLIBS) -o $@
