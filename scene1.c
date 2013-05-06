@@ -71,13 +71,12 @@ Scene *makeScene(void) {
     for(i = -20; i < 20; i++) {
         for(j = -20; j < 20; j++) {
             add_object(scene, new_sphere(point3d(i * a, j * a, -100),
-                                         20.0,
+                                         40.0,
                                          rgb(50, 30, 230),
-                                         material(1, 5, 5, 10, 0, 10)));
+                                         material(1, 5, 0, 0, 0, 0)));
         }
     }
-     */
-    
+    */
     
     add_object(scene, new_sphere(point3d(130, -100, -30),
                                  50.0,

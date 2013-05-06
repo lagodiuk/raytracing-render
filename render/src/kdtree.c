@@ -8,13 +8,13 @@
 #include <kdtree.h>
 #include <utils.h>
 
-#define MAX_TREE_DEPTH 8
+#define MAX_TREE_DEPTH 15
 
-#define OBJECTS_IN_LEAF 6
+#define OBJECTS_IN_LEAF 3
 
-#define MAX_SPLITS_OF_VOXEL 10
+#define MAX_SPLITS_OF_VOXEL 20
 
-#define SPLIT_COST 0.5
+#define SPLIT_COST 15
 
 #if defined(__GNUC__) && (__GNUC__ * 100 +  __GNUC_MINOR__) >= 403
 # define __hot   __attribute__((hot))
@@ -246,8 +246,8 @@ split_voxel(const Voxel v,
  * SAH = voxel_surface_area * number_of_objects_in_voxel
  *
  * splitted_SAH = split_cost
- *                + left_voxel_surface_area * number_of_objects_in_left_voxel
- *                + right_voxel_surface_area * number_of_objects_in_right_voxel
+ *                + 0.5 * left_voxel_surface_area * number_of_objects_in_left_voxel
+ *                + 0.5 * right_voxel_surface_area * number_of_objects_in_right_voxel
  *
  *
  * see: http://stackoverflow.com/a/4633332/653511
@@ -269,15 +269,27 @@ find_plane(Object3d ** objects,
     Float hy = v.y_max - v.y_min;
     Float hz = v.z_max - v.z_min;
     
+    // Calculating square of each side of initial voxel
     Float Sxy = hx * hy;
     Float Sxz = hx * hz;
     Float Syz = hy * hz;
     
+    Float Ssum = Sxy + Sxz + Syz;
+
+    // Let's normalize square of each side of initial voxel
+    // to satisfy the following relationship:
+    // Sxy + Sxz + Syz = 1
+    Sxy /= Ssum;
+    Sxz /= Ssum;
+    Syz /= Ssum;
+    
     int max_splits = MAX_SPLITS_OF_VOXEL;
-    float split_cost = SPLIT_COST;
+    Float split_cost = SPLIT_COST;
     
     // Assume that at the beginning best SAH has initial voxel
-    Float bestSAH = (Sxy + Sxz + Syz) * objects_count;
+    // SAH = 0.5 * square * objects_count
+    // squre of initial voxel is Sxy + Sxz + Syz = 1
+    Float bestSAH = objects_count;
     // initial voxel doesn't have split pane
     *p = NONE;
     
