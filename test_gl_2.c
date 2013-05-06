@@ -36,7 +36,9 @@ typedef struct {
     uint8_t b;
 } pixel_t;
 
-float delta_al = M_PI / 6;
+float al = M_PI / 6;
+float be = M_PI * 3 / 5;
+
 Point3d camera_point = { X_CAM, Y_CAM, Z_CAM };
 Scene *scene = NULL;
 ThreadPool * thread_pool = NULL;
@@ -126,8 +128,9 @@ static inline uint8_t toGLubyte(GLfloat clampf) {
 
 
 void animate() {
-    delta_al += 0.05;
-    rotate_scene(scene, delta_al, M_PI * 3 / 5, ROTATE_LIGHT_SOURCES);
+    al += 0.05;
+    
+    rotate_scene(scene, al, be, ROTATE_LIGHT_SOURCES);
     prepare_canvas();
 
     glEnable(GL_TEXTURE_2D);
@@ -141,12 +144,37 @@ void animate() {
     glutPostRedisplay();
 }
 
+void processNormalKeys(unsigned char key, int x, int y) {
+    if (key == 27)
+		exit(0);
+}
+
+void processSpecialKeys(int key, int x, int y) {
+    switch(key) {
+		case GLUT_KEY_UP :
+            be += 0.05;
+            break;
+		case GLUT_KEY_DOWN :
+            be -= 0.05;
+            break;
+        case GLUT_KEY_LEFT :
+            al += 0.05;
+            break;
+		case GLUT_KEY_RIGHT :
+            al -= 0.05;
+            break;
+	}
+}
+
 int main(int argc, char *argv[]) {
     glutInit(&argc, argv);
     glutInitWindowSize(win_width, win_height);
     glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
 
     glutCreateWindow("Raytracing");
+    
+    glutKeyboardFunc(processNormalKeys);
+    glutSpecialFunc(processSpecialKeys);
 
     glClearColor(0.0, 1.0, 0.0, 1.0);
     glViewport(0, 0, win_width, win_height);
@@ -169,7 +197,7 @@ int main(int argc, char *argv[]) {
         thread_pool = NULL;
     }
 
-    rotate_scene(scene, delta_al, M_PI * 3 / 5, ROTATE_LIGHT_SOURCES);
+    rotate_scene(scene, al, M_PI * 3 / 5, ROTATE_LIGHT_SOURCES);
     prepare_canvas();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_WIDTH, TEX_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, canvas);
         
