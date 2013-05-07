@@ -17,23 +17,38 @@ else
 endif
 OPEN_GL_OPTS := $(CC_OPTS_OPEN_GL)
 
-THREADS_NUM = 9
-frame_dir = ./frames
 
 #
-# Demo
+# Demo: thread pool
 #
 
 thread_pool_stress_test: thread_pool_stress_test.c $(render_lib)
 	$(CC) thread_pool_stress_test.c $(INCLUDES) $(LIBPATH) $(LIBS) -o $@
 	./thread_pool_stress_test
 
+
+#
+# Demo: ffmpeg video
+#
+
+frame_dir = ./frames
+
 test_video: test $(frame_dir)
 	cd $(frame_dir) && ../test
 	ffmpeg -qscale 2 -r 10 -b 10M  -i '$(frame_dir)/out_%03d.bmp'  movie.mp4
 
+$(frame_dir):
+	mkdir -p $@
+
 test: test.c scene1.h scene1.o $(render_lib)
 	$(CC) $(CC_OPTS) $(INCLUDES) $(LIBPATH) $(LIBS) test.c scene1.o -o $@
+
+
+#
+# Demo: OpenGL frontend
+#
+
+THREADS_NUM = 9
 
 rungl_2: test_gl_2
 	./$< $(THREADS_NUM)
@@ -41,21 +56,27 @@ rungl_2: test_gl_2
 test_gl_2: $(render_lib) scene1.o scene1.h test_gl_2.c 
 	$(CC) $(CC_OPTS) $(OPEN_GL_OPTS) $(LIBPATH) $(INCLUDES) $(LIBS) -pthread test_gl_2.c scene1.o -o $@
 
-$(frame_dir):
-	mkdir -p $@
+
+#
+# Scene
+#
 
 scene1.o: scene1.c
 	$(CC) $(INCLUDES) $(CC_OPTS) -c $< -o $@
 
+
 #
 # Render
 #
+
 $(render_lib):
 	(cd ./render && make ./lib/librender.a)
+
 
 #
 # Routines
 #
+
 .PHONY: clean
 clean:
 	(cd ./render && make clean)	    &&\
