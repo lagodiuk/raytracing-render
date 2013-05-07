@@ -6,14 +6,14 @@
 typedef
 struct Elem {
     void * obj;
-    struct Elem * volatile prev;
+    struct Elem * prev;
 }
 Elem;
 
 typedef
 struct {
-    Elem * volatile head;
-    Elem * volatile tail;
+    Elem * head;
+    Elem * tail;
     volatile int size;
 }
 Queue;
