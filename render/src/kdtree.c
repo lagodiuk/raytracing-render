@@ -237,6 +237,11 @@ split_voxel(const Voxel v,
             vl->x_max = c.x;
             vr->x_min = c.x;
             break;
+        case NONE:
+            // Unreachable case
+            printf("[split_voxel] Plane is NONE. Error");
+            exit(1);
+            break;
     }
 }
 
@@ -482,6 +487,12 @@ vector_plane_intersection(const Vector3d vector,
             *result = point3d(coord.x,
                               vector_start.y + vector.y * k,
                               vector_start.z + vector.z * k);
+            break;
+            
+        case NONE:
+            // Unreachable case
+            printf("[vector_plane_intersection] Plane is NONE. Error");
+            exit(1);
             break;
     }
     
@@ -730,7 +741,13 @@ find_intersection_node(KDNode * const node,
                 split_voxel(v, node->plane, node->coord, &back_voxel, &front_voxel);
             }
             break;
-    }    
+            
+        case NONE:
+            // Unreachable case
+            printf("[find_intersection_node] Plane is NONE. Error");
+            exit(1);
+            break;
+    }
 
     
     Float t_near;
