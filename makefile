@@ -1,37 +1,31 @@
+CC = gcc
+
+LIBPATH	 = -L./render/lib
+INCLUDES = -I./render/include
+LIBS = -lrender -lm
+
+render_lib = ./render/lib/librender.a
+
+CC_OPTS	 = -Wall
+CC_OPTS += -O2
+
 UNAME := $(shell uname)
-
-render_dir 	=	./render/lib
-render_lib	=	$(render_dir)/librender.a
-
-LIBPATH		=	$(addprefix -L, $(render_dir))
-INCLUDES	=	-O2 $(addprefix -I, ./render/include)
-LINKLIBS	= 	-lrender -lm -pthread
-THREADS_NUM	=	9
-
-frame_dir	=	./frames
-
-#
-# System specific OpenGL compilation options
-#
-
 ifeq ($(UNAME), Darwin)
-CC_OPTS_TEST_GL = -framework GLUT -framework OpenGL -DDARWIN
+  CC_OPTS_OPEN_GL = -framework GLUT -framework OpenGL -DDARWIN
 else
-CC_OPTS_TEST_GL = -lglut -DPOSIX
+  CC_OPTS_OPEN_GL = -lglut -DPOSIX
 endif
+OPEN_GL_OPTS := $(CC_OPTS_OPEN_GL)
 
-LINK_OPTS	:=	$(CC_OPTS_TEST_GL)
-CC_OPTS		:=	-Wall -O2
-ifneq ($(NCPU),)
-CC_OPTS		:=	$(CC_OPTS) -DN_WORKERS=$(NCPU)
-endif
+THREADS_NUM = 9
+frame_dir = ./frames
 
 #
-# Demo applications
+# Demo
 #
 
 thread_pool_stress_test: thread_pool_stress_test.c $(render_lib)
-	gcc thread_pool_stress_test.c $(INCLUDES) $(LIBPATH) $(LINKLIBS) -o $@
+	$(CC) thread_pool_stress_test.c $(INCLUDES) $(LIBPATH) $(LIBS) -o $@
 	./thread_pool_stress_test
 
 test_video: test $(frame_dir)
@@ -39,28 +33,19 @@ test_video: test $(frame_dir)
 	ffmpeg -qscale 2 -r 10 -b 10M  -i '$(frame_dir)/out_%03d.bmp'  movie.mp4
 
 test: test.c scene1.h scene1.o $(render_lib)
-	gcc -O test.c scene1.o $(CC_OPTS) $(INCLUDES) $(LINK_OPTS) $(LIBPATH) $(LINKLIBS) -o $@
-
-rungl: test_gl
-	./$<
+	$(CC) $(CC_OPTS) $(INCLUDES) $(LIBPATH) $(LIBS) test.c scene1.o -o $@
 
 rungl_2: test_gl_2
 	./$< $(THREADS_NUM)
 
-test_gl: $(render_lib) scene1.o mt_render.o mt_render.h scene1.h test_gl.c 
-	gcc -pthread test_gl.c scene1.o mt_render.o $(CC_OPTS) $(INCLUDES) $(LINK_OPTS) $(LIBPATH) $(LINKLIBS) -o $@
-
 test_gl_2: $(render_lib) scene1.o scene1.h test_gl_2.c 
-	gcc -pthread test_gl_2.c scene1.o $(CC_OPTS) $(INCLUDES) $(LINK_OPTS) $(LIBPATH) $(LINKLIBS) -o $@
+	$(CC) $(CC_OPTS) $(OPEN_GL_OPTS) $(LIBPATH) $(INCLUDES) $(LIBS) -pthread test_gl_2.c scene1.o -o $@
 
 $(frame_dir):
 	mkdir -p $@
 
 scene1.o: scene1.c
-	gcc -c $< $(INCLUDES) $(CC_OPTS) -o $@
-
-mt_render.o: mt_render.c
-	gcc -c $< $(INCLUDES) $(CC_OPTS) -o $@
+	$(CC) $(INCLUDES) $(CC_OPTS) -c $< -o $@
 
 #
 # Render
@@ -75,6 +60,6 @@ $(render_lib):
 clean:
 	(cd ./render && make clean)	    &&\
 	rm -f *.o;                            \
-	rm -f ./test ./test_gl ./test_kd ./thread_pool_stress_test ./test_gl_2;     \
+	rm -f ./test ./thread_pool_stress_test ./test_gl_2;     \
 	rm -f *.mp4;                          \
 	rm -rf $(frame_dir)			\
