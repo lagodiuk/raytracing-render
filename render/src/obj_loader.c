@@ -11,12 +11,14 @@ parse_vertex(const char * str,
 
 void
 parse_face(char * str,
-           void (* face_handler)(Queue * vertexes),
-           Point3d vertexes[]);
+           Point3d v[],
+           void (* face_handler)(Queue * vertexes, void * args),
+           void * args);
 
 void
 load_obj(const char * filename,
-         void (* face_handler)(Queue * vertexes)) {
+         void (* face_handler)(Queue * vertexes, void * args),
+         void * args) {
     
     Point3d vertexes[10000];
     int vertexes_cnt = 0;
@@ -36,7 +38,7 @@ load_obj(const char * filename,
             parse_vertex(&line[2], &vertexes[vertexes_cnt++]);
         
         if((line[0] == 'f') && (line[1] == ' '))
-            parse_face(&line[2], face_handler, vertexes);
+            parse_face(&line[2], vertexes, face_handler, args);
     }
     
     if (line)
@@ -46,13 +48,14 @@ load_obj(const char * filename,
 void
 parse_vertex(const char * str,
              Point3d * v) {
-    sscanf(str, "%lf %lf %lf", &v->x, &v->y, &v->z);
+    sscanf(str, "%lf %lf %lf", &v->y, &v->x, &v->z);
 }
 
 void
 parse_face(char * str,
-           void (* face_handler)(Queue * vertexes),
-           Point3d v[]) {
+           Point3d v[],
+           void (* face_handler)(Queue * vertexes, void * args),
+           void * args) {
     
     Queue * tokens = new_queue();
     
@@ -76,7 +79,7 @@ parse_face(char * str,
         add(&v[vertex_index - 1], vertexes);
     }
     
-    face_handler(vertexes);
+    face_handler(vertexes, args);
     
     release_queue(tokens);
     release_queue(vertexes);

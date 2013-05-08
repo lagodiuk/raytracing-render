@@ -167,34 +167,6 @@ void processSpecialKeys(int key, int x, int y) {
 	}
 }
 
-void
-face_handler(Queue * vertexes) {
-    int scale = 100;
-    Float dx = -scale;
-    Float dy = -scale;
-    Float dz = -scale;
-    
-    Point3d * p1 = (Point3d *) get(vertexes);
-    Point3d * p2 = (Point3d *) get(vertexes);
-    Point3d * p3 = NULL;
-    while(!is_empty(vertexes)) {
-        p3 = (Point3d *) get(vertexes);
-        printf("%f %f %f\n", p1->x, p1->y, p1->z);
-        printf("%f %f %f\n", p2->x, p2->y, p2->z);
-        printf("%f %f %f\n", p3->x, p3->y, p3->z);
-        
-        add_object(scene, new_triangle(
-                                       point3d(p1->x * scale + dx, p1->y * scale + dy, p1->z * scale + dz),
-                                       point3d(p2->x * scale + dx, p2->y * scale + dy, p2->z * scale + dz),
-                                       point3d(p3->x * scale + dx, p3->y * scale + dy, p3->z * scale + dz),
-                                       rgb(55, 255, 55),
-                                       material(1, 5, 0, 0, 0, 0)));
-        
-        p2 = p3;
-    }
-    printf("\n");
-}
-
 int main(int argc, char *argv[]) {
     glutInit(&argc, argv);
     glutInitWindowSize(win_width, win_height);
@@ -218,9 +190,6 @@ int main(int argc, char *argv[]) {
     glutIdleFunc(animate);
 
     scene = makeScene();
-    
-    load_obj("al.obj", face_handler);
-    prepare_scene(scene);
     
     canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
     

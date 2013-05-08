@@ -6,6 +6,10 @@
 
 #define SERPINSKY_PYRAMID_LEVEL 2
 
+void
+face_handler(Queue * vertexes,
+             void * arg);
+
 Scene *makeScene(void) {
     Scene * scene = new_scene(MAX_POLYGONS_NUMBER, 5, BACKGROUND_COLOR);
     
@@ -83,12 +87,41 @@ Scene *makeScene(void) {
                                  rgb(250, 30, 30),
                                  material(1, 5, 5, 10, 0, 10)));
     
+    load_obj("al.obj", face_handler, scene);
+    
     prepare_scene(scene);
     
     printf("\nScene created\n");
     printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
 
     return scene;
+}
+
+void
+face_handler(Queue * vertexes,
+             void * arg) {
+    Scene * scene = (Scene *) arg;
+    
+    int scale = 100;
+    Float dx = -scale;
+    Float dy = -scale;
+    Float dz = -scale;
+    
+    Point3d * p1 = (Point3d *) get(vertexes);
+    Point3d * p2 = (Point3d *) get(vertexes);
+    Point3d * p3 = NULL;
+    while(!is_empty(vertexes)) {
+        p3 = (Point3d *) get(vertexes);
+        
+        add_object(scene, new_triangle(
+                                       point3d(p1->x * scale + dx, p1->y * scale + dy, p1->z * scale + dz),
+                                       point3d(p2->x * scale + dx, p2->y * scale + dy, p2->z * scale + dz),
+                                       point3d(p3->x * scale + dx, p3->y * scale + dy, p3->z * scale + dz),
+                                       rgb(55, 255, 55),
+                                       material(1, 5, 0, 0, 0, 0)));
+        
+        p2 = p3;
+    }
 }
 
 void add_cube(Scene * scene, Point3d base, Float a, Material material) {

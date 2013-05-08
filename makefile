@@ -54,7 +54,7 @@ rungl_2: test_gl_2
 	./$< $(THREADS_NUM)
 
 test_gl_2: $(render_lib) scene1.o scene1.h test_gl_2.c 
-	$(CC) $(CC_OPTS) $(OPEN_GL_OPTS) $(LIBPATH) $(INCLUDES) $(LIBS) -pthread test_gl_2.c scene1.o -o $@
+	$(CC) $(CC_OPTS) test_gl_2.c scene1.o $(OPEN_GL_OPTS) $(LIBPATH) $(INCLUDES) $(LIBS) -pthread -o $@
 
 
 #
