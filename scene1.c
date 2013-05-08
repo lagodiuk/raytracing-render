@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#include <obj_loader.h>
+
 #include "scene1.h"
 
 #define MAX_POLYGONS_NUMBER 8000
@@ -16,7 +18,7 @@ Scene *makeScene(void) {
     add_light_source(scene, light_source_3d(point3d(-90, 90, 190), rgb(255, 255, 255)));
     add_light_source(scene, light_source_3d(point3d(90, -90, 190), rgb(255, 255, 0)));
 
-    set_exponential_fog(scene, 0.004);
+    set_exponential_fog(scene, 0.001);
 
     add_cube(scene, point3d(60, 60, -60), 90, material(3, 7, 0, 0, 0, 0));
     
@@ -87,7 +89,7 @@ Scene *makeScene(void) {
                                  rgb(250, 30, 30),
                                  material(1, 5, 5, 10, 0, 10)));
     
-    load_obj("al.obj", face_handler, scene);
+    load_obj("lamp.obj", face_handler, scene);
     
     prepare_scene(scene);
     
@@ -102,10 +104,10 @@ face_handler(Queue * vertexes,
              void * arg) {
     Scene * scene = (Scene *) arg;
     
-    int scale = 100;
-    Float dx = -scale;
-    Float dy = -scale;
-    Float dz = -scale;
+    int scale = 30;
+    Float dx = 30;
+    Float dy = -100;
+    Float dz = 0;
     
     Point3d * p1 = (Point3d *) get(vertexes);
     Point3d * p2 = (Point3d *) get(vertexes);
@@ -118,7 +120,7 @@ face_handler(Queue * vertexes,
                                        point3d(p2->x * scale + dx, p2->y * scale + dy, p2->z * scale + dz),
                                        point3d(p3->x * scale + dx, p3->y * scale + dy, p3->z * scale + dz),
                                        rgb(55, 255, 55),
-                                       material(1, 5, 0, 0, 0, 0)));
+                                       material(1, 3, 5, 0, 0, 5)));
         
         p2 = p3;
     }

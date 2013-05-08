@@ -48,7 +48,7 @@ load_obj(const char * filename,
 void
 parse_vertex(const char * str,
              Point3d * v) {
-    sscanf(str, "%lf %lf %lf", &v->y, &v->x, &v->z);
+    sscanf(str, "%lf %lf %lf", &v->y, &v->z, &v->x);
 }
 
 void

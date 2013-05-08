@@ -20,7 +20,6 @@
 
 #include <canvas.h>
 #include <render.h>
-#include <obj_loader.h>
 
 #include "scene1.h"
 
