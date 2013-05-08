@@ -4,9 +4,9 @@
 
 #include "scene1.h"
 
-#define MAX_POLYGONS_NUMBER 8000
+#define MAX_POLYGONS_NUMBER 12000
 
-#define SERPINSKY_PYRAMID_LEVEL 2
+#define SERPINSKY_PYRAMID_LEVEL 4
 
 void
 face_handler(Queue * vertexes,
@@ -15,8 +15,9 @@ face_handler(Queue * vertexes,
 Scene *makeScene(void) {
     Scene * scene = new_scene(MAX_POLYGONS_NUMBER, 5, BACKGROUND_COLOR);
     
-    add_light_source(scene, light_source_3d(point3d(-90, 90, 190), rgb(255, 255, 255)));
-    add_light_source(scene, light_source_3d(point3d(90, -90, 190), rgb(255, 255, 0)));
+    //add_light_source(scene, light_source_3d(point3d(-90, 90, 190), rgb(255, 255, 255)));
+    //add_light_source(scene, light_source_3d(point3d(90, -90, 190), rgb(255, 255, 0)));
+    add_light_source(scene, light_source_3d(point3d(X_CAM - 100, Y_CAM, Z_CAM), rgb(255, 255, 255)));
 
     set_exponential_fog(scene, 0.001);
 
@@ -31,28 +32,28 @@ Scene *makeScene(void) {
                           point3d(pyramid_edge/2 + dx, -pyramid_edge * 0.87 / 2 + dy, 0),
                           point3d(dx, pyramid_edge * 0.87 / 2 + dy, 0),
                           point3d(dx, dy, pyramid_edge * 0.87),
-                          material(1, 5, 0, 0, 0, 0), rgb(240, 210, 40));
-    /*
+                          material(1, 5, 0, 2, 0, 0), rgb(240, 210, 40));
+    
     add_object(scene, new_triangle(
                                      point3d(-300, -300, -80),
                                      point3d(300, -300, -80),
                                      point3d(300, 300, -80),
                                      rgb(55, 255, 55),
-                                     material(1, 5, 5, 10, 0, 10)));
+                                     material(1, 6, 0, 2, 0, 0)));
     add_object(scene, new_triangle(
                                       point3d(-300, -300, -80),
                                       point3d(-300, 300, -80),
                                       point3d(300, 300, -80),
                                       rgb(55, 255, 55),
-                                      material(1, 5, 5, 10, 0, 10)));
-    */
+                                      material(1, 6, 0, 2, 0, 0)));
+    
     /*
     int i;
     int j;
-    int a = 150;
+    int a = 30;
     
-    for(i = -1; i < 1; i++) {
-        for(j = -1; j < 1; j++) {
+    for(i = -10; i < 10; i++) {
+        for(j = -10; j < 10; j++) {
             add_object(scene, new_triangle(
                                            point3d(i * a, j * a, -80),
                                            point3d((i + 1) * a, j * a, -80),
@@ -89,7 +90,7 @@ Scene *makeScene(void) {
                                  rgb(250, 30, 30),
                                  material(1, 5, 5, 10, 0, 10)));
     
-    load_obj("lamp.obj", face_handler, scene);
+    load_obj("al.obj", face_handler, scene);
     
     prepare_scene(scene);
     
@@ -107,7 +108,7 @@ face_handler(Queue * vertexes,
     int scale = 30;
     Float dx = 30;
     Float dy = -100;
-    Float dz = 0;
+    Float dz = 25;
     
     Point3d * p1 = (Point3d *) get(vertexes);
     Point3d * p2 = (Point3d *) get(vertexes);
@@ -119,7 +120,7 @@ face_handler(Queue * vertexes,
                                        point3d(p1->x * scale + dx, p1->y * scale + dy, p1->z * scale + dz),
                                        point3d(p2->x * scale + dx, p2->y * scale + dy, p2->z * scale + dz),
                                        point3d(p3->x * scale + dx, p3->y * scale + dy, p3->z * scale + dz),
-                                       rgb(55, 255, 55),
+                                       rgb(55, 55, 255),
                                        material(1, 3, 5, 0, 0, 5)));
         
         p2 = p3;

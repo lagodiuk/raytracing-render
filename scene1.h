@@ -18,7 +18,7 @@
 
 #define BACKGROUND_COLOR rgb(255, 255, 255)
 
-#define ROTATE_LIGHT_SOURCES True
+#define ROTATE_LIGHT_SOURCES False
 
 #include "canvas.h"
 #include "render.h"
