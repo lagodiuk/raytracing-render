@@ -270,7 +270,9 @@ get_specular_color(Point3d point,
                 v_ls = vector3dp(point, ls->location);
                 normalize_vector(&v_ls);
             
-                cos_ls = fabs(cos_vectors(reflected_ray, v_ls));
+                cos_ls = cos_vectors(reflected_ray, v_ls);
+                if(cos_ls <= EPSILON)
+                    cos_ls = 0;
                 color_ls = mul_color(ls->color, pow(cos_ls, p));
                 light_color = add_colors(light_color, color_ls);
             }

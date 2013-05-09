@@ -128,7 +128,7 @@ static inline uint8_t toGLubyte(GLfloat clampf) {
 
 
 void animate() {
-    al += 0.05;
+    //al += 0.05;
     
     rotate_scene(scene, al, be, ROTATE_LIGHT_SOURCES);
     prepare_canvas();
