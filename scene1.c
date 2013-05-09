@@ -19,7 +19,7 @@ Scene *makeScene(void) {
     //add_light_source(scene, light_source_3d(point3d(90, -90, 190), rgb(255, 255, 0)));
     add_light_source(scene, light_source_3d(point3d(X_CAM - 100, Y_CAM, Z_CAM), rgb(255, 255, 255)));
 
-    set_exponential_fog(scene, 0.001);
+    //set_exponential_fog(scene, 0.001);
 
     add_cube(scene, point3d(60, 60, -60), 90, material(3, 7, 0, 0, 0, 0));
     
@@ -90,7 +90,7 @@ Scene *makeScene(void) {
                                  rgb(250, 30, 30),
                                  material(1, 5, 5, 10, 0, 10)));
     
-    load_obj("skyscraper.obj", face_handler, scene);
+    load_obj("ateneal.obj", face_handler, scene);
     
     prepare_scene(scene);
     
@@ -105,10 +105,10 @@ face_handler(Queue * vertexes,
              void * arg) {
     Scene * scene = (Scene *) arg;
     
-    int scale = 10;
+    float scale = 0.05;
     Float dx = 30;
     Float dy = -100;
-    Float dz = 25;
+    Float dz = -30;
     
     Point3d * p1 = (Point3d *) get(vertexes);
     Point3d * p2 = (Point3d *) get(vertexes);
