@@ -4,7 +4,7 @@
 
 #include "scene1.h"
 
-#define MAX_POLYGONS_NUMBER 12000
+#define MAX_POLYGONS_NUMBER 50000
 
 #define SERPINSKY_PYRAMID_LEVEL 4
 
@@ -90,7 +90,7 @@ Scene *makeScene(void) {
                                  rgb(250, 30, 30),
                                  material(1, 5, 5, 10, 0, 10)));
     
-    load_obj("al.obj", face_handler, scene);
+    load_obj("skyscraper.obj", face_handler, scene);
     
     prepare_scene(scene);
     
@@ -105,7 +105,7 @@ face_handler(Queue * vertexes,
              void * arg) {
     Scene * scene = (Scene *) arg;
     
-    int scale = 30;
+    int scale = 10;
     Float dx = 30;
     Float dy = -100;
     Float dz = 25;

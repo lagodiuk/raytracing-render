@@ -20,7 +20,7 @@ load_obj(const char * filename,
          void (* face_handler)(Queue * vertexes, void * args),
          void * args) {
     
-    Point3d vertexes[10000];
+    Point3d vertexes[50000];
     int vertexes_cnt = 0;
     
     FILE * fp = fopen(filename, "r");
