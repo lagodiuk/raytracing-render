@@ -46,7 +46,7 @@ test: test.c scene1.h scene1.o $(render_lib)
 # Demo: OpenGL frontend
 #
 
-THREADS_NUM = 9
+THREADS_NUM = 8
 
 rungl_2: test_gl_2
 	./$< $(THREADS_NUM)
