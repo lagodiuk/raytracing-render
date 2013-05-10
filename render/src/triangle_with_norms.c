@@ -8,6 +8,7 @@
 // Declarations
 // --------------------------------------------------------------
 
+// TriangleWithNorms extends Triangle3d
 typedef
 struct {
     Object3d * triangle;
@@ -24,7 +25,7 @@ struct {
     Vector3d v_p2_p3;
     Vector3d v_p3_p1;
 }
-TriangleVertexNorms;
+TriangleWithNorms;
 
 inline static Boolean
 intersect_tvn(const void * data,
@@ -66,7 +67,11 @@ new_triangle_with_norms(const Point3d p1,
                         const Color color,
                         const Material material) {
     
-    TriangleVertexNorms * tvn = malloc(sizeof(TriangleVertexNorms));
+    // Create actual
+    
+    TriangleWithNorms * tvn = malloc(sizeof(TriangleWithNorms));
+    
+    // Create underlying triangle - "super class"
     tvn->triangle = new_triangle(p1, p2, p3, color, material);
     
     tvn->n1 = n1;
@@ -86,6 +91,8 @@ new_triangle_with_norms(const Point3d p1,
     tvn->v_p3_p1 = vector3dp(p3, p1);
     normalize_vector(&tvn->v_p3_p1);
     
+    // Wrap into Object3d structure
+    
 	Object3d * obj = malloc(sizeof(Object3d));
     obj->data = tvn;
 	obj->release_data = release_tvn_data;
@@ -99,21 +106,23 @@ new_triangle_with_norms(const Point3d p1,
 	return obj;
 }
 
-static inline Color
-get_tvn_color(const void * data,
-                   const Point3d intersection_point) {
+static inline void
+release_tvn_data(void * data) {
     
-	const TriangleVertexNorms * tvn = data;
-	const Object3d * triangle = tvn->triangle;
+    TriangleWithNorms * tvn = data;
     
-    return triangle->get_color(triangle->data, intersection_point);
+	Object3d * triangle = tvn->triangle;
+    triangle->release_data(triangle->data);
+	free(triangle);
+    
+    free(tvn);
 }
 
 static inline Vector3d
 get_tvn_normal_vector(const void * data,
-                           const Point3d intersection_point) {
+                      const Point3d intersection_point) {
     
-  	const TriangleVertexNorms * tvn = data;
+  	const TriangleWithNorms * tvn = data;
     
     Vector3d v_p1_p = vector3dp(tvn->p1, intersection_point);
     Vector3d v_p2_p = vector3dp(tvn->p2, intersection_point);
@@ -134,34 +143,31 @@ get_tvn_normal_vector(const void * data,
                      h1 * tvn->n1.z + h2 * tvn->n2.z + h3 * tvn->n3.z);
 }
 
+static inline Color
+get_tvn_color(const void * data,
+              const Point3d intersection_point) {
+    
+	const TriangleWithNorms * tvn = data;
+	const Object3d * triangle = tvn->triangle;
+    
+    return triangle->get_color(triangle->data, intersection_point);
+}
+
 static inline Material
 get_tvn_material(const void * data,
-                      const Point3d intersection_point) {
+                 const Point3d intersection_point) {
     
-    const TriangleVertexNorms * tvn = data;
+    const TriangleWithNorms * tvn = data;
 	const Object3d * triangle = tvn->triangle;
     
     return triangle->get_material(triangle->data, intersection_point);
-}
-
-static inline void
-release_tvn_data(void * data) {
-    
-    TriangleVertexNorms * tvn = data;
-    
-	Object3d * triangle = tvn->triangle;
-    triangle->release_data(triangle->data);
-	free(triangle);
-    
-    free(tvn);
 }
 
 Point3d
 get_min_tvn_boundary_point(const void * data) {
 
     
-    const TriangleVertexNorms * tvn = data;
-    
+    const TriangleWithNorms * tvn = data;
 	const Object3d * triangle = tvn->triangle;
     
     return triangle->get_min_boundary_point(triangle->data);
@@ -170,7 +176,7 @@ get_min_tvn_boundary_point(const void * data) {
 Point3d
 get_max_tvn_boundary_point(const void * data) {
 
-    const TriangleVertexNorms * tvn = data;
+    const TriangleWithNorms * tvn = data;
 	const Object3d * triangle = tvn->triangle;
     
     return triangle->get_max_boundary_point(triangle->data);
@@ -178,11 +184,11 @@ get_max_tvn_boundary_point(const void * data) {
 
 inline static Boolean
 intersect_tvn(const void * data,
-                   const Point3d vector_start,
-                   const Vector3d vector,
-                   Point3d * const intersection_point) {
+              const Point3d vector_start,
+              const Vector3d vector,
+              Point3d * const intersection_point) {
     
-    const TriangleVertexNorms * tvn = data;
+    const TriangleWithNorms * tvn = data;
 	const Object3d * triangle = tvn->triangle;
     
     return triangle->intersect(triangle->data, vector_start, vector, intersection_point);
