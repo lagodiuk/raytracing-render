@@ -14,7 +14,7 @@
 
 #define MAX_SPLITS_OF_VOXEL 100
 
-#define SPLIT_COST 15
+#define SPLIT_COST 5
 
 #if defined(__GNUC__) && (__GNUC__ * 100 +  __GNUC_MINOR__) >= 403
 # define __hot   __attribute__((hot))
