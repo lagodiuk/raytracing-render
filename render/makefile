@@ -36,13 +36,17 @@ $(lib_dir)/render.o: ./src/render.c ./include/render.h ./include/color.h $(lib_d
 $(lib_dir)/triangle.o: ./src/triangle.c ./include/render.h ./include/color.h $(lib_dir)
 	$(CC) $(CFLAGS) $(INCLUDES) -c ./src/triangle.c -o $@
 
+$(lib_dir)/triangle_vertex_norms.o: ./src/triangle_vertex_norms.c ./include/render.h ./include/color.h $(lib_dir)
+	$(CC) $(CFLAGS) $(INCLUDES) -c ./src/triangle_vertex_norms.c -o $@
+
+
 $(lib_dir)/sphere.o: ./src/sphere.c ./include/render.h ./include/color.h $(lib_dir)
 	$(CC) $(CFLAGS) $(INCLUDES) -c ./src/sphere.c -o $@
 
 $(lib_dir)/kdtree.o: ./src/kdtree.c ./include/kdtree.h ./include/render.h $(lib_dir)
 	$(CC) $(CFLAGS) $(INCLUDES) -c ./src/kdtree.c -o $@
 
-$(render_lib): $(lib_dir)/tracer.o $(lib_dir)/render.o $(lib_dir)/triangle.o $(lib_dir)/sphere.o $(lib_dir)/kdtree.o $(lib_dir)/scene.o $(lib_dir)/fog.o $(lib_dir)/canvas.o $(lib_dir)/thread_pool.o $(lib_dir)/obj_loader.o
+$(render_lib): $(lib_dir)/tracer.o $(lib_dir)/render.o $(lib_dir)/triangle.o $(lib_dir)/triangle_vertex_norms.o $(lib_dir)/sphere.o $(lib_dir)/kdtree.o $(lib_dir)/scene.o $(lib_dir)/fog.o $(lib_dir)/canvas.o $(lib_dir)/thread_pool.o $(lib_dir)/obj_loader.o
 	ar -rcs $@ $^
 
 .PHONY: clean
