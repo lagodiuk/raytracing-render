@@ -6,7 +6,9 @@
 
 void
 load_obj(const char * filename,
-         void (* face_handler)(Queue * vertexes, void * args),
+         void (* face_handler)(Queue * vertexes,
+                               Queue * norm_vectors,
+                               void * args),
          void * args);
 
 #endif

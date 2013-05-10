@@ -1,11 +1,11 @@
 #ifndef __SCENE1_H__
 #define __SCENE1_H__
 
-#define PROJ_PLANE_Z 50
+#define PROJ_PLANE_Z 90
 
 #define X_CAM -0
 #define Y_CAM 40
-#define Z_CAM -240
+#define Z_CAM -380
 
 #define MIN_X -100
 #define MAX_X 100

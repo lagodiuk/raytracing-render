@@ -31,11 +31,9 @@ thread_pool_stress_test: thread_pool_stress_test.c $(render_lib)
 # Demo: ffmpeg video
 #
 
-frame_dir = ./frames
-
 test_video: test $(frame_dir)
-	cd $(frame_dir) && ../test
-	ffmpeg -qscale 2 -r 10 -b 10M  -i '$(frame_dir)/out_%03d.bmp'  movie.mp4
+	./test
+	ffmpeg -qscale 2 -r 10 -b 10M  -i './out_%03d.bmp'  movie.mp4
 
 $(frame_dir):
 	mkdir -p $@
@@ -83,4 +81,4 @@ clean:
 	rm -f *.o;                            \
 	rm -f ./test ./thread_pool_stress_test ./test_gl_2;     \
 	rm -f *.mp4;                          \
-	rm -rf $(frame_dir)			\
+	rm *.bmp			\

@@ -10,6 +10,7 @@
 
 void
 face_handler(Queue * vertexes,
+             Queue * norm_vectors,
              void * arg);
 
 Scene *makeScene(void) {
@@ -19,12 +20,12 @@ Scene *makeScene(void) {
     //add_light_source(scene, light_source_3d(point3d(90, -90, 190), rgb(255, 255, 0)));
     add_light_source(scene, light_source_3d(point3d(X_CAM - 100, Y_CAM, Z_CAM), rgb(255, 255, 255)));
 
-    //set_exponential_fog(scene, 0.001);
+    set_exponential_fog(scene, 0.003);
 
     add_cube(scene, point3d(60, 60, -60), 90, material(3, 7, 0, 0, 0, 0));
     
     Float pyramid_edge = 200;
-    Float dx = -40;
+    Float dx = -100;
     Float dy = -40;
     
     add_serpinsky_pyramid(scene, SERPINSKY_PYRAMID_LEVEL,
@@ -46,50 +47,12 @@ Scene *makeScene(void) {
                                       point3d(300, 300, -80),
                                       rgb(55, 255, 55),
                                       material(1, 6, 0, 2, 0, 0)));
-    
     /*
-    int i;
-    int j;
-    int a = 30;
-    
-    for(i = -10; i < 10; i++) {
-        for(j = -10; j < 10; j++) {
-            add_object(scene, new_triangle(
-                                           point3d(i * a, j * a, -80),
-                                           point3d((i + 1) * a, j * a, -80),
-                                           point3d(i * a, (j + 1) * a, -80),
-                                           rgb(55, 255, 55),
-                                           material(1, 5, 5, 10, 0, 10)));
-            add_object(scene, new_triangle(
-                                           point3d((i + 1) * a, (j + 1) * a, -80),
-                                           point3d((i + 1) * a, j * a, -80),
-                                           point3d(i * a, (j + 1) * a, -80),
-                                           rgb(55, 255, 55),
-                                           material(1, 5, 5, 10, 0, 10)));
-        }
-    }
-    */
-    
-    /*
-    int i;
-    int j;
-    int a = 100;
-    
-    for(i = -20; i < 20; i++) {
-        for(j = -20; j < 20; j++) {
-            add_object(scene, new_sphere(point3d(i * a, j * a, -100),
-                                         40.0,
-                                         rgb(50, 30, 230),
-                                         material(1, 5, 0, 0, 0, 0)));
-        }
-    }
-    */
-    
     add_object(scene, new_sphere(point3d(130, -100, -30),
                                  50.0,
                                  rgb(250, 30, 30),
                                  material(1, 5, 5, 10, 0, 10)));
-    
+    */
     load_obj("ateneal.obj", face_handler, scene);
     
     prepare_scene(scene);
@@ -102,28 +65,47 @@ Scene *makeScene(void) {
 
 void
 face_handler(Queue * vertexes,
+             Queue * norm_vectors,
              void * arg) {
     Scene * scene = (Scene *) arg;
     
     float scale = 0.05;
     Float dx = 30;
     Float dy = -100;
-    Float dz = -30;
+    Float dz = 0;
     
     Point3d * p1 = (Point3d *) get(vertexes);
     Point3d * p2 = (Point3d *) get(vertexes);
     Point3d * p3 = NULL;
+    
+    Vector3d * v1 = (Vector3d *) get(norm_vectors);
+    Vector3d * v2 = (Vector3d *) get(norm_vectors);
+    Vector3d * v3 = NULL;
+    
     while(!is_empty(vertexes)) {
         p3 = (Point3d *) get(vertexes);
+        v3 = (Vector3d *) get(norm_vectors);
         
-        add_object(scene, new_triangle(
+        if(v1 && v2 && v3)
+            add_object(scene, new_triangle_with_norms(
+                                       point3d(p1->x * scale + dx, p1->y * scale + dy, p1->z * scale + dz),
+                                       point3d(p2->x * scale + dx, p2->y * scale + dy, p2->z * scale + dz),
+                                       point3d(p3->x * scale + dx, p3->y * scale + dy, p3->z * scale + dz),
+                                       *v1,
+                                       *v2,
+                                       *v3,
+                                       rgb(55, 55, 255),
+                                       material(1, 3, 5, 0, 0, 10)));
+        else
+            add_object(scene, new_triangle(
                                        point3d(p1->x * scale + dx, p1->y * scale + dy, p1->z * scale + dz),
                                        point3d(p2->x * scale + dx, p2->y * scale + dy, p2->z * scale + dz),
                                        point3d(p3->x * scale + dx, p3->y * scale + dy, p3->z * scale + dz),
                                        rgb(55, 55, 255),
-                                       material(1, 3, 5, 0, 0, 5)));
+                                       material(1, 3, 5, 0, 0, 10)));
         
         p2 = p3;
+        v2 = v3;
     }
 }
 

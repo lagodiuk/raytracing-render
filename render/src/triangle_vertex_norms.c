@@ -147,9 +147,9 @@ get_tvn_material(const void * data,
 static inline void
 release_tvn_data(void * data) {
     
-    const TriangleVertexNorms * tvn = data;
+    TriangleVertexNorms * tvn = data;
     
-	const Object3d * triangle = tvn->triangle;
+	Object3d * triangle = tvn->triangle;
     triangle->release_data(triangle->data);
 	free(triangle);
     
