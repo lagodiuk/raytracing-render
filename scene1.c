@@ -72,7 +72,7 @@ face_handler(Queue * vertexes,
     float scale = 0.05;
     Float dx = 30;
     Float dy = -100;
-    Float dz = 0;
+    Float dz = 20;
     
     Point3d * p1 = (Point3d *) get(vertexes);
     Point3d * p2 = (Point3d *) get(vertexes);

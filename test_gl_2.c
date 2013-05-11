@@ -203,6 +203,33 @@ int main(int argc, char *argv[]) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_WIDTH, TEX_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, canvas);
         
     glutMainLoop();
+    
+    /*
+     
+     scene = makeScene();
+     
+     canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
+     
+     if(argc > 1) {
+        thread_pool = new_thread_pool(atoi(argv[1]));
+     } else {
+        thread_pool = NULL;
+     }
+     
+     // Just simple dummy loop for clarifying absence of memory leaks in render 
+     // (separated from OpenGL routines)
+     
+     for(;;) {
+        al += 0.05;
+        rotate_scene(scene, al, M_PI * 3 / 5, ROTATE_LIGHT_SOURCES);
+        render_scene(scene,
+                     camera_point,
+                     PROJ_PLANE_Z,
+                     canv,
+                     thread_pool);
+        fps_handler();
+     }
+     */
 
     return 0;
 }
