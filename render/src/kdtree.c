@@ -707,7 +707,9 @@ find_intersection_node(KDNode * const node,
 
     switch(node->plane) {
         case XY:
-            if((node->coord.z - v.z_min) * (node->coord.z - vector_start.z) > 0) {
+            if(((node->coord.z > v.z_min) && (node->coord.z > vector_start.z))
+               || ((node->coord.z < v.z_min) && (node->coord.z < vector_start.z))) {
+                   
                 front_node = node->l;
                 back_node = node->r;
                 split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
@@ -719,7 +721,9 @@ find_intersection_node(KDNode * const node,
             break;
                 
         case XZ:
-            if((node->coord.y - v.y_min) * (node->coord.y - vector_start.y) > 0) {
+            if(((node->coord.y > v.y_min) && (node->coord.y > vector_start.y))
+               || ((node->coord.y < v.y_min) && (node->coord.y < vector_start.y))) {
+                   
                 front_node = node->l;
                 back_node = node->r;
                 split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
@@ -731,7 +735,9 @@ find_intersection_node(KDNode * const node,
             break;
             
         case YZ:
-            if((node->coord.x - v.x_min) * (node->coord.x - vector_start.x) > 0) {
+            if(((node->coord.x > v.x_min) && (node->coord.x > vector_start.x))
+               || ((node->coord.x < v.x_min) && (node->coord.x < vector_start.x))) {
+                   
                 front_node = node->l;
                 back_node = node->r;
                 split_voxel(v, node->plane, node->coord, &front_voxel, &back_voxel);
