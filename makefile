@@ -81,4 +81,4 @@ clean:
 	rm -f *.o;                            \
 	rm -f ./test ./thread_pool_stress_test ./test_gl_2;     \
 	rm -f *.mp4;                          \
-	rm *.bmp			\
+	rm -f *.bmp			\
