@@ -510,54 +510,54 @@ voxel_intersection(const Vector3d vector,
     
     c.z = v.z_min;
     if(vector_plane_intersection(vector, vector_start, XY, c, &p, &t)
+       && (t > 0)
        && (p.x > v.x_min) && (p.x < v.x_max)
-       && (p.y > v.y_min) && (p.y < v.y_max)
-       && (t > 0)) {
+       && (p.y > v.y_min) && (p.y < v.y_max)) {
         
             return True;
     }
     
     c.z = v.z_max;
     if(vector_plane_intersection(vector, vector_start, XY, c, &p, &t)
+       && (t > 0)
        && (p.x > v.x_min) && (p.x < v.x_max)
-       && (p.y > v.y_min) && (p.y < v.y_max)
-       && (t > 0)) {
+       && (p.y > v.y_min) && (p.y < v.y_max)) {
         
             return True;
     }
     
     c.y = v.y_min;
     if(vector_plane_intersection(vector, vector_start, XZ, c, &p, &t)
+       && (t > 0)
        && (p.x > v.x_min) && (p.x < v.x_max)
-       && (p.z > v.z_min) && (p.z < v.z_max)
-       && (t > 0)) {
+       && (p.z > v.z_min) && (p.z < v.z_max)) {
         
             return True;
     }
     
     c.y = v.y_max;
     if(vector_plane_intersection(vector, vector_start, XZ, c, &p, &t)
+       && (t > 0)
        && (p.x > v.x_min) && (p.x < v.x_max)
-       && (p.z > v.z_min) && (p.z < v.z_max)
-       && (t > 0)) {
+       && (p.z > v.z_min) && (p.z < v.z_max)) {
         
             return True;
     }
     
     c.x = v.x_min;
     if(vector_plane_intersection(vector, vector_start, YZ, c, &p, &t)
+       && (t > 0)
        && (p.y > v.y_min) && (p.y < v.y_max)
-       && (p.z > v.z_min) && (p.z < v.z_max)
-       && (t > 0)) {
+       && (p.z > v.z_min) && (p.z < v.z_max)) {
         
             return True;
     }
     
     c.x = v.x_max;
     if(vector_plane_intersection(vector, vector_start, YZ, c, &p, &t)
+       && (t > 0)
        && (p.y > v.y_min) && (p.y < v.y_max)
-       && (p.z > v.z_min) && (p.z < v.z_max)
-       && (t > 0)) {
+       && (p.z > v.z_min) && (p.z < v.z_max)) {
         
             return True;
     }
