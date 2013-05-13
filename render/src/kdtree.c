@@ -112,9 +112,9 @@ static inline Boolean
 point_in_voxel(const Point3d p,
                const Voxel v) {
     
-    return ((p.x > v.x_min) && (p.x < v.x_max) &&
-            (p.y > v.y_min) && (p.y < v.y_max) &&
-            (p.z > v.z_min) && (p.z < v.z_max));
+    return !((p.x < v.x_min) || (p.x > v.x_max) ||
+             (p.y < v.y_min) || (p.y > v.y_max) ||
+             (p.z < v.z_min) || (p.z > v.z_max));
 }
 
 
@@ -426,14 +426,13 @@ object_in_voxel(Object3d * const obj,
     Point3d min_p = obj->get_min_boundary_point(obj->data);
     Point3d max_p = obj->get_max_boundary_point(obj->data);
 
-    if((max_p.x < v.x_min)
-       || (max_p.y < v.y_min)
-       || (max_p.z < v.z_min)
-       || (min_p.x > v.x_max)
-       || (min_p.y > v.y_max)
-       || (min_p.z > v.z_max)) return False;
-    
-    return True;
+    return
+        !((max_p.x < v.x_min)
+          || (max_p.y < v.y_min)
+          || (max_p.z < v.z_min)
+          || (min_p.x > v.x_max)
+          || (min_p.y > v.y_max)
+          || (min_p.z > v.z_max));
 }
 
 inline KDNode *
@@ -503,6 +502,9 @@ static inline Boolean
 voxel_intersection(const Vector3d vector,
                    const Point3d vector_start,
                    const Voxel v) {
+    
+    if(point_in_voxel(vector_start, v))
+        return True;
     
     Point3d p;
     Float t;
