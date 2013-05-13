@@ -112,9 +112,9 @@ static inline Boolean
 point_in_voxel(const Point3d p,
                const Voxel v) {
     
-    return !((p.x < v.x_min) || (p.x > v.x_max) ||
-             (p.y < v.y_min) || (p.y > v.y_max) ||
-             (p.z < v.z_min) || (p.z > v.z_max));
+    return ((p.x > v.x_min) && (p.x < v.x_max) &&
+            (p.y > v.y_min) && (p.y < v.y_max) &&
+            (p.z > v.z_min) && (p.z < v.z_max));
 }
 
 
