@@ -53,12 +53,14 @@ Scene *makeScene(void) {
                                  rgb(250, 30, 30),
                                  material(1, 5, 5, 10, 0, 10)));
     */
-    load_obj("ateneal.obj", face_handler, scene);
+    load_obj("chair.obj", face_handler, scene);
+    
+
+    printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
     
     prepare_scene(scene);
     
     printf("\nScene created\n");
-    printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
 
     return scene;
 }
@@ -69,10 +71,10 @@ face_handler(Queue * vertexes,
              void * arg) {
     Scene * scene = (Scene *) arg;
     
-    float scale = 0.05;
+    float scale = 0.2;
     Float dx = 30;
     Float dy = -100;
-    Float dz = 20;
+    Float dz = -80;
     
     Point3d * p1 = (Point3d *) get(vertexes);
     Point3d * p2 = (Point3d *) get(vertexes);

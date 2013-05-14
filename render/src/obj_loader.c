@@ -25,6 +25,12 @@ parse_face(char * str,
            void * args);
 
 void
+parse_face_str(char * str,
+               int * v_index,
+               int * vt_index,
+               int * vn_index);
+
+void
 load_obj(const char * filename,
          void (* face_handler)(Queue * vertexes,
                                Queue * norm_vectors,
@@ -96,25 +102,18 @@ parse_face(char * str,
     Queue * norm_vectors = new_queue();
     
     int vertex_index = 0;
+    int texture_index = 0;
     int norm_index = 0;
     char * token2 = NULL;
     while(!is_empty(tokens)) {
         token = (char *) get(tokens);
         
-        token2 = strtok(token, "/ ");
-        vertex_index = atoi(token2);
+        parse_face_str(token, &vertex_index, &texture_index, &norm_index);
+
         add(&v[vertex_index - 1], vertexes);
         
-        // just for simplifying - skip texture coords
-        // TODO implement
-        //token2 = strtok(NULL, "/ ");
-        
-        // index of norm vector
-        token2 = strtok(NULL, "/ ");
-        if(token2) {
-            norm_index = atoi(token2);
+        if(norm_index > 0)
             add(&vn[norm_index - 1], norm_vectors);
-        }
     }
     
     face_handler(vertexes, norm_vectors, args);
@@ -122,4 +121,55 @@ parse_face(char * str,
     release_queue(tokens);
     release_queue(vertexes);
     release_queue(norm_vectors);
+}
+
+void
+parse_face_str(char * str,
+               int * v_index,
+               int * vt_index,
+               int * vn_index) {
+    
+    int str_len = strlen(str);
+    
+    int i = 0;
+    while((str[i] != '/')
+          && (str[i] != ' ')
+          && (str[i] != '\0'))
+        i++;
+    str[i] = '\0';
+    
+    if(strlen(str) > 0)
+        *v_index = atoi(str);
+    
+    i++;
+    if(i >= str_len)
+        return;
+    
+    str += i;
+    str_len = strlen(str);
+    i = 0;
+    while((str[i] != '/')
+          && (str[i] != ' ')
+          && (str[i] != '\0'))
+        i++;
+    str[i] = '\0';
+    
+    if(strlen(str) > 0)
+        *vt_index = atoi(str);
+    
+    i++;
+    if(i >= str_len)
+        return;
+    
+    str += i;
+    str_len = strlen(str);
+    i = 0;
+    while((str[i] != '/')
+          && (str[i] != ' ')
+          && (str[i] != '\0'))
+        i++;
+    str[i] = '\0';
+    
+    if(strlen(str) > 0)
+        *vn_index = atoi(str);
 }
