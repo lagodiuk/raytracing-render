@@ -104,7 +104,6 @@ parse_face(char * str,
     int vertex_index = 0;
     int texture_index = 0;
     int norm_index = 0;
-    char * token2 = NULL;
     while(!is_empty(tokens)) {
         token = (char *) get(tokens);
         
