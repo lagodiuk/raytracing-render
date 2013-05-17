@@ -53,7 +53,7 @@ Scene *makeScene(void) {
                                  rgb(250, 30, 30),
                                  material(1, 5, 5, 10, 0, 10)));
     */
-    load_obj("chair.obj", face_handler, scene);
+    load_obj("./models/chair.obj", face_handler, scene);
     
 
     printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
