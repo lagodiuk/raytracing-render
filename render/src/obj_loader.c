@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <render.h>
+#include <color.h>
 #include <obj_loader.h>
 
 #define MAX_VERTEX_COUNT 50000
@@ -171,4 +172,53 @@ parse_face_str(char * str,
     
     if(strlen(str) > 0)
         *vn_index = atoi(str);
+}
+
+void
+scene_face_handler(Queue * vertexes,
+                   Queue * norm_vectors,
+                   void * arg) {
+    SceneFaceHandlerParams * params = (SceneFaceHandlerParams *) arg;
+    
+    Scene * scene = params->scene;
+    Float scale = params->scale;
+    Float dx = params->dx;
+    Float dy = params->dy;
+    Float dz = params->dz;
+    Color default_color = params->default_color;
+    Material default_material = params->default_material;
+    
+    Point3d * p1 = (Point3d *) get(vertexes);
+    Point3d * p2 = (Point3d *) get(vertexes);
+    Point3d * p3 = NULL;
+    
+    Vector3d * v1 = (Vector3d *) get(norm_vectors);
+    Vector3d * v2 = (Vector3d *) get(norm_vectors);
+    Vector3d * v3 = NULL;
+    
+    while(!is_empty(vertexes)) {
+        p3 = (Point3d *) get(vertexes);
+        v3 = (Vector3d *) get(norm_vectors);
+        
+        if(v1 && v2 && v3)
+            add_object(scene, new_triangle_with_norms(
+                                                      point3d(p1->x * scale + dx, p1->y * scale + dy, p1->z * scale + dz),
+                                                      point3d(p2->x * scale + dx, p2->y * scale + dy, p2->z * scale + dz),
+                                                      point3d(p3->x * scale + dx, p3->y * scale + dy, p3->z * scale + dz),
+                                                      *v1,
+                                                      *v2,
+                                                      *v3,
+                                                      default_color,
+                                                      default_material));
+        else
+            add_object(scene, new_triangle(
+                                           point3d(p1->x * scale + dx, p1->y * scale + dy, p1->z * scale + dz),
+                                           point3d(p2->x * scale + dx, p2->y * scale + dy, p2->z * scale + dz),
+                                           point3d(p3->x * scale + dx, p3->y * scale + dy, p3->z * scale + dz),
+                                           default_color,
+                                           default_material));
+        
+        p2 = p3;
+        v2 = v3;
+    }
 }

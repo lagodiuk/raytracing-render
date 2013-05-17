@@ -8,11 +8,6 @@
 
 #define SERPINSKY_PYRAMID_LEVEL 4
 
-void
-face_handler(Queue * vertexes,
-             Queue * norm_vectors,
-             void * arg);
-
 Scene *makeScene(void) {
     Scene * scene = new_scene(MAX_POLYGONS_NUMBER, 5, BACKGROUND_COLOR);
     
@@ -53,7 +48,16 @@ Scene *makeScene(void) {
                                  rgb(250, 30, 30),
                                  material(1, 5, 5, 10, 0, 10)));
     */
-    load_obj("./models/chair.obj", face_handler, scene);
+    
+    SceneFaceHandlerParams load_params =
+        new_scene_face_handler_params(scene,
+                                      0.2, 30, -100, -80,
+                                      rgb(20, 250, 100),
+                                      material(1, 3, 5, 0, 0, 10));
+    
+    load_obj("./models/chair.obj",
+             scene_face_handler,
+             &load_params);
     
 
     printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
@@ -63,52 +67,6 @@ Scene *makeScene(void) {
     printf("\nScene created\n");
 
     return scene;
-}
-
-void
-face_handler(Queue * vertexes,
-             Queue * norm_vectors,
-             void * arg) {
-    Scene * scene = (Scene *) arg;
-    
-    float scale = 0.2;
-    Float dx = 30;
-    Float dy = -100;
-    Float dz = -80;
-    
-    Point3d * p1 = (Point3d *) get(vertexes);
-    Point3d * p2 = (Point3d *) get(vertexes);
-    Point3d * p3 = NULL;
-    
-    Vector3d * v1 = (Vector3d *) get(norm_vectors);
-    Vector3d * v2 = (Vector3d *) get(norm_vectors);
-    Vector3d * v3 = NULL;
-    
-    while(!is_empty(vertexes)) {
-        p3 = (Point3d *) get(vertexes);
-        v3 = (Vector3d *) get(norm_vectors);
-        
-        if(v1 && v2 && v3)
-            add_object(scene, new_triangle_with_norms(
-                                       point3d(p1->x * scale + dx, p1->y * scale + dy, p1->z * scale + dz),
-                                       point3d(p2->x * scale + dx, p2->y * scale + dy, p2->z * scale + dz),
-                                       point3d(p3->x * scale + dx, p3->y * scale + dy, p3->z * scale + dz),
-                                       *v1,
-                                       *v2,
-                                       *v3,
-                                       rgb(55, 55, 255),
-                                       material(1, 3, 5, 0, 0, 10)));
-        else
-            add_object(scene, new_triangle(
-                                       point3d(p1->x * scale + dx, p1->y * scale + dy, p1->z * scale + dz),
-                                       point3d(p2->x * scale + dx, p2->y * scale + dy, p2->z * scale + dz),
-                                       point3d(p3->x * scale + dx, p3->y * scale + dy, p3->z * scale + dz),
-                                       rgb(55, 55, 255),
-                                       material(1, 3, 5, 0, 0, 10)));
-        
-        p2 = p3;
-        v2 = v3;
-    }
 }
 
 void add_cube(Scene * scene, Point3d base, Float a, Material material) {
