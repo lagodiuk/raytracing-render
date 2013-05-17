@@ -1,11 +1,11 @@
 #ifndef __SCENE1_H__
 #define __SCENE1_H__
 
-#define PROJ_PLANE_Z 50
+#define PROJ_PLANE_Z 90
 
 #define X_CAM -0
 #define Y_CAM 40
-#define Z_CAM -240
+#define Z_CAM -380
 
 #define MIN_X -100
 #define MAX_X 100
@@ -16,9 +16,9 @@
 #define CANVAS_W (MAX_X - MIN_X)
 #define CANVAS_H (MAX_Y - MIN_Y)
 
-#define BACKGROUND_COLOR rgb(255, 255, 255)
+#define BACKGROUND_COLOR rgb(220, 240, 255)
 
-#define ROTATE_LIGHT_SOURCES True
+#define ROTATE_LIGHT_SOURCES False
 
 #include "canvas.h"
 #include "render.h"

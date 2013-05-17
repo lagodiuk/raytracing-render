@@ -1,23 +1,26 @@
 #include <stdio.h>
 
+#include <obj_loader.h>
+
 #include "scene1.h"
 
-#define MAX_POLYGONS_NUMBER 8000
+#define MAX_POLYGONS_NUMBER 50000
 
-#define SERPINSKY_PYRAMID_LEVEL 2
+#define SERPINSKY_PYRAMID_LEVEL 4
 
 Scene *makeScene(void) {
     Scene * scene = new_scene(MAX_POLYGONS_NUMBER, 5, BACKGROUND_COLOR);
     
-    add_light_source(scene, light_source_3d(point3d(-90, 90, 190), rgb(255, 255, 255)));
-    add_light_source(scene, light_source_3d(point3d(90, -90, 190), rgb(255, 255, 0)));
+    //add_light_source(scene, light_source_3d(point3d(-90, 90, 190), rgb(255, 255, 255)));
+    //add_light_source(scene, light_source_3d(point3d(90, -90, 190), rgb(255, 255, 0)));
+    add_light_source(scene, light_source_3d(point3d(X_CAM - 100, Y_CAM, Z_CAM), rgb(255, 255, 255)));
 
-    set_exponential_fog(scene, 0.004);
+    set_exponential_fog(scene, 0.001);
 
     add_cube(scene, point3d(60, 60, -60), 90, material(3, 7, 0, 0, 0, 0));
     
     Float pyramid_edge = 200;
-    Float dx = -40;
+    Float dx = -100;
     Float dy = -40;
     
     add_serpinsky_pyramid(scene, SERPINSKY_PYRAMID_LEVEL,
@@ -25,68 +28,61 @@ Scene *makeScene(void) {
                           point3d(pyramid_edge/2 + dx, -pyramid_edge * 0.87 / 2 + dy, 0),
                           point3d(dx, pyramid_edge * 0.87 / 2 + dy, 0),
                           point3d(dx, dy, pyramid_edge * 0.87),
-                          material(1, 5, 0, 0, 0, 0), rgb(240, 210, 40));
-    /*
+                          material(1, 5, 0, 2, 0, 0), rgb(240, 210, 40));
+    
     add_object(scene, new_triangle(
                                      point3d(-300, -300, -80),
                                      point3d(300, -300, -80),
                                      point3d(300, 300, -80),
                                      rgb(55, 255, 55),
-                                     material(1, 5, 5, 10, 0, 10)));
+                                     material(1, 6, 0, 2, 0, 0)));
     add_object(scene, new_triangle(
                                       point3d(-300, -300, -80),
                                       point3d(-300, 300, -80),
                                       point3d(300, 300, -80),
                                       rgb(55, 255, 55),
-                                      material(1, 5, 5, 10, 0, 10)));
-    */
-    /*
-    int i;
-    int j;
-    int a = 150;
-    
-    for(i = -1; i < 1; i++) {
-        for(j = -1; j < 1; j++) {
-            add_object(scene, new_triangle(
-                                           point3d(i * a, j * a, -80),
-                                           point3d((i + 1) * a, j * a, -80),
-                                           point3d(i * a, (j + 1) * a, -80),
-                                           rgb(55, 255, 55),
-                                           material(1, 5, 5, 10, 0, 10)));
-            add_object(scene, new_triangle(
-                                           point3d((i + 1) * a, (j + 1) * a, -80),
-                                           point3d((i + 1) * a, j * a, -80),
-                                           point3d(i * a, (j + 1) * a, -80),
-                                           rgb(55, 255, 55),
-                                           material(1, 5, 5, 10, 0, 10)));
-        }
-    }
-    */
-    
-    /*
-    int i;
-    int j;
-    int a = 100;
-    
-    for(i = -20; i < 20; i++) {
-        for(j = -20; j < 20; j++) {
-            add_object(scene, new_sphere(point3d(i * a, j * a, -100),
-                                         40.0,
-                                         rgb(50, 30, 230),
-                                         material(1, 5, 0, 0, 0, 0)));
-        }
-    }
-    */
+                                      material(1, 6, 0, 2, 0, 0)));
     
     add_object(scene, new_sphere(point3d(130, -100, -30),
                                  50.0,
                                  rgb(250, 30, 30),
                                  material(1, 5, 5, 10, 0, 10)));
     
+    
+    SceneFaceHandlerParams load_params;
+    
+    load_params =
+        new_scene_face_handler_params(scene,
+                                      33, 30, -100, 30,
+                                      rgb(20, 250, 100),
+                                      material(1, 3, 5, 0, 0, 10));
+    load_obj("./models/lamp.obj",
+             scene_face_handler,
+             &load_params);
+    
+    load_params =
+        new_scene_face_handler_params(scene,
+                                      25, 100, 100, 32,
+                                      rgb(250, 200, 50),
+                                      material(1, 3, 0, 0, 0, 10));
+    load_obj("./models/teapot.obj",
+             scene_face_handler,
+             &load_params);
+    
+    load_params =
+    new_scene_face_handler_params(scene,
+                                  130, -100, 100, -80,
+                                  rgb(20, 20, 250),
+                                  material(1, 5, 0, 0, 0, 10));
+    load_obj("./models/man.obj",
+             scene_face_handler,
+             &load_params);
+
+    printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
+    
     prepare_scene(scene);
     
     printf("\nScene created\n");
-    printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
 
     return scene;
 }

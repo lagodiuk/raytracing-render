@@ -23,13 +23,13 @@ struct {
 }
 RenderSceneData;
 
-void
+static inline void
 render_part_of_scene_task(void * arg);
 
-void
+static inline void
 render_part_of_scene(RenderSceneData * data);
 
-RenderSceneData *
+static inline RenderSceneData *
 new_render_scene_data(Scene * scene,
                       const Point3d camera_position,
                       const Float proj_plane_dist,
@@ -82,7 +82,7 @@ render_scene(Scene * scene,
     free(tasks);
 }
 
-RenderSceneData *
+static inline RenderSceneData *
 new_render_scene_data(Scene * scene,
                       const Point3d camera_position,
                       const Float proj_plane_dist,
@@ -103,7 +103,7 @@ new_render_scene_data(Scene * scene,
     return data;
 }
 
-void
+static inline void
 render_part_of_scene(RenderSceneData * data) {
     
     Float dx = data->dx;
@@ -140,7 +140,7 @@ render_part_of_scene(RenderSceneData * data) {
     }
 }
 
-void
+static inline void
 render_part_of_scene_task(void * arg) {
     RenderSceneData * data = (RenderSceneData *) arg;
     render_part_of_scene(data);
