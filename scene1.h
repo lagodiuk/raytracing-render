@@ -16,7 +16,7 @@
 #define CANVAS_W (MAX_X - MIN_X)
 #define CANVAS_H (MAX_Y - MIN_Y)
 
-#define BACKGROUND_COLOR rgb(255, 255, 255)
+#define BACKGROUND_COLOR rgb(220, 240, 255)
 
 #define ROTATE_LIGHT_SOURCES False
 
