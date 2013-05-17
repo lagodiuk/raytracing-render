@@ -18,8 +18,8 @@
 #include <GL/glut.h>
 #endif
 
-#include "canvas.h"
-#include "render.h"
+#include <canvas.h>
+#include <render.h>
 
 #include "scene1.h"
 
@@ -40,7 +40,7 @@ float al = M_PI / 6;
 float be = M_PI * 3 / 5;
 
 Point3d camera_point = { X_CAM, Y_CAM, Z_CAM };
-Scene *scene = NULL;
+Scene * scene = NULL;
 ThreadPool * thread_pool = NULL;
 Canvas * canv = NULL;
 
@@ -189,6 +189,7 @@ int main(int argc, char *argv[]) {
     glutIdleFunc(animate);
 
     scene = makeScene();
+    
     canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
     
     if(argc > 1) {
@@ -202,6 +203,33 @@ int main(int argc, char *argv[]) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_WIDTH, TEX_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, canvas);
         
     glutMainLoop();
+    
+    /*
+     
+     scene = makeScene();
+     
+     canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
+     
+     if(argc > 1) {
+        thread_pool = new_thread_pool(atoi(argv[1]));
+     } else {
+        thread_pool = NULL;
+     }
+     
+     // Just simple dummy loop for clarifying absence of memory leaks in render 
+     // (separated from OpenGL routines)
+     
+     for(;;) {
+        al += 0.05;
+        rotate_scene(scene, al, M_PI * 3 / 5, ROTATE_LIGHT_SOURCES);
+        render_scene(scene,
+                     camera_point,
+                     PROJ_PLANE_Z,
+                     canv,
+                     thread_pool);
+        fps_handler();
+     }
+     */
 
     return 0;
 }

@@ -49,10 +49,10 @@ rotate_point(const Point3d p,
 
 static inline Vector3d
 rotate_vector(const Vector3d v,
-             const Float sin_al,
-             const Float cos_al,
-             const Float sin_be,
-             const Float cos_be) {
+              const Float sin_al,
+              const Float cos_al,
+              const Float sin_be,
+              const Float cos_be) {
     
 
     Float x = v.z * sin_al * sin_be + v.y * cos_al * sin_be + v.x * cos_be;
@@ -62,9 +62,9 @@ rotate_vector(const Vector3d v,
 	return vector3df(x, y, z);
 }
 
-static inline
-Vector3d reflect_ray(Vector3d incident_ray,
-                     Vector3d norm_v) {
+static inline Vector3d
+reflect_ray(const Vector3d incident_ray,
+            const Vector3d norm_v) {
     
     Float numerator = 2 * (incident_ray.x * norm_v.x
                            + incident_ray.y * norm_v.y
@@ -80,5 +80,21 @@ Vector3d reflect_ray(Vector3d incident_ray,
     Float z = incident_ray.z - norm_v.z * k;
     
     return vector3df(x, y, z);
+}
+
+static inline Vector3d
+cross_product(const Vector3d a,
+              const Vector3d b) {
+    
+    return vector3df(a.z * b.y - a.y * b.z,
+                     a.x * b.z - a.z * b.x,
+                     a.y * b.x - a.x * b.y);
+}
+
+static inline Float
+dot_product(const Vector3d v1,
+            const Vector3d v2) {
+    
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 #endif

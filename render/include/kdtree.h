@@ -18,9 +18,4 @@ find_intersection_tree(KDTree * const tree,
                        Point3d * const nearest_intersection_point_ptr,
                        Float * const nearest_intersection_point_dist_ptr);
 
-Boolean
-is_intersect_anything_tree(KDTree * const tree,
-                           const Point3d vector_start,
-                           const Vector3d vector);
-
 #endif
