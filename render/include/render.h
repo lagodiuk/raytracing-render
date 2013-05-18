@@ -1,6 +1,8 @@
 #ifndef __RENDER_H__
 #define __RENDER_H__
 
+#include <math.h>
+#include <stdlib.h>
 #include <float.h>
 #include <color.h>
 #include <canvas.h>
@@ -17,6 +19,8 @@ Boolean;
 typedef
 double
 Float;
+
+#define EPSILON 1e-5
 
 #define FLOAT_MAX DBL_MAX
 
@@ -138,15 +142,7 @@ KDTree;
 //
 
 typedef
-struct {
-    // Angles of projection
-    Float al;
-    Float be;
-    Float sin_be;
-    Float cos_be;
-    Float sin_al;
-    Float cos_al;
-    
+struct {    
     // Array of pointers to 3d objects of scene
     Object3d ** objects;
     int objects_count;
@@ -168,14 +164,29 @@ struct {
 }
 Scene;
 
+typedef
+struct {
+    Point3d camera_position;
+    
+    Float al;
+    Float sin_al;
+    Float cos_al;
+    
+    Float be;
+    Float cos_be;
+    Float sin_be;
+    
+    Float proj_plane_dist;
+}
+Camera;
+
 /***************************************************
  *                     Render                      *
  ***************************************************/
 
 void
 render_scene(Scene * scene,
-             Point3d camera_position,
-             Float proj_plane_dist,
+             Camera * const camera,
              Canvas * canvas,
              ThreadPool * thread_pool);
 
@@ -190,16 +201,6 @@ new_scene(const int objects_count,
 
 void
 release_scene(Scene * scene);
-
-void
-rotate_scene(Scene * const scene,
-             const Float al,
-             const Float be,
-             const Boolean rotate_light_sources);
-
-void
-add_object_and_prepare_scene(Scene * const scene,
-                             Object3d * const object);
 
 void
 add_object(Scene * const scene,
@@ -217,7 +218,7 @@ set_no_fog(Scene * const scene);
 
 void
 trace(Scene * scene,
-      Point3d vector_start,
+      Camera * camera,
       Vector3d vector,
       Color * color);
 
@@ -252,12 +253,46 @@ new_sphere(const Point3d center,
            const Color color,
            const Material material);
 
+void
+release_object3d(Object3d * obj);
+
+LightSource3d *
+light_source_3d(const Point3d location,
+                const Color color);
+
+Material
+material(const Float Ka,
+         const Float Kd,
+         const Float Ks,
+         const Float Kr,
+         const Float Kt,
+         const Float p);
+
 /***************************************************
- *                Helpful functions                *
+ *                     Camera                      *
  ***************************************************/
 
-static inline void
-release_object3d(Object3d * obj);
+Camera *
+new_camera(const Point3d camera_position,
+           const Float be,
+           const Float al,
+           const Float proj_plane_dist);
+
+void
+delete_camera(Camera * const cam);
+
+void
+rotate_camera(Camera * const cam,
+              const Float be,
+              const Float al);
+
+void
+move_camera(Camera * const camera,
+            const Vector3d vector);
+
+/***************************************************
+ *                Point and vectors                *
+ ***************************************************/
 
 static inline Point3d
 point3d(const Float x,
@@ -273,30 +308,12 @@ vector3df(const Float x,
           const Float y,
           const Float z);
 
-static inline LightSource3d *
-light_source_3d(const Point3d location,
-                const Color color);
-
-static inline Material
-material(const Float Ka,
-         const Float Kd,
-         const Float Ks,
-         const Float Kr,
-         const Float Kt,
-         const Float p);
-
-static inline void
-release_object3d(Object3d * obj) {
-    obj->release_data(obj->data);
-    free(obj);
-}
-
 static inline Point3d
 point3d(const Float x,
         const Float y,
         const Float z) {
     
-	Point3d p = {.x = x, .y = y, .z = z};
+	const Point3d p = {.x = x, .y = y, .z = z};
 	return p;
 }
 
@@ -304,9 +321,9 @@ static inline Vector3d
 vector3dp(const Point3d start_point,
           const Point3d end_point) {
     
-	Vector3d v = {.x = (end_point.x - start_point.x),
-                  .y = (end_point.y - start_point.y),
-                  .z = (end_point.z - start_point.z)};
+	const Vector3d v = {.x = (end_point.x - start_point.x),
+                        .y = (end_point.y - start_point.y),
+                        .z = (end_point.z - start_point.z)};
 	return v;
 }
 
@@ -315,38 +332,7 @@ vector3df(const Float x,
           const Float y,
           const Float z) {
     
-	Vector3d v = {.x = x, .y = y, .z = z};
+	const Vector3d v = {.x = x, .y = y, .z = z};
     return v;
-}
-
-static inline LightSource3d *
-light_source_3d(const Point3d location,
-                const Color color) {
-    
-	LightSource3d * ls_p = malloc(sizeof(LightSource3d));
-    
-    ls_p->location_world = location;
-    ls_p->location = location;
-    ls_p->color = color;
-    
-	return ls_p;
-}
-
-static inline Material
-material(const Float Ka,
-         const Float Kd,
-         const Float Ks,
-         const Float Kr,
-         const Float Kt,
-         const Float p) {
-    
-    Float sum = Ka + Kd + Ks + Kr + Kt;
-    Material m = {.Ka = Ka / sum,
-                  .Kd = Kd / sum,
-                  .Ks = Ks / sum,
-                  .Kr = Kr / sum,
-                  .Kt = Kt / sum,
-                  .p = p};
-    return m;
 }
 #endif //__RENDER_H__

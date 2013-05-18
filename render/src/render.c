@@ -9,8 +9,7 @@
 typedef
 struct {
     Scene * scene;
-    Point3d camera_position;
-    Float proj_plane_dist;
+    Camera * camera;
     Canvas * canvas;
     
     Float dx;
@@ -31,20 +30,18 @@ render_part_of_scene(RenderSceneData * data);
 
 static inline RenderSceneData *
 new_render_scene_data(Scene * scene,
-                      const Point3d camera_position,
-                      const Float proj_plane_dist,
+                      Camera * const camera,
                       Canvas * canvas);
 
 void
 render_scene(Scene * scene,
-             Point3d camera_position,
-             Float proj_plane_dist,
+             Camera * const camera,
              Canvas * canvas,
              ThreadPool * thread_pool) {
     
     if(!thread_pool) {
         RenderSceneData * data =
-            new_render_scene_data(scene, camera_position, proj_plane_dist, canvas);
+            new_render_scene_data(scene, camera, canvas);
         
         render_part_of_scene(data);
         
@@ -61,7 +58,7 @@ render_scene(Scene * scene,
     RenderSceneData * data;
     
     for(i = 0; i < tasks_num; i++) {
-        data = new_render_scene_data(scene, camera_position, proj_plane_dist, canvas);
+        data = new_render_scene_data(scene, camera, canvas);
 
         data->x_min = slice_width * i;
         data->x_max = slice_width * (i + 1);
@@ -84,14 +81,12 @@ render_scene(Scene * scene,
 
 static inline RenderSceneData *
 new_render_scene_data(Scene * scene,
-                      const Point3d camera_position,
-                      const Float proj_plane_dist,
+                      Camera * const camera,
                       Canvas * canvas) {
     
     RenderSceneData * data = malloc(sizeof(RenderSceneData));
     data->scene = scene;
-    data->camera_position = camera_position;
-    data->proj_plane_dist = proj_plane_dist;
+    data->camera = camera;
     data->canvas = canvas;
     data->dx = canvas->w / 2.0;
     data->dy = canvas->h / 2.0;
@@ -110,9 +105,9 @@ render_part_of_scene(RenderSceneData * data) {
     Float dy = data->dy;
     
     Scene * scene = data->scene;
-    Point3d camera_position = data->camera_position;
-    Float proj_plane_dist = data->proj_plane_dist;
+    Camera * camera = data->camera;
     Canvas * canvas = data->canvas;
+    Float proj_plane_dist = camera->proj_plane_dist;
     
     int x_min = data->x_min;
     int x_max = data->x_max;
@@ -133,7 +128,7 @@ render_part_of_scene(RenderSceneData * data) {
             x = i - dx;
             y = j - dy;
             
-            trace(scene, camera_position, vector3df(x, y, proj_plane_dist), &col);
+            trace(scene, camera, vector3df(x, y, proj_plane_dist), &col);
             
             set_pixel(i, j, col, canvas);
         }

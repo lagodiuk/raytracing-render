@@ -23,8 +23,6 @@ new_scene(const int objects_count,
           const Color background_color) {
     
     Scene * s = malloc(sizeof(Scene));
-    s->al = 0;
-    s->be = 0;
     s->objects_count=objects_count;
     s->objects = calloc(objects_count, sizeof(Object3d *));
     if(light_sources_count) {
@@ -70,52 +68,6 @@ release_scene(Scene * scene) {
 }
 
 void
-rotate_scene(Scene * const scene,
-             const Float be,
-             const Float al,
-             const Boolean rotate_light_sources) {
-    
-    if(fabs(scene->be - be) > EPSILON) {
-        scene->be = be;
-        scene->sin_be = sin(scene->be);
-        scene->cos_be = cos(scene->be);
-    }
-
-    if(fabs(scene->al - al) > EPSILON) {
-        scene->al = al;
-        scene->sin_al = sin(scene->al);
-        scene->cos_al = cos(scene->al);
-    }
-    
-    int i;
-    LightSource3d * light;
-    for(i = 0; i < scene->light_sources_count; i++) {
-        if(scene->light_sources[i]) {
-            light = scene->light_sources[i];
-            
-            if(!rotate_light_sources) {
-                light->location = rotate_point(light->location_world,
-                                               scene->sin_al,
-                                               scene->cos_al,
-                                               scene->sin_be,
-                                               scene->cos_be);
-            } else {
-                light->location = light->location_world;
-            }
-        }
-    }
-}
-
-void
-add_object_and_prepare_scene(Scene * const scene,
-                             Object3d * const object) {
-        
-    scene->objects[++scene->last_object_index] = object;
-    
-    rebuild_kd_tree(scene);
-}
-
-void
 add_object(Scene * const scene,
            Object3d * const object) {
     
@@ -139,4 +91,101 @@ rebuild_kd_tree(Scene * scene) {
     if(scene->kd_tree)
         release_kd_tree(scene->kd_tree);
     scene->kd_tree = build_kd_tree(scene->objects, scene->last_object_index + 1);
+}
+
+void
+release_object3d(Object3d * obj) {
+    obj->release_data(obj->data);
+    free(obj);
+}
+
+LightSource3d *
+light_source_3d(const Point3d location,
+                const Color color) {
+    
+	LightSource3d * ls_p = malloc(sizeof(LightSource3d));
+    
+    ls_p->location_world = location;
+    ls_p->location = location;
+    ls_p->color = color;
+    
+	return ls_p;
+}
+
+Material
+material(const Float Ka,
+         const Float Kd,
+         const Float Ks,
+         const Float Kr,
+         const Float Kt,
+         const Float p) {
+    
+    Float sum = Ka + Kd + Ks + Kr + Kt;
+    Material m = {.Ka = Ka / sum,
+        .Kd = Kd / sum,
+        .Ks = Ks / sum,
+        .Kr = Kr / sum,
+        .Kt = Kt / sum,
+        .p = p};
+    return m;
+}
+
+Camera *
+new_camera(const Point3d camera_position,
+           const Float be,
+           const Float al,
+           const Float proj_plane_dist) {
+    
+    
+    Camera * cam = malloc(sizeof(Camera));
+    
+    cam->camera_position = camera_position;
+    
+    cam->al = al;
+    cam->sin_al = sin(al);
+    cam->cos_al = cos(al);
+    
+    cam->be = be;
+    cam->sin_be = sin(be);
+    cam->cos_be = cos(be);
+    
+    cam->proj_plane_dist = proj_plane_dist;
+    
+    return cam;
+}
+
+void
+delete_camera(Camera * const cam) {
+    free(cam);
+}
+
+void
+rotate_camera(Camera * const cam,
+              const Float be,
+              const Float al) {
+    
+    if(fabs(be) > EPSILON) {
+        cam->be += be;
+        cam->sin_be = sin(cam->be);
+        cam->cos_be = cos(cam->be);
+    }
+    
+    if(fabs(al) > EPSILON) {
+        cam->al += al;
+        cam->sin_al = sin(cam->al);
+        cam->cos_al = cos(cam->al);
+    }
+}
+
+void
+move_camera(Camera * const camera,
+            const Vector3d vector) {
+    
+    Vector3d r_vector = rotate_vector(vector, camera->sin_al, camera->cos_al, camera->sin_be, camera->cos_be);
+    
+    Point3d curr_pos = camera->camera_position;
+    
+    camera->camera_position = point3d(curr_pos.x + r_vector.x,
+                                      curr_pos.y + r_vector.y,
+                                      curr_pos.z + r_vector.z);    
 }

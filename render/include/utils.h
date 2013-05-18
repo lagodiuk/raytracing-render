@@ -1,10 +1,8 @@
 #ifndef UTILS_3D_H
 #define UTILS_3D_H
 
-#include "render.h"
+#include <render.h>
 #include <math.h>
-
-#define EPSILON 1e-5
 
 static inline Float
 module_vector(const Vector3d v) {

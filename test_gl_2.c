@@ -29,6 +29,10 @@ GLint win_height = 512;
 #define TEX_WIDTH  256
 #define TEX_HEIGHT 256
 
+#define DX 7
+#define DY 7
+#define DZ 7
+
 
 typedef struct {
     uint8_t r;
@@ -36,12 +40,15 @@ typedef struct {
     uint8_t b;
 } pixel_t;
 
-float al = M_PI / 6;
-float be = M_PI * 3 / 5;
 
-Point3d camera_point = { X_CAM, Y_CAM, Z_CAM };
 Scene * scene = NULL;
+
+Camera * camera = NULL;
+
+Boolean camera_state_changed = False;
+
 ThreadPool * thread_pool = NULL;
+
 Canvas * canv = NULL;
 
 GLuint tex;
@@ -65,30 +72,30 @@ void fps_handler(void) {
     }
 }
 
-static int render_seq() {
+static int render_seq(void) {
     pixel_t px;
     GLint i, j;
     Color c;
-
-    render_scene(scene,
-                 camera_point,
-                 PROJ_PLANE_Z,
-                 canv,
-                 thread_pool);
     
-    for (j = 0; j < TEX_HEIGHT; ++j)
-        for (i = 0; i < TEX_WIDTH; ++i) {
-            c = get_pixel(i, j, canv);
-            memcpy(&px, &c, sizeof(pixel_t));
-            canvas[j][i] = px;
+    if(camera_state_changed) {
+        render_scene(scene,
+                     camera,
+                     canv,
+                     thread_pool);
+        
+        for (j = 0; j < TEX_HEIGHT; ++j) {
+            for (i = 0; i < TEX_WIDTH; ++i) {
+                c = get_pixel(i, j, canv);
+                memcpy(&px, &c, sizeof(pixel_t));
+                canvas[j][i] = px;
+            }
         }
+        
+        camera_state_changed = False;
+    }    
+    
     return 0;
 }
-
-void prepare_canvas(void) {
-    render_seq();
-}
-
 
 void display(void) {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -128,10 +135,7 @@ static inline uint8_t toGLubyte(GLfloat clampf) {
 
 
 void animate() {
-    al += 0.05;
-    
-    rotate_scene(scene, al, be, ROTATE_LIGHT_SOURCES);
-    prepare_canvas();
+    render_seq();
 
     glEnable(GL_TEXTURE_2D);
 
@@ -150,18 +154,61 @@ void processNormalKeys(unsigned char key, int x, int y) {
 }
 
 void processSpecialKeys(int key, int x, int y) {
+    int modifiers = glutGetModifiers();
     switch(key) {
+            
 		case GLUT_KEY_UP :
-            be += 0.05;
+            switch(modifiers) {
+                case GLUT_ACTIVE_CTRL :
+                    move_camera(camera, vector3df(0, 0, DZ));
+                    break;
+                case GLUT_ACTIVE_SHIFT :
+                    move_camera(camera, vector3df(0, -DY, 0));
+                    break;
+                default :
+                    rotate_camera(camera, 0.0, -0.05);
+                    break;                    
+            }
+            camera_state_changed = True;
             break;
+            
 		case GLUT_KEY_DOWN :
-            be -= 0.05;
+            switch(modifiers) {
+                case GLUT_ACTIVE_CTRL :
+                    move_camera(camera, vector3df(0, 0, -DZ));
+                    break;
+                case GLUT_ACTIVE_SHIFT :
+                    move_camera(camera, vector3df(0, DY, 0));
+                    break;
+                default :
+                    rotate_camera(camera, 0.0, 0.05);
+                    break;
+            }
+            camera_state_changed = True;
             break;
+            
         case GLUT_KEY_LEFT :
-            al += 0.05;
+            switch(modifiers) {
+                case GLUT_ACTIVE_SHIFT :
+                    move_camera(camera, vector3df(DX, 0, 0));
+                    break;
+                default :
+                    rotate_camera(camera, 0.05, 0);
+                    break;
+            }
+            camera_state_changed = True;
             break;
+            
 		case GLUT_KEY_RIGHT :
-            al -= 0.05;
+            switch(modifiers) {
+                case GLUT_ACTIVE_SHIFT :
+                    move_camera(camera, vector3df(-DX, 0, 0));
+                    break;
+                default :
+                    rotate_camera(camera, -0.05, 0);
+                    break;
+            }
+            camera_state_changed = True;
             break;
 	}
 }
@@ -190,6 +237,9 @@ int main(int argc, char *argv[]) {
 
     scene = makeScene();
     
+    camera = new_camera(point3d(0, 0, 0), M_PI, M_PI / 2, 200);
+    camera_state_changed = True;
+    
     canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
     
     if(argc > 1) {
@@ -198,8 +248,7 @@ int main(int argc, char *argv[]) {
         thread_pool = NULL;
     }
 
-    rotate_scene(scene, al, M_PI * 3 / 5, ROTATE_LIGHT_SOURCES);
-    prepare_canvas();
+    render_seq();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_WIDTH, TEX_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, canvas);
         
     glutMainLoop();
@@ -220,11 +269,9 @@ int main(int argc, char *argv[]) {
      // (separated from OpenGL routines)
      
      for(;;) {
-        al += 0.05;
-        rotate_scene(scene, al, M_PI * 3 / 5, ROTATE_LIGHT_SOURCES);
+        rotate_camera(camera, 0.05, 0);
         render_scene(scene,
-                     camera_point,
-                     PROJ_PLANE_Z,
+                     camera,
                      canv,
                      thread_pool);
         fps_handler();

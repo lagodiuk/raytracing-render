@@ -28,7 +28,8 @@ get_lighting_color(Point3d point,
 static inline Color
 get_specular_color(Point3d point,
                    Vector3d reflected_ray,
-                   Scene * scene, Float p);
+                   Scene * scene,
+                   Float p);
 
 static inline Color
 calculate_color(Scene * scene,
@@ -53,15 +54,14 @@ trace_recursively(Scene * scene,
 
 void
 trace(Scene * scene,
-      Point3d vector_start,
+      Camera * camera,
       Vector3d vector,
       Color * color) {
     
-    Point3d r_vector_start = rotate_point(vector_start, scene->sin_al, scene->cos_al, scene->sin_be, scene->cos_be);
-    Vector3d r_vector = rotate_vector(vector, scene->sin_al, scene->cos_al, scene->sin_be, scene->cos_be);
+    Vector3d r_vector = rotate_vector(vector, camera->sin_al, camera->cos_al, camera->sin_be, camera->cos_be);
     
     trace_recursively(scene,
-                      r_vector_start,
+                      camera->camera_position,
                       r_vector,
                       color,
                       INITIAL_RAY_INTENSITY,

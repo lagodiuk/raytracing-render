@@ -4,16 +4,28 @@
 
 #include "scene1.h"
 
+#define BACKGROUND_COLOR rgb(220, 240, 255)
+
 #define MAX_POLYGONS_NUMBER 50000
+
+#define MAX_LIGHT_SOURCES_NUMBER 5
 
 #define SERPINSKY_PYRAMID_LEVEL 4
 
+void add_cube(Scene * scene, Point3d base, Float a, Material material);
+
+void add_serpinsky_pyramid(Scene * scene, int depth,
+                           Point3d p1, Point3d p2, Point3d p3, Point3d p4,
+                           Material material, Color color);
+
+void add_pyramid(Scene * scene,
+                 Point3d p1, Point3d p2, Point3d p3, Point3d p4,
+                 Material material, Color color);
+
 Scene *makeScene(void) {
-    Scene * scene = new_scene(MAX_POLYGONS_NUMBER, 5, BACKGROUND_COLOR);
+    Scene * scene = new_scene(MAX_POLYGONS_NUMBER, MAX_LIGHT_SOURCES_NUMBER, BACKGROUND_COLOR);
     
-    //add_light_source(scene, light_source_3d(point3d(-90, 90, 190), rgb(255, 255, 255)));
-    //add_light_source(scene, light_source_3d(point3d(90, -90, 190), rgb(255, 255, 0)));
-    add_light_source(scene, light_source_3d(point3d(X_CAM - 100, Y_CAM, Z_CAM), rgb(255, 255, 255)));
+    add_light_source(scene, light_source_3d(point3d(0, 0, 200), rgb(255, 255, 255)));
 
     set_exponential_fog(scene, 0.001);
 
@@ -28,7 +40,7 @@ Scene *makeScene(void) {
                           point3d(pyramid_edge/2 + dx, -pyramid_edge * 0.87 / 2 + dy, 0),
                           point3d(dx, pyramid_edge * 0.87 / 2 + dy, 0),
                           point3d(dx, dy, pyramid_edge * 0.87),
-                          material(1, 5, 0, 2, 0, 0), rgb(240, 210, 40));
+                          material(1, 5, 0, 0, 0, 0), rgb(240, 210, 40));
     
     add_object(scene, new_triangle(
                                      point3d(-300, -300, -80),
