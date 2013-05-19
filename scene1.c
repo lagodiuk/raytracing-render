@@ -4,13 +4,13 @@
 
 #include "scene1.h"
 
-#define BACKGROUND_COLOR rgb(220, 240, 255)
+#define BACKGROUND_COLOR rgb(255, 255, 255)
 
 #define MAX_POLYGONS_NUMBER 50000
 
 #define MAX_LIGHT_SOURCES_NUMBER 5
 
-#define SERPINSKY_PYRAMID_LEVEL 4
+#define SERPINSKY_PYRAMID_LEVEL 5
 
 void add_cube(Scene * scene, Point3d base, Float a, Material material);
 
@@ -27,7 +27,7 @@ Scene *makeScene(void) {
     
     add_light_source(scene, light_source_3d(point3d(0, 0, 200), rgb(255, 255, 255)));
 
-    set_exponential_fog(scene, 0.001);
+    set_exponential_fog(scene, 0.005);
 
     add_cube(scene, point3d(60, 60, -60), 90, material(3, 7, 0, 0, 0, 0));
     

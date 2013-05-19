@@ -29,9 +29,9 @@ GLint win_height = 512;
 #define TEX_WIDTH  256
 #define TEX_HEIGHT 256
 
-#define DX 7
-#define DY 7
-#define DZ 7
+#define DX 10
+#define DY 10
+#define DZ 10
 
 
 typedef struct {
@@ -162,6 +162,9 @@ void processSpecialKeys(int key, int x, int y) {
                 case GLUT_ACTIVE_CTRL :
                     move_camera(camera, vector3df(0, 0, DZ));
                     break;
+                case GLUT_ACTIVE_ALT :
+                    camera->proj_plane_dist += 5;
+                    break;
                 case GLUT_ACTIVE_SHIFT :
                     move_camera(camera, vector3df(0, -DY, 0));
                     break;
@@ -176,6 +179,9 @@ void processSpecialKeys(int key, int x, int y) {
             switch(modifiers) {
                 case GLUT_ACTIVE_CTRL :
                     move_camera(camera, vector3df(0, 0, -DZ));
+                    break;
+                case GLUT_ACTIVE_ALT :
+                    camera->proj_plane_dist -= 5;
                     break;
                 case GLUT_ACTIVE_SHIFT :
                     move_camera(camera, vector3df(0, DY, 0));
