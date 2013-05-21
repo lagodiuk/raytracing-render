@@ -39,10 +39,21 @@ static inline Color add_colors(Color c1, Color c2) {
 }
 
 static inline Color mul_colors(Color c1, Color c2) {
-    uint16_t r = (c1.r + c2.r) >> 1;
-	uint16_t g = (c1.g + c2.g) >> 1;
-	uint16_t b = (c1.b + c2.b) >> 1;
-
+    
+    uint16_t r = ((uint16_t) c1.r + c2.r) >> 1;
+	uint16_t g = ((uint16_t) c1.g + c2.g) >> 1;
+	uint16_t b = ((uint16_t) c1.b + c2.b) >> 1;
+     
+    /*
+    uint16_t r = (c1.r * c2.r) >> 8;
+	uint16_t g = (c1.g * c2.g) >> 8;
+	uint16_t b = (c1.b * c2.b) >> 8;
+     */
+    /*
+    uint16_t r = sqrt(c1.r * c2.r);
+	uint16_t g = sqrt(c1.g * c2.g);
+	uint16_t b = sqrt(c1.b * c2.b);
+     */
    	return rgb((Byte) r, (Byte) g, (Byte) b);
 }
 
