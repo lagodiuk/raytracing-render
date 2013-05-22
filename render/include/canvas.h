@@ -60,4 +60,7 @@ int write_bmp(char file_name[],
 void write_png(char file_name[],
                Canvas * canv);
 
+Canvas *
+read_png(char * file_name);
+
 #endif //__CANVAS_H__
