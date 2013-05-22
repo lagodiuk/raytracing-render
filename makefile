@@ -2,7 +2,7 @@ CC = gcc
 
 LIBPATH	 = -L./render/lib
 INCLUDES = -I./render/include
-LIBS = -lrender -lm
+LIBS = -lrender -lm -pthread -lpng
 
 render_lib = ./render/lib/librender.a
 
@@ -33,7 +33,7 @@ thread_pool_stress_test: thread_pool_stress_test.c $(render_lib)
 
 test_video: test $(frame_dir)
 	./test
-	ffmpeg -qscale 2 -r 10 -b 10M  -i './out_%03d.bmp'  movie.mp4
+	ffmpeg -qscale 2 -r 10 -b 10M  -i './out_%03d.png'  movie.mp4
 
 $(frame_dir):
 	mkdir -p $@
@@ -52,7 +52,7 @@ rungl_2: test_gl_2
 	./$< $(THREADS_NUM)
 
 test_gl_2: $(render_lib) scene1.o scene1.h test_gl_2.c 
-	$(CC) $(CC_OPTS) test_gl_2.c scene1.o $(OPEN_GL_OPTS) $(LIBPATH) $(INCLUDES) $(LIBS) -pthread -o $@
+	$(CC) $(CC_OPTS) test_gl_2.c scene1.o $(OPEN_GL_OPTS) $(LIBPATH) $(INCLUDES) $(LIBS) -o $@
 
 
 #
@@ -81,4 +81,4 @@ clean:
 	rm -f *.o;                            \
 	rm -f ./test ./thread_pool_stress_test ./test_gl_2;     \
 	rm -f *.mp4;                          \
-	rm -f *.bmp			\
+	rm -f *.bmp *.png			\

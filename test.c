@@ -32,8 +32,8 @@ int main() {
                      canv,
                      thread_pool);
         
-        sprintf(filename, "out_%03d.bmp", k);
-        write_bmp(filename, canv);
+        sprintf(filename, "out_%03d.png", k);
+        write_png(filename, canv);
         clear_canvas(canv);
         printf("%s\n", filename);
     }

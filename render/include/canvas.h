@@ -57,4 +57,7 @@ void draw_line(int x1,
 int write_bmp(char file_name[],
               Canvas * canv);
 
+void write_png(char file_name[],
+               Canvas * canv);
+
 #endif //__CANVAS_H__
