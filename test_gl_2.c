@@ -243,7 +243,7 @@ int main(int argc, char *argv[]) {
 
     scene = makeScene();
     
-    camera = new_camera(point3d(0, 0, 0), M_PI, M_PI / 2, 200);
+    camera = new_camera(point3d(0, 100, 0), M_PI, M_PI / 2, 200);
     camera_state_changed = True;
     
     canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);

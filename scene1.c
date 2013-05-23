@@ -2,6 +2,8 @@
 
 #include <obj_loader.h>
 
+#include <canvas.h>
+
 #include "scene1.h"
 
 #define BACKGROUND_COLOR rgb(255, 255, 255)
@@ -27,7 +29,7 @@ Scene *makeScene(void) {
     
     add_light_source(scene, light_source_3d(point3d(0, 0, 200), rgb(255, 255, 255)));
 
-    set_exponential_fog(scene, 0.005);
+    set_exponential_fog(scene, 0.001);
 
     add_cube(scene, point3d(60, 60, -60), 90, material(3, 7, 0, 0, 0, 0));
     
@@ -42,18 +44,29 @@ Scene *makeScene(void) {
                           point3d(dx, dy, pyramid_edge * 0.87),
                           material(1, 5, 0, 0, 0, 0), rgb(240, 210, 40));
     
-    add_object(scene, new_triangle(
-                                     point3d(-300, -300, -80),
-                                     point3d(300, -300, -80),
-                                     point3d(300, 300, -80),
-                                     rgb(55, 255, 55),
-                                     material(1, 6, 0, 2, 0, 0)));
-    add_object(scene, new_triangle(
-                                      point3d(-300, -300, -80),
-                                      point3d(-300, 300, -80),
-                                      point3d(300, 300, -80),
-                                      rgb(55, 255, 55),
-                                      material(1, 6, 0, 2, 0, 0)));
+    
+    Canvas * wall = read_png("./models/wall.png");
+    
+    add_object(scene, new_triangle_with_texture(
+                                                point3d(-300, -300, -80),
+                                                point3d(300, -300, -80),
+                                                point3d(300, 300, -80),
+                                                point2d(5, 0),
+                                                point2d(0, 0),
+                                                point2d(0, 5),
+                                                wall,
+                                                rgb(55, 255, 55),
+                                                material(1, 6, 0, 2, 0, 0)));
+    add_object(scene, new_triangle_with_texture(
+                                                point3d(-300, -300, -80),
+                                                point3d(-300, 300, -80),
+                                                point3d(300, 300, -80),
+                                                point2d(5, 0),
+                                                point2d(5, 5),
+                                                point2d(0, 5),
+                                                wall,
+                                                rgb(55, 255, 55),
+                                                material(1, 6, 0, 2, 0, 0)));
     
     add_object(scene, new_sphere(point3d(130, -100, -30),
                                  50.0,

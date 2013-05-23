@@ -24,6 +24,13 @@ Float;
 
 #define FLOAT_MAX DBL_MAX
 
+typedef
+struct {
+    Float x;
+    Float y;
+}
+Point2d;
+
 typedef 
 struct {
 	Float x;
@@ -248,6 +255,17 @@ new_triangle_with_norms(const Point3d p1,
                         const Material material);
 
 Object3d *
+new_triangle_with_texture(const Point3d p1,
+                          const Point3d p2,
+                          const Point3d p3,
+                          const Point2d t1,
+                          const Point2d t2,
+                          const Point2d t3,
+                          Canvas * texture,
+                          const Color color,
+                          const Material material);
+
+Object3d *
 new_sphere(const Point3d center,
            const Float radius,
            const Color color,
@@ -294,6 +312,10 @@ move_camera(Camera * const camera,
  *                Point and vectors                *
  ***************************************************/
 
+static inline Point2d
+point2d(const Float x,
+        const Float y);
+
 static inline Point3d
 point3d(const Float x,
         const Float y,
@@ -307,6 +329,14 @@ static inline Vector3d
 vector3df(const Float x,
           const Float y,
           const Float z);
+
+static inline Point2d
+point2d(const Float x,
+        const Float y) {
+    
+	const Point2d p = {.x = x, .y = y};
+	return p;
+}
 
 static inline Point3d
 point3d(const Float x,
