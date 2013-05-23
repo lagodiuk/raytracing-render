@@ -220,6 +220,7 @@ void processSpecialKeys(int key, int x, int y) {
 }
 
 int main(int argc, char *argv[]) {
+
     glutInit(&argc, argv);
     glutInitWindowSize(win_width, win_height);
     glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
@@ -258,11 +259,13 @@ int main(int argc, char *argv[]) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_WIDTH, TEX_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, canvas);
         
     glutMainLoop();
-    
-    /*
      
+
+     /*
      scene = makeScene();
-     
+    
+     camera = new_camera(point3d(0, 100, 0), M_PI, M_PI / 2, 200);
+    
      canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
      
      if(argc > 1) {
