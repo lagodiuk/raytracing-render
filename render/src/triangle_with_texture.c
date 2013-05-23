@@ -141,15 +141,15 @@ get_tvt_color(const void * data,
     
 	const TriangleWithTexture * tvt = data;
     
-    Vector3d v_p1_p = vector3dp(tvt->p1, intersection_point);
-    Vector3d v_p2_p = vector3dp(tvt->p2, intersection_point);
-    Vector3d v_p3_p = vector3dp(tvt->p3, intersection_point);
+    const Vector3d v_p1_p = vector3dp(tvt->p1, intersection_point);
+    const Vector3d v_p2_p = vector3dp(tvt->p2, intersection_point);
+    const Vector3d v_p3_p = vector3dp(tvt->p3, intersection_point);
     
     Float h1 = module_vector(cross_product(v_p2_p, tvt->v_p2_p3));
     Float h2 = module_vector(cross_product(v_p3_p, tvt->v_p3_p1));
     Float h3 = module_vector(cross_product(v_p1_p, tvt->v_p1_p2));
     
-    Float h_sum = h1 + h2 + h3;
+    const Float h_sum = h1 + h2 + h3;
     
     h1 /= h_sum;
     h2 /= h_sum;
@@ -159,8 +159,8 @@ get_tvt_color(const void * data,
     const Point2d t2 = tvt->t2;
     const Point2d t3 = tvt->t3;
     
-    Float xf = h1 * t1.x + h2 * t2.x + h3 * t3.x;
-    Float yf = h1 * t1.y + h2 * t2.y + h3 * t3.y;
+    const Float xf = h1 * t1.x + h2 * t2.x + h3 * t3.x;
+    const Float yf = h1 * t1.y + h2 * t2.y + h3 * t3.y;
     
     Canvas * canvas = tvt->texture;
     

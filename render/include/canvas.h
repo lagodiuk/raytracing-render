@@ -34,7 +34,7 @@ set_pixel(int x,
           Color c,
           Canvas * canv) {
     
-	int offs = y * canv->w + x;
+	const int offs = y * canv->w + x;
 	canv->data[offs] = c;
 }
 
@@ -43,7 +43,7 @@ get_pixel(int x,
           int y,
           Canvas * canv) {
     
-	int offs = y * canv->w + x;
+	const int offs = y * canv->w + x;
 	return canv->data[offs];
 }
 
