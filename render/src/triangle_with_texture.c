@@ -167,6 +167,9 @@ get_tvt_color(const void * data,
     int x = (int)(xf * canvas->w) % canvas->w;
     int y = (int)(yf * canvas->h) % canvas->h;
     
+    x = (x < 0) ? (canvas->w + x) : x;
+    y = (y < 0) ? (canvas->h + y) : y;
+    
     return get_pixel(x, y, canvas);
 }
 

@@ -6,7 +6,19 @@
 
 static inline Float
 module_vector(const Vector3d v) {
-    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    Float x = fabs(v.x);
+    Float y = fabs(v.y);
+    Float z = fabs(v.z);
+    Float acc = 1;
+    
+    while((x > 10) && (y > 10) && (z > 10)) {
+        x = x / 10;
+        y = y / 10;
+        z = z / 10;
+        acc *= 10;
+    }
+        
+    return sqrt(x * x + y * y + z * z) * acc;
 }
 
 static inline Float
@@ -25,7 +37,9 @@ cos_vectors(const Vector3d v1,
 
 static inline void
 normalize_vector(Vector3d * const v) {
-    Float module = module_vector(*v);
+    // WTF ???
+    Float module = pow(module_vector(*v), 0.015625);
+    //Float module = module_vector(*v);
     v->x = v->x / module;
     v->y = v->y / module;
     v->z = v->z / module;
