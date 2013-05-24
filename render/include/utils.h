@@ -6,19 +6,7 @@
 
 static inline Float
 module_vector(const Vector3d v) {
-    Float x = fabs(v.x);
-    Float y = fabs(v.y);
-    Float z = fabs(v.z);
-    Float acc = 1;
-    
-    while((x > 10) && (y > 10) && (z > 10)) {
-        x = x / 10;
-        y = y / 10;
-        z = z / 10;
-        acc *= 10;
-    }
-        
-    return sqrt(x * x + y * y + z * z) * acc;
+    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 static inline Float

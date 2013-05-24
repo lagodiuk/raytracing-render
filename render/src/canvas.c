@@ -14,7 +14,7 @@ Canvas * new_canvas(int width, int height) {
 	Canvas * c = (Canvas *) malloc(sizeof(Canvas));
 	c->w = width;
 	c->h = height;
-	c->data = (Color *) calloc(width * height, sizeof(Color));
+	c->data = (Color *) calloc(width * height + 1, sizeof(Color));
 	return c;
 }
 
