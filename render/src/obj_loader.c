@@ -6,7 +6,7 @@
 #include <color.h>
 #include <obj_loader.h>
 
-#define MAX_VERTEX_COUNT 50000
+#define MAX_VERTEX_COUNT 150000
 
 void
 parse_vertex(const char * str,

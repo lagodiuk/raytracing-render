@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include <render.h>
+#include <canvas.h>
 #include <utils.h>
 
 // Declarations
@@ -33,8 +34,36 @@ struct {
     
     Color color;
     Material material;
+    
+    /************
+     * Texture  *
+     ************/
+    
+    Point2d t1;
+    Point2d t2;
+    Point2d t3;
+    
+    Canvas * texture;
+
+    /************
+     *  Norms   *
+     ************/
+    
+    Vector3d n1;
+    Vector3d n2;
+    Vector3d n3;
 }
 Triangle3d;
+
+inline static Triangle3d *
+create_plain_triangle(const Point3d p1,
+                      const Point3d p2,
+                      const Point3d p3,
+                      const Color color,
+                      const Material material);
+
+inline static Object3d *
+wrap_triangle(Triangle3d * triangle);
 
 inline static Boolean
 intersect_triangle(const void * data,
@@ -52,9 +81,17 @@ static inline Color
 get_triangle_color(const void * data,
                    const Point3d intersection_point);
 
+static inline Color
+get_texture_color(const void * data,
+                  const Point3d intersection_point);
+
 static inline Vector3d
 get_triangle_normal_vector(const void * data,
                            const Point3d intersection_point);
+
+static inline Vector3d
+get_phong_normal_vector(const void * data,
+                        const Point3d intersection_point);
 
 static inline Material
 get_triangle_material(const void * data,
@@ -68,6 +105,13 @@ check_same_clock_dir(const Vector3d v1,
                      const Vector3d v2,
                      const Vector3d norm);
 
+static inline void
+get_weights_of_vertexes(const Triangle3d * const tr,
+                        const Point3d intersection_point,
+                        Float * const w1,
+                        Float * const w2,
+                        Float * const w3);
+
 // Code
 // --------------------------------------------------------------
 
@@ -78,7 +122,61 @@ new_triangle(const Point3d p1,
              const Color color,
              const Material material) {
     
-	Triangle3d * triangle = malloc(sizeof(Triangle3d));
+	Triangle3d * triangle = create_plain_triangle(p1, p2, p3, color, material);    
+	return wrap_triangle(triangle);
+}
+
+Object3d *
+new_triangle_with_texture(const Point3d p1,
+                          const Point3d p2,
+                          const Point3d p3,
+                          const Point2d t1,
+                          const Point2d t2,
+                          const Point2d t3,
+                          Canvas * texture,
+                          const Color color,
+                          const Material material) {
+    
+    Triangle3d * triangle = create_plain_triangle(p1, p2, p3, color, material);
+    triangle->t1 = t1;
+    triangle->t2 = t2;
+    triangle->t3 = t3;
+    triangle->texture = texture;
+    
+	Object3d * obj = wrap_triangle(triangle);    
+    obj->get_color = get_texture_color;
+    
+    return obj;
+}
+
+Object3d *
+new_triangle_with_norms(const Point3d p1,
+                        const Point3d p2,
+                        const Point3d p3,
+                        const Vector3d n1,
+                        const Vector3d n2,
+                        const Vector3d n3,
+                        const Color color,
+                        const Material material) {
+    
+    Triangle3d * triangle = create_plain_triangle(p1, p2, p3, color, material);
+    triangle->n1 = n1;
+    triangle->n2 = n2;
+    triangle->n3 = n3;
+    
+    Object3d * obj = wrap_triangle(triangle);
+    obj->get_normal_vector = get_phong_normal_vector;
+    
+    return obj;
+}
+
+inline static Triangle3d *
+create_plain_triangle(const Point3d p1,
+                      const Point3d p2,
+                      const Point3d p3,
+                      const Color color,
+                      const Material material) {
+    Triangle3d * triangle = malloc(sizeof(Triangle3d));
     
 	triangle->p1 = p1;
 	triangle->p2 = p2;
@@ -92,10 +190,20 @@ new_triangle(const Point3d p1,
     triangle->material = material;
     
     triangle->v_p1_p2 = vector3dp(p1, p2);
-    triangle->v_p2_p3 = vector3dp(p2, p3);
-    triangle->v_p3_p1 = vector3dp(p3, p1);
+    normalize_vector(&triangle->v_p1_p2);
     
-	Object3d * obj = malloc(sizeof(Object3d));
+    triangle->v_p2_p3 = vector3dp(p2, p3);
+    normalize_vector(&triangle->v_p2_p3);
+    
+    triangle->v_p3_p1 = vector3dp(p3, p1);
+    normalize_vector(&triangle->v_p3_p1);
+    
+    return triangle;
+}
+
+inline static Object3d *
+wrap_triangle(Triangle3d * triangle) {
+    Object3d * obj = calloc(1, sizeof(Object3d));
 	obj->data = triangle;
 	obj->release_data = release_triangle_data;
 	obj->get_color = get_triangle_color;
@@ -103,8 +211,7 @@ new_triangle(const Point3d p1,
     obj->get_normal_vector = get_triangle_normal_vector;
     obj->get_material = get_triangle_material;
     obj->get_min_boundary_point = get_min_triangle_boundary_point;
-    obj->get_max_boundary_point = get_max_triangle_boundary_point;
-    
+    obj->get_max_boundary_point = get_max_triangle_boundary_point;    
 	return obj;
 }
 
@@ -115,11 +222,58 @@ get_triangle_color(const void * data,
 	return triangle->color;
 }
 
+static inline Color
+get_texture_color(const void * data,
+                  const Point3d intersection_point) {
+    
+	const Triangle3d * tr = data;
+    
+    Float w1;
+    Float w2;
+    Float w3;
+    
+    get_weights_of_vertexes(tr, intersection_point, &w1, &w2, &w3);
+    
+    const Point2d t1 = tr->t1;
+    const Point2d t2 = tr->t2;
+    const Point2d t3 = tr->t3;
+    
+    const Float xf = w1 * t1.x + w2 * t2.x + w3 * t3.x;
+    const Float yf = w1 * t1.y + w2 * t2.y + w3 * t3.y;
+    
+    Canvas * canvas = tr->texture;
+    
+    int x = (int)(xf * canvas->w) % canvas->w;
+    int y = (int)(yf * canvas->h) % canvas->h;
+    
+    x = (x < 0) ? (canvas->w + x) : x;
+    y = (y < 0) ? (canvas->h + y) : y;
+    
+    return get_pixel(x, y, canvas);
+}
+
 static inline Vector3d
 get_triangle_normal_vector(const void * data,
                            const Point3d intersection_point) {
   	const Triangle3d * triangle = data;
     return triangle->norm;
+}
+
+static inline Vector3d
+get_phong_normal_vector(const void * data,
+                        const Point3d intersection_point) {
+    
+  	const Triangle3d * tr = data;
+    
+    Float w1;
+    Float w2;
+    Float w3;
+    
+    get_weights_of_vertexes(tr, intersection_point, &w1, &w2, &w3);
+        
+    return vector3df(w1 * tr->n1.x + w2 * tr->n2.x + w3 * tr->n3.x,
+                     w1 * tr->n1.y + w2 * tr->n2.y + w3 * tr->n3.y,
+                     w1 * tr->n1.z + w2 * tr->n2.z + w3 * tr->n3.z);
 }
 
 static inline Material
@@ -231,3 +385,26 @@ check_same_clock_dir(const Vector3d v1,
     else
         return True;
 }
+
+static inline void
+get_weights_of_vertexes(const Triangle3d * const tr,
+                        const Point3d intersection_point,
+                        Float * const w1,
+                        Float * const w2,
+                        Float * const w3) {
+    
+    const Vector3d v_p1_p = vector3dp(tr->p1, intersection_point);
+    const Vector3d v_p2_p = vector3dp(tr->p2, intersection_point);
+    const Vector3d v_p3_p = vector3dp(tr->p3, intersection_point);
+    
+    const Float h1 = module_vector(cross_product(v_p2_p, tr->v_p2_p3));
+    const Float h2 = module_vector(cross_product(v_p3_p, tr->v_p3_p1));
+    const Float h3 = module_vector(cross_product(v_p1_p, tr->v_p1_p2));
+    
+    const Float h_sum = h1 + h2 + h3;
+    
+    *w1 = h1 / h_sum;
+    *w2 = h2 / h_sum;
+    *w3 = h3 / h_sum;
+}
+
