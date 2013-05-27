@@ -58,7 +58,9 @@ trace(Scene * scene,
       Vector3d vector,
       Color * color) {
     
-    Vector3d r_vector = rotate_vector(vector, camera->sin_al, camera->cos_al, camera->sin_be, camera->cos_be);
+    Vector3d r_vector = rotate_vector_x(vector, camera->sin_al_x, camera->cos_al_x);
+    r_vector = rotate_vector_y(r_vector, camera->sin_al_y, camera->cos_al_y);
+    r_vector = rotate_vector_z(r_vector, camera->sin_al_z, camera->cos_al_z);
     
     trace_recursively(scene,
                       camera->camera_position,

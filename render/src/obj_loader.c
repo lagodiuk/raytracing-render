@@ -4,6 +4,7 @@
 
 #include <render.h>
 #include <color.h>
+#include <utils.h>
 #include <obj_loader.h>
 
 #define MAX_VERTEX_COUNT 150000
@@ -185,40 +186,84 @@ scene_face_handler(Queue * vertexes,
     Float dx = params->dx;
     Float dy = params->dy;
     Float dz = params->dz;
+    
+    Float sin_al_x = params->sin_al_x;
+    Float cos_al_x = params->cos_al_x;
+
+    Float sin_al_y = params->sin_al_y;
+    Float cos_al_y = params->cos_al_y;
+    
+    Float sin_al_z = params->sin_al_z;
+    Float cos_al_z = params->cos_al_z;
+    
     Color default_color = params->default_color;
     Material default_material = params->default_material;
     
-    Point3d * p1 = (Point3d *) get(vertexes);
-    Point3d * p2 = (Point3d *) get(vertexes);
-    Point3d * p3 = NULL;
+    Point3d * p_p1 = (Point3d *) get(vertexes);
+    Point3d * p_p2 = (Point3d *) get(vertexes);
+    Point3d * p_p3 = NULL;
     
-    Vector3d * v1 = (Vector3d *) get(norm_vectors);
-    Vector3d * v2 = (Vector3d *) get(norm_vectors);
-    Vector3d * v3 = NULL;
+    Vector3d * p_v1 = (Vector3d *) get(norm_vectors);
+    Vector3d * p_v2 = (Vector3d *) get(norm_vectors);
+    Vector3d * p_v3 = NULL;
+    
+    Point3d p1;
+    Point3d p2;
+    Point3d p3;
+    
+    Vector3d v1;
+    Vector3d v2;
+    Vector3d v3;
     
     while(!is_empty(vertexes)) {
-        p3 = (Point3d *) get(vertexes);
-        v3 = (Vector3d *) get(norm_vectors);
+        p_p3 = (Point3d *) get(vertexes);
+        p_v3 = (Vector3d *) get(norm_vectors);
         
-        if(v1 && v2 && v3)
+        p1 = rotate_point_x(*p_p1, sin_al_x, cos_al_x);
+        p1 = rotate_point_y(p1, sin_al_y, cos_al_y);
+        p1 = rotate_point_z(p1, sin_al_z, cos_al_z);
+        
+        p2 = rotate_point_x(*p_p2, sin_al_x, cos_al_x);
+        p2 = rotate_point_y(p2, sin_al_y, cos_al_y);
+        p2 = rotate_point_z(p2, sin_al_z, cos_al_z);
+        
+        p3 = rotate_point_x(*p_p3, sin_al_x, cos_al_x);
+        p3 = rotate_point_y(p3, sin_al_y, cos_al_y);
+        p3 = rotate_point_z(p3, sin_al_z, cos_al_z);
+        
+        if(p_v1 && p_v2 && p_v3) {
+            
+            v1 = rotate_vector_x(*p_v1, sin_al_x, cos_al_x);
+            v1 = rotate_vector_y(v1, sin_al_y, cos_al_y);
+            v1 = rotate_vector_z(v1, sin_al_z, cos_al_z);
+            
+            v2 = rotate_vector_x(*p_v2, sin_al_x, cos_al_x);
+            v2 = rotate_vector_y(v2, sin_al_y, cos_al_y);
+            v2 = rotate_vector_z(v2, sin_al_z, cos_al_z);
+            
+            v3 = rotate_vector_x(*p_v3, sin_al_x, cos_al_x);
+            v3 = rotate_vector_y(v3, sin_al_y, cos_al_y);
+            v3 = rotate_vector_z(v3, sin_al_z, cos_al_z);
+            
             add_object(scene, new_triangle_with_norms(
-                                                      point3d(p1->x * scale + dx, p1->y * scale + dy, p1->z * scale + dz),
-                                                      point3d(p2->x * scale + dx, p2->y * scale + dy, p2->z * scale + dz),
-                                                      point3d(p3->x * scale + dx, p3->y * scale + dy, p3->z * scale + dz),
-                                                      *v1,
-                                                      *v2,
-                                                      *v3,
+                                                      point3d(p1.x * scale + dx, p1.y * scale + dy, p1.z * scale + dz),
+                                                      point3d(p2.x * scale + dx, p2.y * scale + dy, p2.z * scale + dz),
+                                                      point3d(p3.x * scale + dx, p3.y * scale + dy, p3.z * scale + dz),
+                                                      v1,
+                                                      v2,
+                                                      v3,
                                                       default_color,
                                                       default_material));
-        else
+        } else {
             add_object(scene, new_triangle(
-                                           point3d(p1->x * scale + dx, p1->y * scale + dy, p1->z * scale + dz),
-                                           point3d(p2->x * scale + dx, p2->y * scale + dy, p2->z * scale + dz),
-                                           point3d(p3->x * scale + dx, p3->y * scale + dy, p3->z * scale + dz),
+                                           point3d(p1.x * scale + dx, p1.y * scale + dy, p1.z * scale + dz),
+                                           point3d(p2.x * scale + dx, p2.y * scale + dy, p2.z * scale + dz),
+                                           point3d(p3.x * scale + dx, p3.y * scale + dy, p3.z * scale + dz),
                                            default_color,
                                            default_material));
+        }
         
-        p2 = p3;
-        v2 = v3;
+        p_p2 = p_p3;
+        p_v2 = p_v3;
     }
 }

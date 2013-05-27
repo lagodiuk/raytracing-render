@@ -175,13 +175,17 @@ typedef
 struct {
     Point3d camera_position;
     
-    Float al;
-    Float sin_al;
-    Float cos_al;
+    Float al_x;
+    Float sin_al_x;
+    Float cos_al_x;
     
-    Float be;
-    Float cos_be;
-    Float sin_be;
+    Float al_y;
+    Float sin_al_y;
+    Float cos_al_y;
+    
+    Float al_z;
+    Float sin_al_z;
+    Float cos_al_z;
     
     Float proj_plane_dist;
 }
@@ -292,8 +296,9 @@ material(const Float Ka,
 
 Camera *
 new_camera(const Point3d camera_position,
-           const Float be,
-           const Float al,
+           const Float al_x,
+           const Float al_y,
+           const Float al_z,
            const Float proj_plane_dist);
 
 void
@@ -301,8 +306,9 @@ delete_camera(Camera * const cam);
 
 void
 rotate_camera(Camera * const cam,
-              const Float be,
-              const Float al);
+              const Float al_x,
+              const Float al_y,
+              const Float al_z);
 
 void
 move_camera(Camera * const camera,

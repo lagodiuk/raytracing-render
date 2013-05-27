@@ -169,7 +169,7 @@ void processSpecialKeys(int key, int x, int y) {
                     move_camera(camera, vector3df(0, -DY, 0));
                     break;
                 default :
-                    rotate_camera(camera, 0.0, -0.05);
+                    rotate_camera(camera, 0.05, 0, 0);
                     break;                    
             }
             camera_state_changed = True;
@@ -187,7 +187,7 @@ void processSpecialKeys(int key, int x, int y) {
                     move_camera(camera, vector3df(0, DY, 0));
                     break;
                 default :
-                    rotate_camera(camera, 0.0, 0.05);
+                    rotate_camera(camera, -0.05, 0, 0);
                     break;
             }
             camera_state_changed = True;
@@ -198,8 +198,11 @@ void processSpecialKeys(int key, int x, int y) {
                 case GLUT_ACTIVE_SHIFT :
                     move_camera(camera, vector3df(DX, 0, 0));
                     break;
+                case GLUT_ACTIVE_ALT :
+                    rotate_camera(camera, 0, -0.05, 0);
+                    break;
                 default :
-                    rotate_camera(camera, 0.05, 0);
+                    rotate_camera(camera, 0, 0, -0.05);
                     break;
             }
             camera_state_changed = True;
@@ -210,8 +213,11 @@ void processSpecialKeys(int key, int x, int y) {
                 case GLUT_ACTIVE_SHIFT :
                     move_camera(camera, vector3df(-DX, 0, 0));
                     break;
+                case GLUT_ACTIVE_ALT :
+                    rotate_camera(camera, 0, 0.05, 0);
+                    break;
                 default :
-                    rotate_camera(camera, -0.05, 0);
+                    rotate_camera(camera, 0, 0, 0.05);
                     break;
             }
             camera_state_changed = True;
@@ -244,7 +250,7 @@ int main(int argc, char *argv[]) {
 
     scene = makeScene();
     
-    camera = new_camera(point3d(0, 100, 0), M_PI, M_PI / 2, 200);
+    camera = new_camera(point3d(0, 100, 0), -M_PI / 2, 0, M_PI, 200);
     camera_state_changed = True;
     
     canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
@@ -278,7 +284,7 @@ int main(int argc, char *argv[]) {
      // (separated from OpenGL routines)
      
      for(;;) {
-        rotate_camera(camera, 0.05, 0);
+        rotate_camera(camera, 0.05, 0, 0);
         render_scene(scene,
                      camera,
                      canv,

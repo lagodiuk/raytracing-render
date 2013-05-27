@@ -132,8 +132,9 @@ material(const Float Ka,
 
 Camera *
 new_camera(const Point3d camera_position,
-           const Float be,
-           const Float al,
+           const Float al_x,
+           const Float al_y,
+           const Float al_z,
            const Float proj_plane_dist) {
     
     
@@ -141,13 +142,17 @@ new_camera(const Point3d camera_position,
     
     cam->camera_position = camera_position;
     
-    cam->al = al;
-    cam->sin_al = sin(al);
-    cam->cos_al = cos(al);
+    cam->al_x = al_x;
+    cam->sin_al_x = sin(al_x);
+    cam->cos_al_x = cos(al_x);
     
-    cam->be = be;
-    cam->sin_be = sin(be);
-    cam->cos_be = cos(be);
+    cam->al_y = al_y;
+    cam->sin_al_y = sin(al_y);
+    cam->cos_al_y = cos(al_y);
+    
+    cam->al_z = al_z;
+    cam->sin_al_z = sin(al_z);
+    cam->cos_al_z = cos(al_z);
     
     cam->proj_plane_dist = proj_plane_dist;
     
@@ -161,19 +166,26 @@ delete_camera(Camera * const cam) {
 
 void
 rotate_camera(Camera * const cam,
-              const Float be,
-              const Float al) {
+              const Float al_x,
+              const Float al_y,
+              const Float al_z) {
     
-    if(fabs(be) > EPSILON) {
-        cam->be += be;
-        cam->sin_be = sin(cam->be);
-        cam->cos_be = cos(cam->be);
+    if(fabs(al_x) > EPSILON) {
+        cam->al_x += al_x;
+        cam->sin_al_x = sin(cam->al_x);
+        cam->cos_al_x = cos(cam->al_x);
     }
     
-    if(fabs(al) > EPSILON) {
-        cam->al += al;
-        cam->sin_al = sin(cam->al);
-        cam->cos_al = cos(cam->al);
+    if(fabs(al_y) > EPSILON) {
+        cam->al_y += al_y;
+        cam->sin_al_y = sin(cam->al_y);
+        cam->cos_al_y = cos(cam->al_y);
+    }
+    
+    if(fabs(al_z) > EPSILON) {
+        cam->al_z += al_z;
+        cam->sin_al_z = sin(cam->al_z);
+        cam->cos_al_z = cos(cam->al_z);
     }
 }
 
@@ -181,7 +193,9 @@ void
 move_camera(Camera * const camera,
             const Vector3d vector) {
     
-    Vector3d r_vector = rotate_vector(vector, camera->sin_al, camera->cos_al, camera->sin_be, camera->cos_be);
+    Vector3d r_vector = rotate_vector_x(vector, camera->sin_al_x, camera->cos_al_x);
+    r_vector = rotate_vector_y(r_vector, camera->sin_al_y, camera->cos_al_y);
+    r_vector = rotate_vector_z(r_vector, camera->sin_al_z, camera->cos_al_z);
     
     Point3d curr_pos = camera->camera_position;
     

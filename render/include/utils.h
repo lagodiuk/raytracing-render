@@ -33,33 +33,72 @@ normalize_vector(Vector3d * const v) {
     v->z = v->z / module;
 }
 
+// TODO: use matrixes
 static inline Point3d
-rotate_point(const Point3d p,
-             const Float sin_al,
-             const Float cos_al,
-             const Float sin_be,
-             const Float cos_be) {
-
-	Float x = p.z * sin_al * sin_be + p.y * cos_al * sin_be + p.x * cos_be;
-	Float y = p.z * sin_al * cos_be + p.y * cos_al * cos_be - p.x * sin_be;
-	Float z = p.z * cos_al - p.y * sin_al;
+rotate_point_x(const Point3d p,
+               const Float sin_al,
+               const Float cos_al) {
     
-	return point3d(x, y, z);
+	const Float y = p.y * cos_al - p.z * sin_al;
+	const Float z = p.y * sin_al + p.z * cos_al;
+    
+	return point3d(p.x, y, z);
+}
+
+static inline Point3d
+rotate_point_y(const Point3d p,
+               const Float sin_al,
+               const Float cos_al) {
+    
+	const Float x = p.x * cos_al - p.z * sin_al;
+	const Float z = p.x * sin_al + p.z * cos_al;
+    
+	return point3d(x, p.y, z);
+}
+
+static inline Point3d
+rotate_point_z(const Point3d p,
+               const Float sin_al,
+               const Float cos_al) {
+    
+	const Float x = p.x * cos_al - p.y * sin_al;
+	const Float y = p.x * sin_al + p.y * cos_al;
+    
+	return point3d(x, y, p.z);
+}
+
+// TODO: use matrixes
+static inline Vector3d
+rotate_vector_x(const Vector3d p,
+                const Float sin_al,
+                const Float cos_al) {
+    
+	const Float y = p.y * cos_al - p.z * sin_al;
+	const Float z = p.y * sin_al + p.z * cos_al;
+    
+	return vector3df(p.x, y, z);
 }
 
 static inline Vector3d
-rotate_vector(const Vector3d v,
-              const Float sin_al,
-              const Float cos_al,
-              const Float sin_be,
-              const Float cos_be) {
+rotate_vector_y(const Vector3d p,
+                const Float sin_al,
+                const Float cos_al) {
     
+	const Float x = p.x * cos_al - p.z * sin_al;
+	const Float z = p.x * sin_al + p.z * cos_al;
+    
+	return vector3df(x, p.y, z);
+}
 
-    Float x = v.z * sin_al * sin_be + v.y * cos_al * sin_be + v.x * cos_be;
-	Float y = v.z * sin_al * cos_be + v.y * cos_al * cos_be - v.x * sin_be;
-	Float z = v.z * cos_al - v.y * sin_al;
+static inline Vector3d
+rotate_vector_z(const Vector3d p,
+                const Float sin_al,
+                const Float cos_al) {
     
-	return vector3df(x, y, z);
+	const Float x = p.x * cos_al - p.y * sin_al;
+	const Float y = p.x * sin_al + p.y * cos_al;
+    
+	return vector3df(x, y, p.z);
 }
 
 static inline Vector3d
