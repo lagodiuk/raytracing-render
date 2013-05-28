@@ -194,8 +194,8 @@ move_camera(Camera * const camera,
             const Vector3d vector) {
     
     Vector3d r_vector = rotate_vector_x(vector, camera->sin_al_x, camera->cos_al_x);
-    r_vector = rotate_vector_y(r_vector, camera->sin_al_y, camera->cos_al_y);
     r_vector = rotate_vector_z(r_vector, camera->sin_al_z, camera->cos_al_z);
+    r_vector = rotate_vector_y(r_vector, camera->sin_al_y, camera->cos_al_y);
     
     Point3d curr_pos = camera->camera_position;
     
