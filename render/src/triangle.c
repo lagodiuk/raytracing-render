@@ -238,16 +238,16 @@ get_texture_color(const void * data,
     const Point2d t2 = tr->t2;
     const Point2d t3 = tr->t3;
     
-    const Float xf = w1 * t1.x + w2 * t2.x + w3 * t3.x;
-    const Float yf = w1 * t1.y + w2 * t2.y + w3 * t3.y;
+    Float xf = w1 * t1.x + w2 * t2.x + w3 * t3.x;
+    Float yf = w1 * t1.y + w2 * t2.y + w3 * t3.y;
+    
+    xf = (xf < 0) ? ((int)fabs(xf)) + 1 + xf : xf;
+    yf = (yf < 0) ? ((int)fabs(yf)) + 1 + yf : yf;
     
     Canvas * canvas = tr->texture;
     
-    int x = (int)(xf * canvas->w) % canvas->w;
-    int y = (int)(yf * canvas->h) % canvas->h;
-    
-    x = (x < 0) ? (canvas->w + x) : x;
-    y = (y < 0) ? (canvas->h + y) : y;
+    int x = (int)(xf * canvas->w) % (canvas->w + 1);
+    int y = (int)(yf * canvas->h) % (canvas->h + 1);
     
     return get_pixel(x, y, canvas);
 }

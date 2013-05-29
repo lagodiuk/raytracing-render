@@ -75,7 +75,7 @@ Scene * makeScene(void) {
     //create_sphere(scene);
     //load_lamp(scene);
     //load_teapot(scene);
-    //load_man(scene);
+    load_man(scene);
     load_atenea(scene);
     //load_car(scene);
     //load_minicooper(scene);
