@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #define PNG_DEBUG 3
-#include <libpng/png.h>
+#include <png.h>
 
 
 Canvas * new_canvas(int width, int height) {

@@ -2,6 +2,10 @@ CC = gcc
 
 INCLUDES = $(addprefix -I, ./include)
 
+ifeq ($(shell uname),Darwin)
+  INCLUDES += -I/usr/X11/include
+endif
+
 CFLAGS = -Wall
 CFLAGS += -O2
 
