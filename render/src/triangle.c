@@ -190,13 +190,8 @@ create_plain_triangle(const Point3d p1,
     triangle->material = material;
     
     triangle->v_p1_p2 = vector3dp(p1, p2);
-    normalize_vector(&triangle->v_p1_p2);
-    
-    triangle->v_p2_p3 = vector3dp(p2, p3);
-    normalize_vector(&triangle->v_p2_p3);
-    
+    triangle->v_p2_p3 = vector3dp(p2, p3);    
     triangle->v_p3_p1 = vector3dp(p3, p1);
-    normalize_vector(&triangle->v_p3_p1);
     
     return triangle;
 }
@@ -397,14 +392,14 @@ get_weights_of_vertexes(const Triangle3d * const tr,
     const Vector3d v_p2_p = vector3dp(tr->p2, intersection_point);
     const Vector3d v_p3_p = vector3dp(tr->p3, intersection_point);
     
-    const Float h1 = module_vector(cross_product(v_p2_p, tr->v_p2_p3));
-    const Float h2 = module_vector(cross_product(v_p3_p, tr->v_p3_p1));
-    const Float h3 = module_vector(cross_product(v_p1_p, tr->v_p1_p2));
+    const Float s1 = module_vector(cross_product(v_p2_p, tr->v_p2_p3));
+    const Float s2 = module_vector(cross_product(v_p3_p, tr->v_p3_p1));
+    const Float s3 = module_vector(cross_product(v_p1_p, tr->v_p1_p2));
     
-    const Float h_sum = h1 + h2 + h3;
+    const Float s_sum = s1 + s2 + s3;
     
-    *w1 = h1 / h_sum;
-    *w2 = h2 / h_sum;
-    *w3 = h3 / h_sum;
+    *w1 = s1 / s_sum;
+    *w2 = s2 / s_sum;
+    *w3 = s3 / s_sum;
 }
 

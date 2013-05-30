@@ -25,9 +25,7 @@ cos_vectors(const Vector3d v1,
 
 static inline void
 normalize_vector(Vector3d * const v) {
-    // WTF ???
-    Float module = pow(module_vector(*v), 0.015625);
-    //Float module = module_vector(*v);
+    Float module = module_vector(*v);
     v->x = v->x / module;
     v->y = v->y / module;
     v->z = v->z / module;
