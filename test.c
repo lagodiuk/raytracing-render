@@ -15,7 +15,7 @@ int main() {
     
     Canvas * canv = new_canvas(CANVAS_W, CANVAS_H);
     
-    Camera * camera = new_camera(point3d(0, 0, 0), M_PI, M_PI / 2, 200);
+    Camera * camera = new_camera(point3d(0, 100, 0), -M_PI / 2, 0, M_PI, 200);
     
     ThreadPool * thread_pool = new_thread_pool(8);
     
@@ -25,7 +25,7 @@ int main() {
     
     for(k = 1; k <= PICTURES_COUNT; k++) {
 
-        rotate_camera(camera, -0.08, 0);
+        rotate_camera(camera, 0, 0, -0.08);
         
         render_scene(scene,
                      camera,

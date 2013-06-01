@@ -70,8 +70,7 @@ vector_plane_intersection(const Vector3d vector,
                           const Point3d vector_start,
                           const enum Plane plane,
                           const Coord coord,
-                          Point3d * const result,
-                          Float * const t);
+                          Point3d * const result);
 
 static inline Boolean
 voxel_intersection(const Vector3d vector,
@@ -460,12 +459,15 @@ vector_plane_intersection(const Vector3d vector,
                           const Point3d vector_start,
                           const enum Plane plane,
                           const Coord coord,
-                          Point3d * const result,
-                          Float * const t) {
+                          Point3d * const result) {
     
     Float k;    
     switch(plane) {
         case XY:
+            if(((coord.z < vector_start.z) && (vector.z > 0))
+                || ((coord.z > vector_start.z) && (vector.z < 0)))
+                return False;
+            
             k = (coord.z - vector_start.z) / vector.z;
             *result = point3d(vector_start.x + vector.x * k,
                               vector_start.y + vector.y * k,
@@ -473,6 +475,10 @@ vector_plane_intersection(const Vector3d vector,
             break;
         
         case XZ:
+            if(((coord.y < vector_start.y) && (vector.y > 0))
+               || ((coord.y > vector_start.y) && (vector.y < 0)))
+                return False;
+            
             k = (coord.y - vector_start.y) / vector.y;
             *result = point3d(vector_start.x + vector.x * k,
                               coord.y,
@@ -480,6 +486,10 @@ vector_plane_intersection(const Vector3d vector,
             break;
             
         case YZ:
+            if(((coord.x < vector_start.x) && (vector.x > 0))
+               || ((coord.x > vector_start.x) && (vector.x < 0)))
+                return False;
+            
             k = (coord.x - vector_start.x) / vector.x;
             *result = point3d(coord.x,
                               vector_start.y + vector.y * k,
@@ -493,8 +503,6 @@ vector_plane_intersection(const Vector3d vector,
             break;
     }
     
-    *t = k;
-    
     return True;
 }
 
@@ -507,12 +515,10 @@ voxel_intersection(const Vector3d vector,
         return True;
     
     Point3d p;
-    Float t;
     Coord c;
     
     c.z = v.z_min;
-    if(vector_plane_intersection(vector, vector_start, XY, c, &p, &t)
-       && (t > 0)
+    if(vector_plane_intersection(vector, vector_start, XY, c, &p)
        && (p.x > v.x_min) && (p.x < v.x_max)
        && (p.y > v.y_min) && (p.y < v.y_max)) {
         
@@ -520,8 +526,7 @@ voxel_intersection(const Vector3d vector,
     }
     
     c.z = v.z_max;
-    if(vector_plane_intersection(vector, vector_start, XY, c, &p, &t)
-       && (t > 0)
+    if(vector_plane_intersection(vector, vector_start, XY, c, &p)
        && (p.x > v.x_min) && (p.x < v.x_max)
        && (p.y > v.y_min) && (p.y < v.y_max)) {
         
@@ -529,8 +534,7 @@ voxel_intersection(const Vector3d vector,
     }
     
     c.y = v.y_min;
-    if(vector_plane_intersection(vector, vector_start, XZ, c, &p, &t)
-       && (t > 0)
+    if(vector_plane_intersection(vector, vector_start, XZ, c, &p)
        && (p.x > v.x_min) && (p.x < v.x_max)
        && (p.z > v.z_min) && (p.z < v.z_max)) {
         
@@ -538,8 +542,7 @@ voxel_intersection(const Vector3d vector,
     }
     
     c.y = v.y_max;
-    if(vector_plane_intersection(vector, vector_start, XZ, c, &p, &t)
-       && (t > 0)
+    if(vector_plane_intersection(vector, vector_start, XZ, c, &p)
        && (p.x > v.x_min) && (p.x < v.x_max)
        && (p.z > v.z_min) && (p.z < v.z_max)) {
         
@@ -547,8 +550,7 @@ voxel_intersection(const Vector3d vector,
     }
     
     c.x = v.x_min;
-    if(vector_plane_intersection(vector, vector_start, YZ, c, &p, &t)
-       && (t > 0)
+    if(vector_plane_intersection(vector, vector_start, YZ, c, &p)
        && (p.y > v.y_min) && (p.y < v.y_max)
        && (p.z > v.z_min) && (p.z < v.z_max)) {
         
@@ -556,8 +558,7 @@ voxel_intersection(const Vector3d vector,
     }
     
     c.x = v.x_max;
-    if(vector_plane_intersection(vector, vector_start, YZ, c, &p, &t)
-       && (t > 0)
+    if(vector_plane_intersection(vector, vector_start, YZ, c, &p)
        && (p.y > v.y_min) && (p.y < v.y_max)
        && (p.z > v.z_min) && (p.z < v.z_max)) {
         
