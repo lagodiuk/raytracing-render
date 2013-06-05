@@ -36,7 +36,7 @@ thread_pool_stress_test: thread_pool_stress_test.c $(render_lib)
 
 test_video: test $(frame_dir)
 	./test
-	ffmpeg -qscale 2 -r 10 -b 10M  -i './out_%03d.png'  movie.mp4
+	ffmpeg -r 10 -y -i './out_%03d.png' movie.mp4
 
 $(frame_dir):
 	mkdir -p $@

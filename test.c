@@ -5,8 +5,8 @@
 
 #include "scene1.h"
 
-#define CANVAS_W 200
-#define CANVAS_H 200
+#define CANVAS_W 400
+#define CANVAS_H 300
 
 #define PICTURES_COUNT 80
 
