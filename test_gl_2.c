@@ -265,12 +265,12 @@ int main(int argc, char *argv[]) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_WIDTH, TEX_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, canvas);
         
     glutMainLoop();
-     
 
-     /*
+
+    /*
      scene = makeScene();
     
-     camera = new_camera(point3d(0, 100, 0), M_PI, M_PI / 2, 200);
+     camera = new_camera(point3d(0, 100, 0), -M_PI / 2, 0, M_PI, 200);
     
      canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
      
@@ -291,7 +291,7 @@ int main(int argc, char *argv[]) {
                      thread_pool);
         fps_handler();
      }
-     */
+    */
 
     return 0;
 }
