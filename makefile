@@ -31,18 +31,11 @@ thread_pool_stress_test: thread_pool_stress_test.c $(render_lib)
 
 
 #
-# Demo: ffmpeg video
+# Simple demo
 #
 
-test_video: test $(frame_dir)
-	./test
-	ffmpeg -r 10 -y -i './out_%03d.png' movie.mp4
-
-$(frame_dir):
-	mkdir -p $@
-
-test: test.c scene.h scene.o $(render_lib)
-	$(CC) $(CC_OPTS) $(INCLUDES) $(LIBPATH) $(LIBS) test.c scene.o -o $@
+simple_demo: simple_demo.c scene.h scene.o $(render_lib)
+	$(CC) $(CC_OPTS) $(INCLUDES) $(LIBPATH) $(LIBS) simple_demo.c scene.o -o $@
 
 
 #
@@ -82,6 +75,6 @@ $(render_lib):
 clean:
 	(cd ./render && make clean)	    &&\
 	rm -f *.o;                            \
-	rm -f ./test ./thread_pool_stress_test ./test_gl_2;     \
+	rm -f ./simple_demo ./thread_pool_stress_test ./test_gl_2;     \
 	rm -f *.mp4;                          \
 	rm -f *.bmp *.png			\

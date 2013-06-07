@@ -302,7 +302,7 @@ new_camera(const Point3d camera_position,
            const Float proj_plane_dist);
 
 void
-delete_camera(Camera * const cam);
+release_camera(Camera * const cam);
 
 void
 rotate_camera(Camera * const cam,

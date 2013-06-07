@@ -160,7 +160,7 @@ new_camera(const Point3d camera_position,
 }
 
 void
-delete_camera(Camera * const cam) {
+release_camera(Camera * const cam) {
     free(cam);
 }
 

@@ -44,6 +44,9 @@ get_threads_num(ThreadPool * pool) {
 ThreadPool *
 new_thread_pool(int threads_num);
 
+void
+release_thread_pool(ThreadPool * pool);
+
 Task *
 new_task(void (* func)(void *), void * arg);
 

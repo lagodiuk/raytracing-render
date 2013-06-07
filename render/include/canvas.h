@@ -1,6 +1,7 @@
 #ifndef __CANVAS_H__
 #define __CANVAS_H__
-#include "color.h"
+
+#include <color.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -23,7 +24,7 @@ clear_canvas(Canvas * canv) {
 }
 
 static inline void
-release(Canvas * c) {
+release_canvas(Canvas * c) {
 	free(c->data);
 	free(c);
 }

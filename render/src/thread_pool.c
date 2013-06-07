@@ -30,6 +30,32 @@ new_thread_pool(int threads_num) {
     return pool;
 }
 
+void
+release_thread_pool(ThreadPool * pool) {
+    const int threads_num = pool->threads_num;
+    
+    // Terminate threads
+    Task ** terminate_tasks = calloc(threads_num, sizeof(Task *));
+    int i;
+    for(i = 0; i < threads_num; i++) {
+        terminate_tasks[i] = new_task(NULL, NULL);
+        terminate_tasks[i]->type = TERMINATE;
+    }
+    execute_tasks(terminate_tasks, threads_num, pool);
+    wait_for_tasks(terminate_tasks, threads_num);
+    for(i = 0; i < threads_num; i++) {
+        destroy_task(terminate_tasks[i]);
+    }
+    free(terminate_tasks);
+    
+    // Release thread pool
+    release_queue(pool->tasks);
+    pthread_mutex_destroy(&pool->tasks_lock);
+    pthread_cond_destroy(&pool->tasks_cond);
+    free(pool->threads);
+    free(pool);
+}
+
 void *
 worker_thread_loop(void * arg) {
     ThreadPool * pool = (ThreadPool *) arg;
@@ -44,16 +70,18 @@ worker_thread_loop(void * arg) {
         
         pthread_mutex_unlock(&pool->tasks_lock);
         
-        if(task->type == TERMINATE) {
-            break;
+        if(task->type != TERMINATE) {
+            task->func(task->arg);
         }
-        
-        task->func(task->arg);
         
         pthread_mutex_lock(&task->status_lock);
         task->status = DONE;
         pthread_mutex_unlock(&task->status_lock);
         pthread_cond_signal(&task->status_cond);
+        
+        if(task->type == TERMINATE) {
+            break;
+        }
     }
     
     return NULL;
