@@ -8,20 +8,20 @@
 
 // Mac OS X
 #ifdef DARWIN
-#include <OpenGL/gl.h>
-#include <GLUT/glut.h>
+    #include <OpenGL/gl.h>
+    #include <GLUT/glut.h>
 #endif
 
 // The Rest of the World
 #ifdef POSIX
-#include <GL/gl.h>
-#include <GL/glut.h>
+    #include <GL/gl.h>
+    #include <GL/glut.h>
 #endif
 
 #include <canvas.h>
 #include <render.h>
 
-#include "scene1.h"
+#include "scene.h"
 
 GLint win_width = 512;
 GLint win_height = 512;

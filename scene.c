@@ -1,12 +1,10 @@
 #include <stdio.h>
-
 #include <math.h>
 
 #include <obj_loader.h>
-
 #include <canvas.h>
 
-#include "scene1.h"
+#include "scene.h"
 
 #define BACKGROUND_COLOR rgb(255, 255, 255)
 
