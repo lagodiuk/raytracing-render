@@ -144,7 +144,7 @@ calculate_color(Scene * scene,
     
     // Ambient
     if(material.Ka) {
-        ambient_color = mul_colors(scene->background_color, obj_color);
+        ambient_color = mix_colors(scene->background_color, obj_color);
     }
     
     // Diffuse
@@ -153,7 +153,7 @@ calculate_color(Scene * scene,
         
         if(scene->light_sources_count) {
             Color light_color = get_lighting_color(point, norm, scene);
-            diffuse_color = mul_colors(diffuse_color, light_color);
+            diffuse_color = mix_colors(diffuse_color, light_color);
         }
     }
     

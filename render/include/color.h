@@ -38,7 +38,7 @@ static inline Color add_colors(Color c1, Color c2) {
 	return rgb((Byte) r, (Byte) g, (Byte) b);
 }
 
-static inline Color mul_colors(Color c1, Color c2) {
+static inline Color mix_colors(Color c1, Color c2) {
     /*
     uint16_t r = ((uint16_t) c1.r + c2.r) >> 1;
 	uint16_t g = ((uint16_t) c1.g + c2.g) >> 1;

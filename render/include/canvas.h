@@ -3,9 +3,6 @@
 
 #include <color.h>
 
-#include <stdlib.h>
-#include <string.h>
-
 typedef
 struct {
 	int w;
@@ -18,16 +15,11 @@ Canvas *
 new_canvas(int width,
            int height);
 
-static inline void
-clear_canvas(Canvas * canv) {
-    memset(canv->data, 0, canv->w * canv->h * sizeof(Color));
-}
+void
+release_canvas(Canvas * c);
 
-static inline void
-release_canvas(Canvas * c) {
-	free(c->data);
-	free(c);
-}
+void
+clear_canvas(Canvas * canv);
 
 static inline void
 set_pixel(int x,
@@ -48,20 +40,10 @@ get_pixel(int x,
 	return canv->data[offs];
 }
 
-void draw_line(int x1,
-               int y1,
-               int x2,
-               int y2,
-               Color c,
-               Canvas * canv);
-
-int write_bmp(char file_name[],
-              Canvas * canv);
+Canvas *
+read_png(char * file_name);
 
 void write_png(char file_name[],
                Canvas * canv);
-
-Canvas *
-read_png(char * file_name);
 
 #endif //__CANVAS_H__
