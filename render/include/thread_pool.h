@@ -36,10 +36,8 @@ struct {
 }
 Task;
 
-inline static int
-get_threads_num(ThreadPool * pool) {
-    return pool->threads_num;
-}
+int
+get_threads_num(ThreadPool * pool);
 
 ThreadPool *
 new_thread_pool(int threads_num);

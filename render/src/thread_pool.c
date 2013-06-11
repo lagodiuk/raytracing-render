@@ -88,7 +88,9 @@ worker_thread_loop(void * arg) {
 }
 
 Task *
-new_task(void (* func)(void *), void * arg) {
+new_task(void (* func)(void *),
+         void * arg) {
+    
     Task * task = malloc(sizeof(Task));
     task->type = NORMAL;
     task->func = func;
@@ -152,4 +154,9 @@ wait_for_tasks(Task ** tasks,
     for(i = 0; i < count; i++) {
         wait_for_task(tasks[i]);
     }
+}
+
+int
+get_threads_num(ThreadPool * pool) {
+    return pool->threads_num;
 }
