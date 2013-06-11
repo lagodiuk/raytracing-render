@@ -8,6 +8,10 @@ endif
 
 CFLAGS = -Wall
 CFLAGS += -O2
+#
+# http://www.insidepro.com/kk/231/231r.shtml
+# Boosting render performance a bit :)
+#CFLAGS += -O3 -ffast-math
 
 lib_dir = ./lib
 
