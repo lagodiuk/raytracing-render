@@ -44,11 +44,11 @@ simple_demo: simple_demo.c scene.h scene.o $(render_lib)
 
 THREADS_NUM = 8
 
-rungl_2: test_gl_2
+run_demo_gl: demo_gl
 	./$< $(THREADS_NUM)
 
-test_gl_2: $(render_lib) scene.o scene.h test_gl_2.c
-	$(CC) $(CC_OPTS) test_gl_2.c scene.o $(OPEN_GL_OPTS) $(LIBPATH) $(INCLUDES) $(LIBS) -o $@
+demo_gl: $(render_lib) scene.o scene.h demo_gl.c
+	$(CC) $(CC_OPTS) demo_gl.c scene.o $(OPEN_GL_OPTS) $(LIBPATH) $(INCLUDES) $(LIBS) -o $@
 
 
 #
@@ -75,6 +75,6 @@ $(render_lib):
 clean:
 	(cd ./render && make clean)	    &&\
 	rm -f *.o;                            \
-	rm -f ./simple_demo ./thread_pool_stress_test ./test_gl_2;     \
+	rm -f ./simple_demo ./thread_pool_stress_test ./demo_gl;     \
 	rm -f *.mp4;                          \
 	rm -f *.bmp *.png			\
