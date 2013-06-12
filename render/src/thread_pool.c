@@ -12,7 +12,7 @@ worker_thread_loop(void * arg);
 ThreadPool *
 new_thread_pool(int threads_num) {
     
-    ThreadPool * pool = malloc(sizeof(ThreadPool));
+    ThreadPool * pool = calloc(1, sizeof(ThreadPool));
     
     pool->tasks = new_queue();
     
@@ -70,8 +70,11 @@ worker_thread_loop(void * arg) {
         
         pthread_mutex_unlock(&pool->tasks_lock);
         
+        int must_be_terminated = 0;
         if(task->type != TERMINATE) {
             task->func(task->arg);
+        } else {
+            must_be_terminated = 1;
         }
         
         pthread_mutex_lock(&task->status_lock);
@@ -79,7 +82,7 @@ worker_thread_loop(void * arg) {
         pthread_mutex_unlock(&task->status_lock);
         pthread_cond_signal(&task->status_cond);
         
-        if(task->type == TERMINATE) {
+        if(must_be_terminated) {
             break;
         }
     }
