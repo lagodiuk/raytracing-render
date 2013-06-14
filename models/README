@@ -1,8 +1,77 @@
-3D models from:
+These models and textures are used just for demonstration of render capabilities.
+
+All of these 3D models are not made by me, and been downloaded from variety of free sources.
+
+The following list describes models, and web sources, from which I have downloaded them.
+
+1)
+Source:
 http://people.sc.fsu.edu/~jburkardt/data/obj/obj.html
+
+Models:
+airboat.obj
+al.obj
+cessna.obj
+lamp.obj
+skyscraper.obj
+teapot.obj
+minicooper.obj
+tetrahedron.obj
+
+
+2)
+Source:
 http://groups.csail.mit.edu/graphics/classes/6.837/F03/models/
+
+Models:
+teddy.obj
+cow.obj
+
+
+3)
+Source:
 http://graphics.im.ntu.edu.tw/~robin/courses/cg03/model/
-http://o2c3ds.ru/tags/obj/
+
+Models:
+ateneal.obj
+ateneav.obj
+elephal.obj
+venusl.obj
+venusv.obj
+new_csie_b1.obj
+
+
+4)
+Source:
 http://o2c3ds.ru/3d_modeli/332-kachestvennye-3d-modeli-klassicheskih-kresel.html
+
+Models:
+chair.obj
+
+
+5)
+Source:
 http://www.oyonale.com/modeles.php?lang=en&format=OBJ
-http://3dexport.com/3dmodel-laptop-21926.htm
+
+Models:
+ladybird.obj
+
+
+6)
+Source:
+http://o2c3ds.ru/3d_modeli/315-3d-modeli-lyudi-v-dvizhenii-axyz.html
+
+Models:
+man.obj
+
+
+7)
+car.obj - I have found somewhere in the web, but I have not stored the url of actual site. I am sorry.
+
+
+8)
+Skybox textures are from this wonderful site: http://www.humus.name/index.php?page=Textures&&start=0
+
+
+
+If you have copyrights for any of these models or textures - please, contact me, and I will remove them by request.
