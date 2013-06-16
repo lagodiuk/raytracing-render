@@ -22,16 +22,16 @@ struct {
 }
 RenderSceneData;
 
-static inline void
+void
 render_part_of_scene_task(void * arg);
 
-static inline void
-render_part_of_scene(RenderSceneData * data);
+inline void
+render_part_of_scene(const RenderSceneData * const data);
 
-static inline RenderSceneData *
-new_render_scene_data(Scene * scene,
+inline RenderSceneData *
+new_render_scene_data(Scene * const scene,
                       Camera * const camera,
-                      Canvas * canvas);
+                      Canvas * const canvas);
 
 void
 render_scene(Scene * scene,
@@ -79,10 +79,10 @@ render_scene(Scene * scene,
     free(tasks);
 }
 
-static inline RenderSceneData *
-new_render_scene_data(Scene * scene,
+inline RenderSceneData *
+new_render_scene_data(Scene * const scene,
                       Camera * const camera,
-                      Canvas * canvas) {
+                      Canvas * const canvas) {
     
     RenderSceneData * data = malloc(sizeof(RenderSceneData));
     data->scene = scene;
@@ -98,21 +98,21 @@ new_render_scene_data(Scene * scene,
     return data;
 }
 
-static inline void
-render_part_of_scene(RenderSceneData * data) {
+inline void
+render_part_of_scene(const RenderSceneData * const data) {
     
-    Float dx = data->dx;
-    Float dy = data->dy;
+    const Float dx = data->dx;
+    const Float dy = data->dy;
     
-    Scene * scene = data->scene;
-    Camera * camera = data->camera;
+    Scene * const scene = data->scene;
+    Camera * const camera = data->camera;
     Canvas * canvas = data->canvas;
-    Float proj_plane_dist = camera->proj_plane_dist;
+    const Float proj_plane_dist = camera->proj_plane_dist;
     
-    int x_min = data->x_min;
-    int x_max = data->x_max;
-    int y_min = data->y_min;
-    int y_max = data->y_max;
+    const int x_min = data->x_min;
+    const int x_max = data->x_max;
+    const int y_min = data->y_min;
+    const int y_max = data->y_max;
     
     int i;
     int j;
@@ -135,8 +135,8 @@ render_part_of_scene(RenderSceneData * data) {
     }
 }
 
-static inline void
+void
 render_part_of_scene_task(void * arg) {
-    RenderSceneData * data = (RenderSceneData *) arg;
+    const RenderSceneData * const data = (RenderSceneData *) arg;
     render_part_of_scene(data);
 }
