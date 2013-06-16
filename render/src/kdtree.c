@@ -40,7 +40,7 @@ inline KDNode *
 make_leaf(Object3d ** objects,
           int objects_count);
 
-static inline void
+inline void
 find_plane(Object3d ** objects,
            const int objects_count,
            const Voxel v,
@@ -48,40 +48,40 @@ find_plane(Object3d ** objects,
            enum Plane * const p,
            Coord * const c);
 
-static inline int
+inline int
 objects_in_voxel(Object3d ** objects,
                  const int objects_count,
                  const Voxel v);
 
-static inline void
+inline void
 split_voxel(const Voxel v,
             const enum Plane p,
             const Coord c,
             Voxel * const vl,
             Voxel * const vr);
 
-static inline int
+inline int
 filter_overlapped_objects(Object3d ** objects,
                           const int objects_count,
                           const Voxel v);
 
-static inline Boolean
+inline Boolean
 vector_plane_intersection(const Vector3d vector,
                           const Point3d vector_start,
                           const enum Plane plane,
                           const Coord coord,
                           Point3d * const result);
 
-static inline Boolean
+inline Boolean
 voxel_intersection(const Vector3d vector,
                    const Point3d vector_start,
                    const Voxel v);
 
-static inline Boolean
+inline Boolean
 object_in_voxel(Object3d * const obj,
                 const Voxel v);
 
-static inline Boolean
+inline Boolean
 point_in_voxel(const Point3d p,
                const Voxel v);
 
@@ -107,7 +107,7 @@ release_kd_node(KDNode * node);
 // Code
 // --------------------------------------------------------------
 
-static inline Boolean
+inline Boolean
 point_in_voxel(const Point3d p,
                const Voxel v) {
     
@@ -180,7 +180,7 @@ rec_build(Object3d ** objects,
     return node;
 }
 
-static inline int
+inline int
 filter_overlapped_objects(Object3d ** objects,
                           const int objects_count,
                           const Voxel v) {
@@ -209,7 +209,7 @@ filter_overlapped_objects(Object3d ** objects,
     return i;
 }
 
-static inline void
+inline void
 split_voxel(const Voxel v,
             const enum Plane p,
             const Coord c,
@@ -254,7 +254,7 @@ split_voxel(const Voxel v,
  *
  * see: http://stackoverflow.com/a/4633332/653511
  */
-static inline void
+inline void
 find_plane(Object3d ** objects,
            const int objects_count,
            const Voxel v,
@@ -365,7 +365,7 @@ find_plane(Object3d ** objects,
     }
 }
 
-static inline int
+inline int
 objects_in_voxel(Object3d ** objects,
                  const int objects_count,
                  const Voxel v) {
@@ -418,7 +418,7 @@ make_initial_voxel(Object3d ** objects,
 }
 
 
-static inline __hot Boolean
+inline __hot Boolean
 object_in_voxel(Object3d * const obj,
                 const Voxel v) {
     
@@ -454,7 +454,7 @@ make_leaf(Object3d ** objects,
     return leaf;
 }
 
-static inline __hot Boolean
+inline __hot Boolean
 vector_plane_intersection(const Vector3d vector,
                           const Point3d vector_start,
                           const enum Plane plane,
@@ -506,7 +506,7 @@ vector_plane_intersection(const Vector3d vector,
     return True;
 }
 
-static inline Boolean
+inline Boolean
 voxel_intersection(const Vector3d vector,
                    const Point3d vector_start,
                    const Voxel v) {
