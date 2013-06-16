@@ -21,13 +21,13 @@ dot_product(const Vector3d v1,
 }
 
 static inline Float
-module_vector(const Vector3d v) {
-    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+sqr_module_vector(const Vector3d v) {
+    return dot_product(v, v);
 }
 
 static inline Float
-sqr_module_vector(const Vector3d v) {
-    return v.x * v.x + v.y * v.y + v.z * v.z;
+module_vector(const Vector3d v) {
+    return sqrt(sqr_module_vector(v));
 }
 
 static inline Float

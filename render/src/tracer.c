@@ -15,23 +15,31 @@
 // Declarations
 // --------------------------------------------------------------
 
-static inline Boolean
+void
+trace_recursively(const Scene * const scene,
+                  const Point3d vector_start,
+                  const Vector3d vector,
+                  Color * const color,
+                  const Float intensity,
+                  const int recursion_level);
+
+inline Boolean
 is_viewable(const Point3d target_point,
             const Point3d starting_point,
             const Scene * const scene);
 
-static inline Color
+inline Color
 get_lighting_color(const Point3d point,
                    const Vector3d norm_v,
                    const Scene * const scene);
 
-static inline Color
+inline Color
 get_specular_color(const Point3d point,
                    const Vector3d reflected_ray,
                    const Scene * const scene,
                    const Float p);
 
-static inline Color
+inline Color
 calculate_color(const Scene * const scene,
                 const Point3d vector_start,
                 const Vector3d vector,
@@ -40,14 +48,6 @@ calculate_color(const Scene * const scene,
                 const Float * const dist_ptr,
                 const Float intensity,
                 const int recursion_level);
-
-void
-trace_recursively(const Scene * const scene,
-                  const Point3d vector_start,
-                  const Vector3d vector,
-                  Color * const color,
-                  const Float intensity,
-                  const int recursion_level);
 
 // Code
 // --------------------------------------------------------------
@@ -108,7 +108,7 @@ trace_recursively(const Scene * const scene,
     *color = scene->background_color;
 }
 
-static inline Color
+inline Color
 calculate_color(const Scene * const scene,
                 const Point3d vector_start,
                 const Vector3d vector,
@@ -123,9 +123,9 @@ calculate_color(const Scene * const scene,
     const Float dist = *dist_ptr;
     
     
-    Material material = obj->get_material(obj->data, point);
+    const Material material = obj->get_material(obj->data, point);
     
-    Vector3d norm = obj->get_normal_vector(obj->data, point);
+    const Vector3d norm = obj->get_normal_vector(obj->data, point);
     
     Color obj_color = obj->get_color(obj->data, point);
     Color ambient_color;
@@ -215,7 +215,7 @@ calculate_color(const Scene * const scene,
     return result_color;
 }
 
-static inline Color
+inline Color
 get_lighting_color(const Point3d point,
                    const Vector3d norm_v,
                    const Scene * const scene) {
@@ -254,7 +254,7 @@ get_lighting_color(const Point3d point,
     return light_color;
 }
 
-static inline Color
+inline Color
 get_specular_color(const Point3d point,
                    const Vector3d reflected_ray,
                    const Scene * const scene,
@@ -296,13 +296,13 @@ get_specular_color(const Point3d point,
     return light_color;
 }
 
-static inline Boolean
+inline Boolean
 is_viewable(const Point3d target_point,
             const Point3d starting_point,
             const Scene * const scene) {
     
-    Vector3d ray = vector3dp(starting_point, target_point);
-    Float target_dist = module_vector(ray);
+    const Vector3d ray = vector3dp(starting_point, target_point);
+    const Float target_dist = module_vector(ray);
     
     // possibly - redundant code (was added to prevent overflow of Float)
     // TODO: remove
