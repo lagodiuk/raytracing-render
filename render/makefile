@@ -39,7 +39,7 @@ $(lib_dir)/tracer.o: ./src/tracer.c ./include/render.h ./include/color.h $(lib_d
 	$(CC) $(CFLAGS) $(INCLUDES) -c ./src/tracer.c -o $@
 
 $(lib_dir)/render.o: ./src/render.c ./include/render.h ./include/color.h $(lib_dir)
-	$(CC) $(CFLAGS) $(INCLUDES) -c ./src/render.c -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -fopenmp -c ./src/render.c -o $@
 
 $(lib_dir)/triangle.o: ./src/triangle.c ./include/render.h ./include/color.h $(lib_dir)
 	$(CC) $(CFLAGS) $(INCLUDES) -c ./src/triangle.c -o $@

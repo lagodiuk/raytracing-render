@@ -6,6 +6,8 @@
 #include <color.h>
 #include <thread_pool.h>
 
+#include <omp.h>
+
 typedef
 struct {
     Scene * scene;
@@ -50,13 +52,14 @@ render_scene(Scene * scene,
     }
     
     int tasks_num = get_threads_num(thread_pool);
-    Task ** tasks = calloc(tasks_num, sizeof(Task *));
+    //Task ** tasks = calloc(tasks_num, sizeof(Task *));
 
     int slice_width = canvas->w / tasks_num;
     
-    int i;
-    RenderSceneData * data;
+    //int i;
+    //RenderSceneData * data;
     
+    /*
     for(i = 0; i < tasks_num; i++) {
         data = new_render_scene_data(scene, camera, canvas);
 
@@ -77,6 +80,24 @@ render_scene(Scene * scene,
         destroy_task(tasks[i]);
     }
     free(tasks);
+     */
+    
+    omp_set_num_threads(tasks_num);
+    #pragma omp parallel
+    {
+        int i = omp_get_thread_num();
+        
+        RenderSceneData * data = new_render_scene_data(scene, camera, canvas);
+        data->x_min = slice_width * i;
+        data->x_max = slice_width * (i + 1);
+        
+        if(i == tasks_num - 1)
+            data->x_max = canvas->w;
+        
+        render_part_of_scene(data);
+        
+        free(data);
+    }
 }
 
 inline RenderSceneData *

@@ -2,7 +2,7 @@ CC = gcc
 
 LIBPATH	 = -L./render/lib
 INCLUDES = -I./render/include
-LIBS = -lrender -lm -pthread -lpng
+LIBS = -lrender -lm -pthread -lpng -fopenmp
 
 render_lib = ./render/lib/librender.a
 
