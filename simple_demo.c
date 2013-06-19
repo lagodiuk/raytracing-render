@@ -31,7 +31,6 @@ int main() {
     release_canvas(canv);
     release_scene(scene);
     release_camera(camera);
-    release_thread_pool(thread_pool);
     
 	exit(0);
 }
