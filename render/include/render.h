@@ -6,7 +6,6 @@
 #include <float.h>
 #include <color.h>
 #include <canvas.h>
-#include <thread_pool.h>
 
 typedef
 int
@@ -199,7 +198,7 @@ void
 render_scene(Scene * scene,
              Camera * const camera,
              Canvas * canvas,
-             ThreadPool * thread_pool);
+             int num_threads);
 
 /***************************************************
  *                     Scene                       *

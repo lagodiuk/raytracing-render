@@ -4,7 +4,6 @@
 #include <render.h>
 #include <canvas.h>
 #include <color.h>
-#include <thread_pool.h>
 
 #include <omp.h>
 
@@ -24,9 +23,6 @@ struct {
 }
 RenderSceneData;
 
-void
-render_part_of_scene_task(void * arg);
-
 inline void
 render_part_of_scene(const RenderSceneData * const data);
 
@@ -39,9 +35,9 @@ void
 render_scene(Scene * scene,
              Camera * const camera,
              Canvas * canvas,
-             ThreadPool * thread_pool) {
+             int num_threads) {
     
-    if(!thread_pool) {
+    if(num_threads < 2) {
         RenderSceneData * data =
             new_render_scene_data(scene, camera, canvas);
         
@@ -50,39 +46,10 @@ render_scene(Scene * scene,
         free(data);
         return;
     }
-    
-    int tasks_num = get_threads_num(thread_pool);
-    //Task ** tasks = calloc(tasks_num, sizeof(Task *));
 
-    int slice_width = canvas->w / tasks_num;
+    int slice_width = canvas->w / num_threads;
     
-    //int i;
-    //RenderSceneData * data;
-    
-    /*
-    for(i = 0; i < tasks_num; i++) {
-        data = new_render_scene_data(scene, camera, canvas);
-
-        data->x_min = slice_width * i;
-        data->x_max = slice_width * (i + 1);
-        
-        if(i == tasks_num - 1)
-            data->x_max = canvas->w;
-            
-        tasks[i] = new_task(render_part_of_scene_task, data);
-    }
-    
-    execute_tasks(tasks, tasks_num, thread_pool);
-    wait_for_tasks(tasks, tasks_num);
-    
-    for(i = 0; i < tasks_num; i++) {
-        free(tasks[i]->arg);
-        destroy_task(tasks[i]);
-    }
-    free(tasks);
-     */
-    
-    omp_set_num_threads(tasks_num);
+    omp_set_num_threads(num_threads);
     #pragma omp parallel
     {
         int i = omp_get_thread_num();
@@ -91,7 +58,7 @@ render_scene(Scene * scene,
         data->x_min = slice_width * i;
         data->x_max = slice_width * (i + 1);
         
-        if(i == tasks_num - 1)
+        if(i == num_threads - 1)
             data->x_max = canvas->w;
         
         render_part_of_scene(data);
@@ -154,10 +121,4 @@ render_part_of_scene(const RenderSceneData * const data) {
             set_pixel(i, j, col, canvas);
         }
     }
-}
-
-void
-render_part_of_scene_task(void * arg) {
-    const RenderSceneData * const data = (RenderSceneData *) arg;
-    render_part_of_scene(data);
 }
