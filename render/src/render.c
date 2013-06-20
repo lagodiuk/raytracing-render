@@ -9,6 +9,11 @@
 
 #define CHUNK 10
 
+/* collapse is a feature from OpenMP 3 (2008) */
+#if _OPENMP < 200805
+    #define collapse(x) 
+#endif
+
 void
 render_scene(const Scene * const scene,
              const Camera * const camera,
