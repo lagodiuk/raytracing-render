@@ -7,6 +7,8 @@
 
 #include <omp.h>
 
+#define CHUNK 10
+
 void
 render_scene(const Scene * const scene,
              const Camera * const camera,
@@ -19,20 +21,19 @@ render_scene(const Scene * const scene,
     const Float dy = h / 2.0;
     const Float proj_plane_dist = camera->proj_plane_dist;
     
-    const int iter = w * h;
-    
     omp_set_num_threads((num_threads < 2) ? 1 : num_threads);
     
     int i;
-    #pragma omp parallel private(i)
-    #pragma omp for schedule(dynamic)
-    for(i = 0; i < iter; i++) {
-        const int canv_x = i % w;
-        const int canv_y = i / h;
-        const Float x = canv_x - dx;
-        const Float y = canv_y - dy;
-        Color col;
-        trace(scene, camera, vector3df(x, y, proj_plane_dist), &col);        
-        set_pixel(canv_x, canv_y, col, canvas);
+    int j;
+    #pragma omp parallel private(i, j)
+    #pragma omp for collapse(2) schedule(dynamic, CHUNK)
+    for(i = 0; i < w; i++) {
+        for(j = 0; j < h; j++) {
+            const Float x = i - dx;
+            const Float y = j - dy;
+            Color col;
+            trace(scene, camera, vector3df(x, y, proj_plane_dist), &col);
+            set_pixel(i, j, col, canvas);
+        }
     }
 }
