@@ -8,10 +8,10 @@
 #include <omp.h>
 
 void
-render_scene(Scene * scene,
-             Camera * const camera,
+render_scene(const Scene * const scene,
+             const Camera * const camera,
              Canvas * canvas,
-             int num_threads) {
+             const int num_threads) {
     
     const int w = canvas->w;
     const int h = canvas->h;
@@ -21,15 +21,14 @@ render_scene(Scene * scene,
     
     const int iter = w * h;
     
-    num_threads = (num_threads < 2) ? 1 : num_threads;
-    omp_set_num_threads(num_threads);
+    omp_set_num_threads((num_threads < 2) ? 1 : num_threads);
     
     int i;
     #pragma omp parallel private(i)
     #pragma omp for schedule(dynamic)
     for(i = 0; i < iter; i++) {
-        const canv_x = i % w;
-        const canv_y = i / h;
+        const int canv_x = i % w;
+        const int canv_y = i / h;
         const Float x = canv_x - dx;
         const Float y = canv_y - dy;
         Color col;
