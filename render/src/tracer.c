@@ -53,8 +53,8 @@ calculate_color(const Scene * const scene,
 // --------------------------------------------------------------
 
 void
-trace(Scene * scene,
-      Camera * camera,
+trace(const Scene * const scene,
+      const Camera * const camera,
       Vector3d vector,
       Color * color) {
     

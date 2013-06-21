@@ -6,7 +6,6 @@
 #include <float.h>
 #include <color.h>
 #include <canvas.h>
-#include <thread_pool.h>
 
 typedef
 int
@@ -196,10 +195,10 @@ Camera;
  ***************************************************/
 
 void
-render_scene(Scene * scene,
-             Camera * const camera,
+render_scene(const Scene * const scene,
+             const Camera * const camera,
              Canvas * canvas,
-             ThreadPool * thread_pool);
+             const int num_threads);
 
 /***************************************************
  *                     Scene                       *
@@ -228,8 +227,8 @@ void
 set_no_fog(Scene * const scene);
 
 void
-trace(Scene * scene,
-      Camera * camera,
+trace(const Scene * const scene,
+      const Camera * const camera,
       Vector3d vector,
       Color * color);
 
