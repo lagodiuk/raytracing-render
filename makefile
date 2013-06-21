@@ -2,7 +2,7 @@ CC = gcc
 
 LIBPATH	 = -L./render/lib
 INCLUDES = -I./render/include
-LIBS = -lrender -lm -pthread -lpng
+LIBS = -lrender -lm -lpng -fopenmp
 
 render_lib = ./render/lib/librender.a
 
@@ -19,16 +19,6 @@ else
   CC_OPTS_OPEN_GL = -lGL -lglut -DPOSIX
 endif
 OPEN_GL_OPTS := $(CC_OPTS_OPEN_GL)
-
-
-#
-# Demo: thread pool
-#
-
-thread_pool_stress_test: thread_pool_stress_test.c $(render_lib)
-	$(CC) thread_pool_stress_test.c $(INCLUDES) $(LIBPATH) $(LIBS) -o $@
-	./thread_pool_stress_test
-
 
 #
 # Simple demo

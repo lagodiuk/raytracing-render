@@ -48,7 +48,7 @@ Camera * camera = NULL;
 
 Boolean camera_state_changed = False;
 
-ThreadPool * thread_pool = NULL;
+int threads_num = 0;
 
 Canvas * canv = NULL;
 
@@ -82,7 +82,7 @@ static int render_seq(void) {
         render_scene(scene,
                      camera,
                      canv,
-                     thread_pool);
+                     threads_num);
         
         for (j = 0; j < TEX_HEIGHT; ++j) {
             for (i = 0; i < TEX_WIDTH; ++i) {
@@ -257,9 +257,7 @@ int main(int argc, char *argv[]) {
     canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
     
     if(argc > 1) {
-        thread_pool = new_thread_pool(atoi(argv[1]));
-    } else {
-        thread_pool = NULL;
+        threads_num = atoi(argv[1]);
     }
 
     render_seq();
@@ -276,9 +274,7 @@ int main(int argc, char *argv[]) {
      canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
      
      if(argc > 1) {
-        thread_pool = new_thread_pool(atoi(argv[1]));
-     } else {
-        thread_pool = NULL;
+        threads_num = atoi(argv[1]);
      }
      
      // Just simple dummy loop for clarifying absence of memory leaks in render 
@@ -289,7 +285,7 @@ int main(int argc, char *argv[]) {
         render_scene(scene,
                      camera,
                      canv,
-                     thread_pool);
+                     threads_num);
         fps_handler();
      }
     */

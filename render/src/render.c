@@ -4,139 +4,41 @@
 #include <render.h>
 #include <canvas.h>
 #include <color.h>
-#include <thread_pool.h>
 
-typedef
-struct {
-    Scene * scene;
-    Camera * camera;
-    Canvas * canvas;
-    
-    Float dx;
-    Float dy;
-    
-    int x_min;
-    int x_max;
-    int y_min;
-    int y_max;
-}
-RenderSceneData;
+#include <omp.h>
+
+#define CHUNK 10
+
+/* collapse is a feature from OpenMP 3 (2008) */
+#if _OPENMP < 200805
+    #define collapse(x) 
+#endif
 
 void
-render_part_of_scene_task(void * arg);
-
-inline void
-render_part_of_scene(const RenderSceneData * const data);
-
-inline RenderSceneData *
-new_render_scene_data(Scene * const scene,
-                      Camera * const camera,
-                      Canvas * const canvas);
-
-void
-render_scene(Scene * scene,
-             Camera * const camera,
+render_scene(const Scene * const scene,
+             const Camera * const camera,
              Canvas * canvas,
-             ThreadPool * thread_pool) {
+             const int num_threads) {
     
-    if(!thread_pool) {
-        RenderSceneData * data =
-            new_render_scene_data(scene, camera, canvas);
-        
-        render_part_of_scene(data);
-        
-        free(data);
-        return;
-    }
-    
-    int tasks_num = get_threads_num(thread_pool);
-    Task ** tasks = calloc(tasks_num, sizeof(Task *));
-
-    int slice_width = canvas->w / tasks_num;
-    
-    int i;
-    RenderSceneData * data;
-    
-    for(i = 0; i < tasks_num; i++) {
-        data = new_render_scene_data(scene, camera, canvas);
-
-        data->x_min = slice_width * i;
-        data->x_max = slice_width * (i + 1);
-        
-        if(i == tasks_num - 1)
-            data->x_max = canvas->w;
-            
-        tasks[i] = new_task(render_part_of_scene_task, data);
-    }
-    
-    execute_tasks(tasks, tasks_num, thread_pool);
-    wait_for_tasks(tasks, tasks_num);
-    
-    for(i = 0; i < tasks_num; i++) {
-        free(tasks[i]->arg);
-        destroy_task(tasks[i]);
-    }
-    free(tasks);
-}
-
-inline RenderSceneData *
-new_render_scene_data(Scene * const scene,
-                      Camera * const camera,
-                      Canvas * const canvas) {
-    
-    RenderSceneData * data = malloc(sizeof(RenderSceneData));
-    data->scene = scene;
-    data->camera = camera;
-    data->canvas = canvas;
-    data->dx = canvas->w / 2.0;
-    data->dy = canvas->h / 2.0;
-    data->x_min = 0;
-    data->x_max = canvas->w;
-    data->y_min = 0;
-    data->y_max = canvas->h;
-    
-    return data;
-}
-
-inline void
-render_part_of_scene(const RenderSceneData * const data) {
-    
-    const Float dx = data->dx;
-    const Float dy = data->dy;
-    
-    Scene * const scene = data->scene;
-    Camera * const camera = data->camera;
-    Canvas * canvas = data->canvas;
+    const int w = canvas->w;
+    const int h = canvas->h;
+    const Float dx = w / 2.0;
+    const Float dy = h / 2.0;
     const Float proj_plane_dist = camera->proj_plane_dist;
     
-    const int x_min = data->x_min;
-    const int x_max = data->x_max;
-    const int y_min = data->y_min;
-    const int y_max = data->y_max;
+    omp_set_num_threads((num_threads < 2) ? 1 : num_threads);
     
     int i;
     int j;
-    
-    Float x;
-    Float y;
-    
-    Color col;
-    
-    for(i = x_min; i < x_max; i++) {
-        for(j = y_min; j < y_max; j++) {
-            
-            x = i - dx;
-            y = j - dy;
-            
+    #pragma omp parallel private(i, j)
+    #pragma omp for collapse(2) schedule(dynamic, CHUNK)
+    for(i = 0; i < w; i++) {
+        for(j = 0; j < h; j++) {
+            const Float x = i - dx;
+            const Float y = j - dy;
+            Color col;
             trace(scene, camera, vector3df(x, y, proj_plane_dist), &col);
-            
             set_pixel(i, j, col, canvas);
         }
     }
-}
-
-void
-render_part_of_scene_task(void * arg) {
-    const RenderSceneData * const data = (RenderSceneData *) arg;
-    render_part_of_scene(data);
 }
