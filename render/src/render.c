@@ -28,12 +28,13 @@ render_scene(const Scene * const scene,
     
     // TODO: consider possibility to define these OpenMP parameters
     // in declarative style (using directives of preprocessor)
-    omp_set_dynamic(1);
+    //omp_set_dynamic(1);
     omp_set_num_threads((num_threads < 2) ? 1 : num_threads);
     
     int i;
     int j;
-    #pragma omp parallel for private(i, j) collapse(2) schedule(dynamic, CHUNK)
+    #pragma omp parallel private(i, j)
+    #pragma omp for collapse(2) schedule(dynamic, CHUNK)
     for(i = 0; i < w; i++) {
         for(j = 0; j < h; j++) {
             const Float x = i - dx;
