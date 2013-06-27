@@ -1,24 +1,31 @@
-#include <stdio.h>
-#include <math.h>
-
 #include <canvas.h>
 #include <render.h>
 
 #include "scene.h"
 
 #define CANVAS_W 400
-#define CANVAS_H 300
+#define CANVAS_H 350
 
 #define THREADS_NUM 4
 
-int main() {
+int main(void) {
     Scene * scene = makeScene();
-    Canvas * canv = new_canvas(CANVAS_W, CANVAS_H);
-    Camera * camera = new_camera(point3d(0, 100, 0),
-                                 -M_PI / 2, 0, M_PI,
-                                 200);
     
-    rotate_camera(camera, 0, 0, -0.08);
+    Canvas * canv = new_canvas(CANVAS_W, CANVAS_H);
+    
+    Point3d camera_location = point3d(-200, 170, 0);
+    Float focus = 320;
+    Float x_angle = -1.8;
+    Float y_angle = 0;
+    Float z_angle = 3.14;
+    Camera * camera = new_camera(camera_location,
+                                 x_angle,
+                                 y_angle,
+                                 z_angle,
+                                 focus);
+
+    /* Rotate camera if needed */
+    // rotate_camera(camera, 0, 0, -0.08);
     
     render_scene(scene,
                  camera,
