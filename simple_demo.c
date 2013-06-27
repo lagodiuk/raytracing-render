@@ -9,7 +9,6 @@
 #define CANVAS_W 400
 #define CANVAS_H 300
 
-#define PICTURES_COUNT 80
 #define THREADS_NUM 4
 
 int main() {
@@ -34,4 +33,3 @@ int main() {
     
 	exit(0);
 }
-
