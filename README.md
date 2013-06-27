@@ -11,6 +11,7 @@ Developing raytracing render from scratch.
 * Saving rendered image to file (using [libpng](http://en.wikipedia.org/wiki/Libpng))
 * Loading 3D models from [*.obj format](http://en.wikipedia.org/wiki/Wavefront_.obj_file)
 * [Phong shading](http://en.wikipedia.org/wiki/Phong_shading)
+* [Phong reflection model](http://en.wikipedia.org/wiki/Phong_reflection_model)
 * Two types of primitives: triangle and sphere
 * Reflections, shadows, fog effect, multiple light sources
 
