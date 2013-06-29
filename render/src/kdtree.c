@@ -245,12 +245,15 @@ split_voxel(const Voxel v,
 /*
  * Using Surface Area Heuristic (SAH) for finding best split pane
  *
- * SAH = voxel_surface_area * number_of_objects_in_voxel
+ * SAH = 0.5 * voxel_surface_area * number_of_objects_in_voxel
  *
  * splitted_SAH = split_cost
  *                + 0.5 * left_voxel_surface_area * number_of_objects_in_left_voxel
  *                + 0.5 * right_voxel_surface_area * number_of_objects_in_right_voxel
  *
+ * Finding coordinate of split plane (XY, XZ or YZ) which minimizing SAH
+ *
+ * If can't find optimal split plane - returns NONE
  *
  * see: http://stackoverflow.com/a/4633332/653511
  */
@@ -267,16 +270,16 @@ find_plane(Object3d ** objects,
         return;
     }
     
-    Float hx = v.x_max - v.x_min;
-    Float hy = v.y_max - v.y_min;
-    Float hz = v.z_max - v.z_min;
+    const Float hx = v.x_max - v.x_min;
+    const Float hy = v.y_max - v.y_min;
+    const Float hz = v.z_max - v.z_min;
     
     // Calculating square of each side of initial voxel
     Float Sxy = hx * hy;
     Float Sxz = hx * hz;
     Float Syz = hy * hz;
     
-    Float Ssum = Sxy + Sxz + Syz;
+    const Float Ssum = Sxy + Sxz + Syz;
 
     // Let's normalize square of each side of initial voxel
     // to satisfy the following relationship:
@@ -285,12 +288,12 @@ find_plane(Object3d ** objects,
     Sxz /= Ssum;
     Syz /= Ssum;
     
-    int max_splits = MAX_SPLITS_OF_VOXEL;
-    Float split_cost = SPLIT_COST;
+    const int max_splits = MAX_SPLITS_OF_VOXEL;
+    const Float split_cost = SPLIT_COST;
     
     // Assume that at the beginning best SAH has initial voxel
     // SAH = 0.5 * square * objects_count
-    // squre of initial voxel is Sxy + Sxz + Syz = 1
+    // square of initial voxel is Sxy + Sxz + Syz = 1
     Float bestSAH = objects_count;
     // initial voxel doesn't have split pane
     *p = NONE;
@@ -300,22 +303,32 @@ find_plane(Object3d ** objects,
     int i;
     Voxel vl;
     Voxel vr;
-    Float a;
+    Float l;
+    Float r;
+    
+    Float S_split;
+    Float S_non_split;
     
     // Let's find split surface, which have the least SAH
     
-    // XY
+    // TODO: maybe do some refactoring (because of following 3 loops are very similar)
+    
+    // trying to minimize SAH by splitting across XY plane
+    S_split = Sxy;
+    S_non_split = Sxz + Syz;
     for(i = 1; i < max_splits; i++) {
 
-        a = ((float) i) / max_splits;
+        l = ((float) i) / max_splits;
+        r = 1 - l;
         
         // Current coordinate of split surface
-        curr_split_coord.z = v.z_min + a * hz;
+        curr_split_coord.z = v.z_min + l * hz;
         
         split_voxel(v, XY, curr_split_coord, &vl, &vr);
         
-        currSAH = (Sxy +      a  * (Sxz + Syz)) * objects_in_voxel(objects, objects_count, vl)
-                + (Sxy + (1 - a) * (Sxz + Syz)) * objects_in_voxel(objects, objects_count, vr) + split_cost;
+        currSAH = (S_split + l * S_non_split) * objects_in_voxel(objects, objects_count, vl)
+                + (S_split + r * S_non_split) * objects_in_voxel(objects, objects_count, vr)
+                + split_cost;
         
         if(currSAH < bestSAH) {
             bestSAH = currSAH;
@@ -324,18 +337,22 @@ find_plane(Object3d ** objects,
         }
     }
     
-    // XZ
+    // trying to minimize SAH by splitting across XZ plane
+    S_split = Sxz;
+    S_non_split = Sxy + Syz;
     for(i = 1; i < max_splits; i++) {
         
-        a = ((float) i) / max_splits;
+        l = ((float) i) / max_splits;
+        r = 1 - l;
 
         // Current coordinate of split surface       
-        curr_split_coord.y = v.y_min + a * hy;
+        curr_split_coord.y = v.y_min + l * hy;
         
         split_voxel(v, XZ, curr_split_coord, &vl, &vr);
         
-        currSAH = (Sxz +      a  * (Sxy + Syz)) * objects_in_voxel(objects, objects_count, vl)
-                + (Sxz + (1 - a) * (Sxy + Syz)) * objects_in_voxel(objects, objects_count, vr) + split_cost;
+        currSAH = (S_split + l * S_non_split) * objects_in_voxel(objects, objects_count, vl)
+                + (S_split + r * S_non_split) * objects_in_voxel(objects, objects_count, vr)
+                + split_cost;
         
         if(currSAH < bestSAH) {
             bestSAH = currSAH;
@@ -344,18 +361,22 @@ find_plane(Object3d ** objects,
         }
     }
     
-    // YZ
+    // trying to minimize SAH by splitting across YZ plane
+    S_split = Syz;
+    S_non_split = Sxy + Sxz;
     for(i = 1; i < max_splits; i++) {
         
-        a = ((float) i) / max_splits;
+        l = ((float) i) / max_splits;
+        r = 1 - l;
         
         // Current coordinate of split surface
-        curr_split_coord.x = v.x_min + a * hx;
+        curr_split_coord.x = v.x_min + l * hx;
         
         split_voxel(v, YZ, curr_split_coord, &vl, &vr);
         
-        currSAH = (Syz +      a  * (Sxy + Sxz)) * objects_in_voxel(objects, objects_count, vl)
-                + (Syz + (1 - a) * (Sxy + Sxz)) * objects_in_voxel(objects, objects_count, vr) + split_cost;
+        currSAH = (S_split + l * S_non_split) * objects_in_voxel(objects, objects_count, vl)
+                + (S_split + r * S_non_split) * objects_in_voxel(objects, objects_count, vr)
+                + split_cost;
         
         if(currSAH < bestSAH) {
             bestSAH = currSAH;
