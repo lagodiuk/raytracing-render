@@ -20,6 +20,7 @@ Requires [libpng](http://www.libpng.org/pub/png/) to be installed.
 Tested on Mac OS 10.8 with gcc 4.2 and gcc 4.7.
 
 ### Simple Demo ###
+Rendering scene and saving picture into file <i>simple_demo.png</i>
 ```bash
 make simple_demo && ./simple_demo
 ```
@@ -30,8 +31,14 @@ Just using GLUT to display rendered image.
 ```bash
 make demo_gl && ./demo_gl 4
 ```
-The argument 4 is not necessary. It used for defining number of OpenMP threads, for boosting render performance.
+The argument <i>4</i> is not necessary. It used for defining number of OpenMP threads, for boosting render performance.
 You can throw away this argument as well (it means rendering in 1 thread):
 ```bash
 make demo_gl && ./demo_gl
 ```
+* Use controls <b>← ↑ → ↓</b> to rotate camera
+* Use <b>CTRL + ↑</b> or <b>CTRL + ↓</b> to move camera forward or backward
+* Use <b>SHIFT + ↑</b> or <b>SHIFT + ↓</b> to move camera up or down
+* Use <b>SHIFT + ←</b> or <b>SHIFT + →</b> to move camera left or right
+* Use <b>ALT + ↑</b> or <b>ALT + ↓</b> to change focus of camera
+* Use <b>ESC</b> to exit
