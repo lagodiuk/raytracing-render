@@ -1,7 +1,7 @@
 raytracing-render
 =================
 
-Developing raytracing render from scratch.
+Developing [ray tracing](http://en.wikipedia.org/wiki/Ray_tracing_%28graphics%29) render from scratch.
 
 ### Key Features ###
 * Using [k-d tree](http://en.wikipedia.org/wiki/K-d_tree) for fast traversal of 3D scene objects
