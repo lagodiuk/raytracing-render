@@ -15,7 +15,23 @@ Developing raytracing render from scratch.
 * Two types of primitives: triangle and sphere
 * Reflections, shadows, fog effect, multiple light sources
 
+### Requirements ###
+Requires [libpng](http://www.libpng.org/pub/png/) to be installed.
+Tested on Mac OS 10.8 with gcc 4.2 and gcc 4.7.
+
 ### Simple Demo ###
 ```bash
 make simple_demo && ./simple_demo
+```
+
+### Demo with OpenGL front-end ###
+All rendering routines are performing by this render, not OpenGL.
+Just using GLUT to display rendered image.
+```bash
+make demo_gl && ./demo_gl 4
+```
+The argument 4 is not necessary. It used for defining number of OpenMP threads, for boosting render performance.
+You can throw away this argument as well (it means rendering in 1 thread):
+```bash
+make demo_gl && ./demo_gl
 ```
