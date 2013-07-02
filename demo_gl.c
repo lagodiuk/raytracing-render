@@ -12,7 +12,6 @@
     #include <OpenGL/gl.h>
     #include <GLUT/glut.h>
 #endif
-
 // The Rest of the World
 #ifdef POSIX
     #include <GL/gl.h>
@@ -31,15 +30,17 @@
 
 #include "scene.h"
 
-GLint win_width = 512;
-GLint win_height = 512;
+#define DX 10
+#define DY 10
+#define DZ 10
+#define D_FOCUS 5
+#define D_ANGLE 0.05
 
 #define TEX_WIDTH  256
 #define TEX_HEIGHT 256
 
-#define DX 10
-#define DY 10
-#define DZ 10
+GLint win_width = 512;
+GLint win_height = 512;
 
 
 typedef struct {
@@ -66,6 +67,17 @@ pixel_t canvas[TEX_WIDTH][TEX_HEIGHT];
 #define FPS_INTERVAL    10
 int frames = 0;
 struct timeval last_time;
+
+
+void
+processControls(int key,
+                int x,
+                int y);
+
+void
+processExit(unsigned char key,
+            int x,
+            int y);
 
 void fps_handler(void) {
     ++frames;
@@ -128,23 +140,8 @@ void display(void) {
 
     glFlush();
 
-    GLenum glerr = glGetError();
-    if (glerr) printf(__FILE__": glGetError() -> %d\n", glerr);
-
     fps_handler();
 }
-
-void reshape(GLint w, GLint h) {
-    win_width = w;
-    win_height = h;
-    glViewport(0, 0, w, h);
-    glutPostRedisplay();
-}
-
-static inline uint8_t toGLubyte(GLfloat clampf) {
-    return (uint8_t)(256 * clampf - 1);
-}
-
 
 void animate() {
     render_seq();
@@ -152,89 +149,10 @@ void animate() {
     glEnable(GL_TEXTURE_2D);
 
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, TEX_WIDTH, TEX_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, canvas);
-    GLenum glerr = glGetError();
-    if (glerr) printf("glGetError() -> %d\n", glerr);
 
     glDisable(GL_TEXTURE_2D);
 
     glutPostRedisplay();
-}
-
-void processNormalKeys(unsigned char key, int x, int y) {
-    if (key == 27)
-		exit(0);
-}
-
-void processSpecialKeys(int key, int x, int y) {
-    int modifiers = glutGetModifiers();
-    switch(key) {
-            
-		case GLUT_KEY_UP :
-            switch(modifiers) {
-                case GLUT_ACTIVE_CTRL :
-                    move_camera(camera, vector3df(0, 0, DZ));
-                    break;
-                case GLUT_ACTIVE_ALT :
-                    camera->proj_plane_dist += 5;
-                    break;
-                case GLUT_ACTIVE_SHIFT :
-                    move_camera(camera, vector3df(0, -DY, 0));
-                    break;
-                default :
-                    rotate_camera(camera, 0.05, 0, 0);
-                    break;                    
-            }
-            camera_state_changed = True;
-            break;
-            
-		case GLUT_KEY_DOWN :
-            switch(modifiers) {
-                case GLUT_ACTIVE_CTRL :
-                    move_camera(camera, vector3df(0, 0, -DZ));
-                    break;
-                case GLUT_ACTIVE_ALT :
-                    camera->proj_plane_dist -= 5;
-                    break;
-                case GLUT_ACTIVE_SHIFT :
-                    move_camera(camera, vector3df(0, DY, 0));
-                    break;
-                default :
-                    rotate_camera(camera, -0.05, 0, 0);
-                    break;
-            }
-            camera_state_changed = True;
-            break;
-            
-        case GLUT_KEY_LEFT :
-            switch(modifiers) {
-                case GLUT_ACTIVE_SHIFT :
-                    move_camera(camera, vector3df(DX, 0, 0));
-                    break;
-                case GLUT_ACTIVE_ALT :
-                    rotate_camera(camera, 0, -0.05, 0);
-                    break;
-                default :
-                    rotate_camera(camera, 0, 0, -0.05);
-                    break;
-            }
-            camera_state_changed = True;
-            break;
-            
-		case GLUT_KEY_RIGHT :
-            switch(modifiers) {
-                case GLUT_ACTIVE_SHIFT :
-                    move_camera(camera, vector3df(-DX, 0, 0));
-                    break;
-                case GLUT_ACTIVE_ALT :
-                    rotate_camera(camera, 0, 0.05, 0);
-                    break;
-                default :
-                    rotate_camera(camera, 0, 0, 0.05);
-                    break;
-            }
-            camera_state_changed = True;
-            break;
-	}
 }
 
 int main(int argc, char *argv[]) {
@@ -245,8 +163,8 @@ int main(int argc, char *argv[]) {
 
     glutCreateWindow("Raytracing");
     
-    glutKeyboardFunc(processNormalKeys);
-    glutSpecialFunc(processSpecialKeys);
+    glutKeyboardFunc(processExit);
+    glutSpecialFunc(processControls);
 
     glClearColor(0.0, 1.0, 0.0, 1.0);
     glViewport(0, 0, win_width, win_height);
@@ -276,31 +194,115 @@ int main(int argc, char *argv[]) {
         
     glutMainLoop();
 
+    return 0;
+}
 
-    /*
-     scene = makeScene();
+void
+processControls(int key,
+                   int x,
+                   int y) {
     
-     camera = new_camera(point3d(0, 100, 0), -M_PI / 2, 0, M_PI, 200);
+    int modifiers = glutGetModifiers();
+    switch(key) {
+            
+		case GLUT_KEY_UP :
+            switch(modifiers) {
+                case GLUT_ACTIVE_CTRL :
+                    move_camera(camera, vector3df(0, 0, DZ));
+                    break;
+                case GLUT_ACTIVE_ALT :
+                    camera->proj_plane_dist += D_FOCUS;
+                    break;
+                case GLUT_ACTIVE_SHIFT :
+                    move_camera(camera, vector3df(0, -DY, 0));
+                    break;
+                default :
+                    rotate_camera(camera, D_ANGLE, 0, 0);
+                    break;
+            }
+            camera_state_changed = True;
+            break;
+            
+		case GLUT_KEY_DOWN :
+            switch(modifiers) {
+                case GLUT_ACTIVE_CTRL :
+                    move_camera(camera, vector3df(0, 0, -DZ));
+                    break;
+                case GLUT_ACTIVE_ALT :
+                    camera->proj_plane_dist -= D_FOCUS;
+                    break;
+                case GLUT_ACTIVE_SHIFT :
+                    move_camera(camera, vector3df(0, DY, 0));
+                    break;
+                default :
+                    rotate_camera(camera, -D_ANGLE, 0, 0);
+                    break;
+            }
+            camera_state_changed = True;
+            break;
+            
+        case GLUT_KEY_LEFT :
+            switch(modifiers) {
+                case GLUT_ACTIVE_SHIFT :
+                    move_camera(camera, vector3df(DX, 0, 0));
+                    break;
+                case GLUT_ACTIVE_ALT :
+                    rotate_camera(camera, 0, -D_ANGLE, 0);
+                    break;
+                default :
+                    rotate_camera(camera, 0, 0, -D_ANGLE);
+                    break;
+            }
+            camera_state_changed = True;
+            break;
+            
+		case GLUT_KEY_RIGHT :
+            switch(modifiers) {
+                case GLUT_ACTIVE_SHIFT :
+                    move_camera(camera, vector3df(-DX, 0, 0));
+                    break;
+                case GLUT_ACTIVE_ALT :
+                    rotate_camera(camera, 0, D_ANGLE, 0);
+                    break;
+                default :
+                    rotate_camera(camera, 0, 0, D_ANGLE);
+                    break;
+            }
+            camera_state_changed = True;
+            break;
+	}
+}
+
+void
+processExit(unsigned char key,
+                  int x,
+                  int y) {
+    if (key == 27) {
+        exit(0);
+    }
+}
+
+/* Just simple dummy loop for clarifying absence of memory leaks in render */
+void
+dummy_test(int argc,
+           char *argv[]) {
     
-     canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
-     
-     if(argc > 1) {
+    scene = makeScene();
+    
+    camera = new_camera(point3d(0, 100, 0), -M_PI / 2, 0, M_PI, 200);
+    
+    canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
+    
+    if(argc > 1) {
         threads_num = atoi(argv[1]);
-     }
-     
-     // Just simple dummy loop for clarifying absence of memory leaks in render 
-     // (separated from OpenGL routines)
-     
-     for(;;) {
+    }
+    
+    for(;;) {
         rotate_camera(camera, 0.05, 0, 0);
         render_scene(scene,
                      camera,
                      canv,
                      threads_num);
         fps_handler();
-     }
-    */
-
-    return 0;
+    }
 }
-
