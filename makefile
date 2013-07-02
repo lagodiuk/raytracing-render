@@ -38,7 +38,7 @@ run_demo_gl: demo_gl
 	./$< $(THREADS_NUM)
 
 demo_gl: $(render_lib) scene.o scene.h demo_gl.c
-	$(CC) $(CC_OPTS) demo_gl.c scene.o $(OPEN_GL_OPTS) $(LIBPATH) $(INCLUDES) $(LIBS) -o $@
+	$(CC) $(CC_OPTS) -fopenmp demo_gl.c scene.o $(OPEN_GL_OPTS) $(LIBPATH) $(INCLUDES) $(LIBS) -o $@
 
 
 #

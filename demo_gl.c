@@ -22,6 +22,13 @@
 #include <canvas.h>
 #include <render.h>
 
+#include <omp.h>
+/* collapse is a feature from OpenMP 3 (2008) */
+#if _OPENMP < 200805
+    #define collapse(x)
+#endif
+#define CHUNK 50
+
 #include "scene.h"
 
 GLint win_width = 512;
@@ -84,6 +91,10 @@ static int render_seq(void) {
                      canv,
                      threads_num);
         
+        /* Copying rendered image from Canvas * canv to pixel_t canvas[TEX_WIDTH][TEX_HEIGHT]*/
+        omp_set_num_threads((threads_num < 2) ? 1 : threads_num);
+        #pragma omp parallel private(i, j, px, c)
+        #pragma omp for collapse(2) schedule(dynamic, CHUNK)
         for (j = 0; j < TEX_HEIGHT; ++j) {
             for (i = 0; i < TEX_WIDTH; ++i) {
                 c = get_pixel(i, j, canv);
