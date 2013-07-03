@@ -1,7 +1,7 @@
 CC = gcc
 
-LIBPATH	 = -L./render/lib
-INCLUDES = -I./render/include
+LIBPATH	 = -L../render/lib
+INCLUDES = -I../render/include
 LIBS = -lrender -lm -lpng -fopenmp
 
 render_lib = ./render/lib/librender.a
@@ -54,7 +54,7 @@ scene.o: scene.c
 #
 
 $(render_lib):
-	(cd ./render && make ./lib/librender.a)
+	(cd ../render && make render_lib)
 
 
 #
@@ -63,7 +63,7 @@ $(render_lib):
 
 .PHONY: clean
 clean:
-	(cd ./render && make clean)	    &&\
+	(cd ../render && make clean)	    &&\
 	rm -f *.o;                            \
 	rm -f ./simple_demo ./thread_pool_stress_test ./demo_gl;     \
 	rm -f *.mp4;                          \
