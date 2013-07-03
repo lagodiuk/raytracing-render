@@ -1,11 +1,17 @@
+/*
+ *
+ * This demo use GLUT as front-end to ray tracing render:
+ * - displaying rendered scene in window
+ * - handling keyboard controls for moving and rotating the camera
+ *
+ * TODO: maybe need some refactoring, as I am totally newbie to OpenGL and GLUT
+ *
+ */
+
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/time.h>
 
 // Mac OS X
 #ifdef DARWIN
@@ -39,35 +45,27 @@
 #define TEX_WIDTH  256
 #define TEX_HEIGHT 256
 
-GLint win_width = 512;
-GLint win_height = 512;
-
-
-typedef struct {
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-} pixel_t;
-
-
 Scene * scene = NULL;
-
 Camera * camera = NULL;
+Canvas * canv = NULL;
 
 Boolean camera_state_changed = False;
 
 int threads_num = 0;
 
-Canvas * canv = NULL;
+typedef
+struct {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+}
+pixel_t;
+
+GLint win_width = 512;
+GLint win_height = 512;
 
 GLuint tex;
 pixel_t canvas[TEX_WIDTH][TEX_HEIGHT];
-
-// Needed for FPS counting
-#define FPS_INTERVAL    10
-int frames = 0;
-struct timeval last_time;
-
 
 void
 processControls(int key,
@@ -79,23 +77,96 @@ processExit(unsigned char key,
             int x,
             int y);
 
-void fps_handler(void) {
-    ++frames;
-    struct timeval this_time = { 0 };
-    gettimeofday(&this_time, NULL);
-    if (this_time.tv_sec >= last_time.tv_sec + FPS_INTERVAL) {
-        float dt = this_time.tv_sec - last_time.tv_sec;
-        last_time = this_time;
-        float fps = frames / dt;
-        printf("FPS: %f\n", fps);
-        frames = 0;
-    }
+void
+init_scene_and_camera(void);
+
+void
+glut_routines(void);
+
+void
+display(void);
+
+void
+animate(void);
+
+void
+render_seq(void);
+
+int
+main(int argc,
+     char *argv[]) {
+    
+    init_scene_and_camera();
+    threads_num = (argc > 1) ? atoi(argv[1]) : 1;
+
+    glutInit(&argc, argv);
+    glut_routines();
+    glutMainLoop();
+
+    return 0;
 }
 
-static int render_seq(void) {
-    pixel_t px;
-    GLint i, j;
-    Color c;
+void
+init_scene_and_camera(void) {
+    
+    scene = makeScene();
+    
+    Float focus = 200;
+    Float x_angle = -M_PI / 2;
+    Float y_angle = 0;
+    Float z_angle = M_PI;
+    
+    camera = new_camera(point3d(0, 100, 0),
+                        x_angle,
+                        y_angle,
+                        z_angle,
+                        focus);
+    
+    camera_state_changed = True;
+    
+    canv = new_canvas(TEX_WIDTH,
+                      TEX_HEIGHT);
+}
+
+void
+glut_routines(void) {
+    glutInitWindowSize(win_width, win_height);
+    glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+    
+    glutCreateWindow("Raytracing");
+    
+    glutKeyboardFunc(processExit);
+    glutSpecialFunc(processControls);
+    
+    glClearColor(0.0, 1.0, 0.0, 1.0);
+    glViewport(0, 0, win_width, win_height);
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    glutDisplayFunc(display);
+    glutIdleFunc(animate);
+    
+    render_seq();
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_WIDTH, TEX_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, canvas);
+}
+
+void
+animate(void) {
+    
+    render_seq();
+    
+    glEnable(GL_TEXTURE_2D);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, TEX_WIDTH, TEX_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, canvas);
+    glDisable(GL_TEXTURE_2D);
+    glutPostRedisplay();
+}
+
+void
+render_seq(void) {
     
     if(camera_state_changed) {
         render_scene(scene,
@@ -103,8 +174,14 @@ static int render_seq(void) {
                      canv,
                      threads_num);
         
+        pixel_t px;
+        GLint i;
+        GLint j;
+        Color c;
+        
         /* Copying rendered image from Canvas * canv to pixel_t canvas[TEX_WIDTH][TEX_HEIGHT]*/
-        omp_set_num_threads((threads_num < 2) ? 1 : threads_num);
+        // TODO: memcpy entire arrays
+        omp_set_num_threads(threads_num);
         #pragma omp parallel private(i, j, px, c)
         #pragma omp for collapse(2) schedule(dynamic, CHUNK)
         for (j = 0; j < TEX_HEIGHT; ++j) {
@@ -116,91 +193,35 @@ static int render_seq(void) {
         }
         
         camera_state_changed = False;
-    }    
-    
-    return 0;
+    }
 }
 
-void display(void) {
+void
+display(void) {
+    
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
-
+    
     glEnable(GL_TEXTURE_2D);
     glBegin(GL_QUADS);
-     glTexCoord2f(0.0, 0.0);
-     glVertex2f( 1.0,  1.0);
-     glTexCoord2f(1.0, 0.0);
-     glVertex2f(-1.0,  1.0);
-     glTexCoord2f(1.0, 1.0);
-     glVertex2f(-1.0, -1.0);
-     glTexCoord2f(0.0, 1.0);
-     glVertex2f( 1.0, -1.0);
+    glTexCoord2f(0.0, 0.0);
+    glVertex2f( 1.0,  1.0);
+    glTexCoord2f(1.0, 0.0);
+    glVertex2f(-1.0,  1.0);
+    glTexCoord2f(1.0, 1.0);
+    glVertex2f(-1.0, -1.0);
+    glTexCoord2f(0.0, 1.0);
+    glVertex2f( 1.0, -1.0);
     glEnd();
     glDisable(GL_TEXTURE_2D);
-
+    
     glFlush();
-
-    fps_handler();
-}
-
-void animate() {
-    render_seq();
-
-    glEnable(GL_TEXTURE_2D);
-
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, TEX_WIDTH, TEX_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, canvas);
-
-    glDisable(GL_TEXTURE_2D);
-
-    glutPostRedisplay();
-}
-
-int main(int argc, char *argv[]) {
-
-    glutInit(&argc, argv);
-    glutInitWindowSize(win_width, win_height);
-    glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
-
-    glutCreateWindow("Raytracing");
-    
-    glutKeyboardFunc(processExit);
-    glutSpecialFunc(processControls);
-
-    glClearColor(0.0, 1.0, 0.0, 1.0);
-    glViewport(0, 0, win_width, win_height);
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glutDisplayFunc(display);
-    glutIdleFunc(animate);
-
-    scene = makeScene();
-    
-    camera = new_camera(point3d(0, 100, 0), -M_PI / 2, 0, M_PI, 200);
-    camera_state_changed = True;
-    
-    canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
-    
-    if(argc > 1) {
-        threads_num = atoi(argv[1]);
-    }
-
-    render_seq();
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TEX_WIDTH, TEX_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, canvas);
-        
-    glutMainLoop();
-
-    return 0;
 }
 
 void
 processControls(int key,
-                   int x,
-                   int y) {
+                int x,
+                int y) {
     
     int modifiers = glutGetModifiers();
     switch(key) {
@@ -208,16 +229,19 @@ processControls(int key,
 		case GLUT_KEY_UP :
             switch(modifiers) {
                 case GLUT_ACTIVE_CTRL :
-                    move_camera(camera, vector3df(0, 0, DZ));
+                    move_camera(camera,
+                                vector3df(0, 0, DZ));
                     break;
                 case GLUT_ACTIVE_ALT :
                     camera->proj_plane_dist += D_FOCUS;
                     break;
                 case GLUT_ACTIVE_SHIFT :
-                    move_camera(camera, vector3df(0, -DY, 0));
+                    move_camera(camera,
+                                vector3df(0, -DY, 0));
                     break;
                 default :
-                    rotate_camera(camera, D_ANGLE, 0, 0);
+                    rotate_camera(camera,
+                                  D_ANGLE, 0, 0);
                     break;
             }
             camera_state_changed = True;
@@ -226,16 +250,19 @@ processControls(int key,
 		case GLUT_KEY_DOWN :
             switch(modifiers) {
                 case GLUT_ACTIVE_CTRL :
-                    move_camera(camera, vector3df(0, 0, -DZ));
+                    move_camera(camera,
+                                vector3df(0, 0, -DZ));
                     break;
                 case GLUT_ACTIVE_ALT :
                     camera->proj_plane_dist -= D_FOCUS;
                     break;
                 case GLUT_ACTIVE_SHIFT :
-                    move_camera(camera, vector3df(0, DY, 0));
+                    move_camera(camera,
+                                vector3df(0, DY, 0));
                     break;
                 default :
-                    rotate_camera(camera, -D_ANGLE, 0, 0);
+                    rotate_camera(camera,
+                                  -D_ANGLE, 0, 0);
                     break;
             }
             camera_state_changed = True;
@@ -244,13 +271,16 @@ processControls(int key,
         case GLUT_KEY_LEFT :
             switch(modifiers) {
                 case GLUT_ACTIVE_SHIFT :
-                    move_camera(camera, vector3df(DX, 0, 0));
+                    move_camera(camera,
+                                vector3df(DX, 0, 0));
                     break;
                 case GLUT_ACTIVE_ALT :
-                    rotate_camera(camera, 0, -D_ANGLE, 0);
+                    rotate_camera(camera,
+                                  0, -D_ANGLE, 0);
                     break;
                 default :
-                    rotate_camera(camera, 0, 0, -D_ANGLE);
+                    rotate_camera(camera,
+                                  0, 0, -D_ANGLE);
                     break;
             }
             camera_state_changed = True;
@@ -259,13 +289,16 @@ processControls(int key,
 		case GLUT_KEY_RIGHT :
             switch(modifiers) {
                 case GLUT_ACTIVE_SHIFT :
-                    move_camera(camera, vector3df(-DX, 0, 0));
+                    move_camera(camera,
+                                vector3df(-DX, 0, 0));
                     break;
                 case GLUT_ACTIVE_ALT :
-                    rotate_camera(camera, 0, D_ANGLE, 0);
+                    rotate_camera(camera,
+                                  0, D_ANGLE, 0);
                     break;
                 default :
-                    rotate_camera(camera, 0, 0, D_ANGLE);
+                    rotate_camera(camera,
+                                  0, 0, D_ANGLE);
                     break;
             }
             camera_state_changed = True;
@@ -275,34 +308,10 @@ processControls(int key,
 
 void
 processExit(unsigned char key,
-                  int x,
-                  int y) {
+            int x,
+            int y) {
+    
     if (key == 27) {
         exit(0);
-    }
-}
-
-/* Just simple dummy loop for clarifying absence of memory leaks in render */
-void
-dummy_test(int argc,
-           char *argv[]) {
-    
-    scene = makeScene();
-    
-    camera = new_camera(point3d(0, 100, 0), -M_PI / 2, 0, M_PI, 200);
-    
-    canv = new_canvas(TEX_WIDTH, TEX_HEIGHT);
-    
-    if(argc > 1) {
-        threads_num = atoi(argv[1]);
-    }
-    
-    for(;;) {
-        rotate_camera(camera, 0.05, 0, 0);
-        render_scene(scene,
-                     camera,
-                     canv,
-                     threads_num);
-        fps_handler();
     }
 }
