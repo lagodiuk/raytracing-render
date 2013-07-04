@@ -40,6 +40,8 @@ You will get following image:
 ![Sphere-triangle-and-cow](https://raw.github.com/lagodiuk/raytracing-render/master/img/example.png)
 
 ```c
+#include <stdio.h>
+
 #include <canvas.h>
 #include <render.h>
 #include <obj_loader.h>
@@ -47,11 +49,12 @@ You will get following image:
 #define CANVAS_W 400
 #define CANVAS_H 400
 
+// Boost by rendering in parallel
 #define THREADS_NUM 4
 
 #define BACKGROUND_COLOR rgb(255, 255, 255)
 
-#define MAX_OBJECTS_NUMBER 80000
+#define MAX_OBJECTS_NUMBER 10000
 #define MAX_LIGHT_SOURCES_NUMBER 5
 
 int
@@ -74,7 +77,7 @@ main(void) {
     // Adding sphere to the scene
     add_object(scene,
                sphere);
-
+    
     // Allocating new triangle
     Object3d * triangle = new_triangle(point3d(-700, -700, -130), // vertex 1
                                        point3d( 700, -700, -130), // vertex 2
@@ -87,31 +90,32 @@ main(void) {
     add_object(scene,
                triangle);
     
-    // Loading 3D model from *.obj file
+    // Loading 3D model of cow from *.obj file
     // defining transformations and parameters of 3D model
     // TODO: must be refactored...
     SceneFaceHandlerParams load_params =
-    new_scene_face_handler_params(scene,  
-				  // scale:
-                                  40,                      
-				  // move dx, dy, dz:
-                                  -150, -100, 30,            
-				  // rotate around axises x, y, z:
-                                  0, 0, 0,                   
-				  // color
-                                  rgb(200, 200, 50),        
-				  // surface params 
+    new_scene_face_handler_params(scene,
+                                  // scale:
+                                  40,
+                                  // move dx, dy, dz:
+                                  -150, -100, 30,
+                                  // rotate around axises x, y, z:
+                                  0, 0, 0,
+                                  // color
+                                  rgb(200, 200, 50),
+                                  // surface params
                                   material(2, 3, 0, 0, 0, 0)
                                   );
-
+    
     load_obj("./demo/models/cow.obj",
-	     // default handler which adding polygons of 3D model to scene:
+             // default handler which adding polygons of 3D model to scene:
              scene_face_handler,
              &load_params);
     
-    // This function must be called after adding all objects to the scene
-    // (initiates bulding of k-d tree of entire scene)
+    // This function is requried (bulding k-d tree of entire scene)
     prepare_scene(scene);
+    
+    printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
     
     // Allocating new light source
     Color light_source_color = rgb(255, 255, 255);
@@ -125,7 +129,7 @@ main(void) {
     // Adding fog
     Float density = 0.002;
     set_exponential_fog(scene, density);
-
+    
     // Allocating camera
     // TODO: It's a pity, but quaternions are not implemented yet :(
     Point3d camera_location = point3d(0, 500, 0);
@@ -138,7 +142,7 @@ main(void) {
                                  y_angle,
                                  z_angle,
                                  focus);
-
+    
     // Rotate camera if needed
     // rotate_camera(camera, d_x_angle, d_y_angle, d_z_angle);
     
@@ -157,7 +161,7 @@ main(void) {
     // Saving rendered image in PNG format
     write_png("example.png",
               canvas);
-
+    
     release_canvas(canvas);
     release_scene(scene);
     release_camera(camera);
