@@ -100,8 +100,8 @@ release_object3d(Object3d * obj) {
 }
 
 LightSource3d *
-light_source_3d(const Point3d location,
-                const Color color) {
+new_light_source(const Point3d location,
+                 const Color color) {
     
 	LightSource3d * ls_p = malloc(sizeof(LightSource3d));
     

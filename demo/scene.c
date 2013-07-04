@@ -64,7 +64,7 @@ add_skybox(Scene * scene,
 Scene * makeScene(void) {    
     Scene * scene = new_scene(MAX_POLYGONS_NUMBER, MAX_LIGHT_SOURCES_NUMBER, BACKGROUND_COLOR);
     
-    add_light_source(scene, light_source_3d(point3d(-300, 300, 300), rgb(255, 255, 255)));
+    add_light_source(scene, new_light_source(point3d(-300, 300, 300), rgb(255, 255, 255)));
     //set_exponential_fog(scene, 0.001);
 
     //create_cube(scene);
