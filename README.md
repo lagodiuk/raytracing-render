@@ -16,25 +16,14 @@ Developing [ray tracing](http://en.wikipedia.org/wiki/Ray_tracing_%28graphics%29
 * Reflections, shadows, fog effect, multiple light sources
 
 ### Requirements ###
-Requires [libpng](http://www.libpng.org/pub/png/) to be installed.
+Requires [libpng](http://www.libpng.org/pub/png/) to be installed.<br/>
 Tested on Mac OS 10.8 with gcc 4.2 and gcc 4.7.
 
-### Simple Demo ###
-Rendering scene and saving picture to file <i>./demo/simple_demo.png</i>
-```bash
-(cd ./demo/ && make simple_demo && ./simple_demo)
-```
-
-### Demo with OpenGL front-end ###
+### Demo with GLUT front-end ###
 All rendering routines are performing by this render, not OpenGL.
 Just using GLUT to display rendered image.
 ```bash
-(cd ./demo/ && make demo_gl && ./demo_gl 4)
-```
-The argument <i>4</i> is not necessary. It used for defining number of OpenMP threads, for boosting render performance.
-You can throw away this argument as well (it means rendering in 1 thread):
-```bash
-(cd ./demo/ && make demo_gl && ./demo_gl)
+make run_demo_gl
 ```
 * Use controls <b>← ↑ → ↓</b> to rotate camera
 * Use <b>CTRL + ↑</b> or <b>CTRL + ↓</b> to move camera forward or backward
@@ -99,19 +88,25 @@ main(void) {
                triangle);
     
     // Loading 3D model from *.obj file
-    // these params are needed for transformation of 3D model
-    // and automatic adding it to the scene
+    // defining transformations and parameters of 3D model
+    // TODO: must be refactored...
     SceneFaceHandlerParams load_params =
-    new_scene_face_handler_params(scene,                     // pointer to the scene
-                                  40,                        // scale
-                                  -150, -100, 30,            // move: dx, dy, dz
-                                  0, 0, 0,                   // rotate: angle_x, angle_y, angle_z
-                                  rgb(200, 200, 50),         // color
-                                  material(2, 3, 0, 0, 0, 0) // surface params
+    new_scene_face_handler_params(scene,  
+				  // scale:
+                                  40,                      
+				  // move dx, dy, dz:
+                                  -150, -100, 30,            
+				  // rotate around axises x, y, z:
+                                  0, 0, 0,                   
+				  // color
+                                  rgb(200, 200, 50),        
+				  // surface params 
+                                  material(2, 3, 0, 0, 0, 0)
                                   );
 
     load_obj("./demo/models/cow.obj",
-             scene_face_handler, // default handler which can parse *.obj files
+	     // default handler which adding polygons of 3D model to scene:
+             scene_face_handler,
              &load_params);
     
     // This function must be called after adding all objects to the scene
@@ -167,12 +162,10 @@ main(void) {
     release_scene(scene);
     release_camera(camera);
     
-	return 0;
+    return 0;
 }
 ```
 Launch it
 ```bash
-(cd render/ && make render_lib) && \
-gcc -I./render/include -L./render/lib/ -lrender -lpng -fopenmp example.c -o example && \
-./example
+make example && ./example
 ```
