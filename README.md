@@ -45,6 +45,11 @@ You can throw away this argument as well (it means rendering in 1 thread):
 
 ### Create demo from scratch ###
 
+Lets create example application from scratch :)
+You will get following image:
+
+![Sphere-triangle-and-cow](https://raw.github.com/lagodiuk/raytracing-render/master/img/example.png)
+
 ```c
 #include <canvas.h>
 #include <render.h>
@@ -95,14 +100,16 @@ main(void) {
     
     // Loading 3D model from *.obj file
     // these params are needed for transformation of 3D model
+    // and automatic adding it to the scene
     SceneFaceHandlerParams load_params =
-            new_scene_face_handler_params(scene,                     // pointer to the scene
-                                          40,                        // scale
-                                          -150, -100, 30,            // move: dx, dy, dz
-                                          0, 0, 0,                   // rotate: angle_x, angle_y, angle_z
-                                          rgb(200, 200, 50),         // color
-                                          material(2, 3, 0, 0, 0, 0) // surface params
-                                          );
+    new_scene_face_handler_params(scene,                     // pointer to the scene
+                                  40,                        // scale
+                                  -150, -100, 30,            // move: dx, dy, dz
+                                  0, 0, 0,                   // rotate: angle_x, angle_y, angle_z
+                                  rgb(200, 200, 50),         // color
+                                  material(2, 3, 0, 0, 0, 0) // surface params
+                                  );
+
     load_obj("./demo/models/cow.obj",
              scene_face_handler, // default handler which can parse *.obj files
              &load_params);
@@ -169,6 +176,3 @@ Launch it
 gcc -I./render/include -L./render/lib/ -lrender -lpng -fopenmp example.c -o example && \
 ./example
 ```
-
-You will get following image:
-![Sphere-triangle-and-cow](https://raw.github.com/lagodiuk/raytracing-render/master/img/example.png)
