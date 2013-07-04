@@ -1,5 +1,6 @@
 #include <canvas.h>
 #include <render.h>
+#include <obj_loader.h>
 
 #define CANVAS_W 400
 #define CANVAS_H 400
@@ -8,7 +9,7 @@
 
 #define BACKGROUND_COLOR rgb(255, 255, 255)
 
-#define MAX_OBJECTS_NUMBER 10000
+#define MAX_OBJECTS_NUMBER 80000
 #define MAX_LIGHT_SOURCES_NUMBER 5
 
 int
@@ -31,6 +32,32 @@ main(void) {
     // Adding sphere to the scene
     add_object(scene,
                sphere);
+
+    // Allocating new triangle
+    Object3d * triangle = new_triangle(point3d(-700, -700, -130), // vertex 1
+                                       point3d( 700, -700, -130), // vertex 2
+                                       point3d(   0,  400, -130), // vertex 3
+                                       rgb(100, 255, 30),         // color
+                                       material(1, 6, 0, 2, 0, 0) // surface params
+                                       );
+    
+    // Adding triangle to the scene
+    add_object(scene,
+               triangle);
+    
+    // Loading 3D model from *.obj file
+    // these params are needed for transformation of 3D model
+    SceneFaceHandlerParams load_params =
+            new_scene_face_handler_params(scene,                     // pointer to the scene
+                                          40,                        // scale
+                                          -150, -100, 30,            // move: dx, dy, dz
+                                          0, 0, 0,                   // rotate: angle_x, angle_y, angle_z
+                                          rgb(200, 200, 50),         // color
+                                          material(2, 3, 0, 0, 0, 0) // surface params
+                                          );
+    load_obj("./demo/models/cow.obj",
+             scene_face_handler, // default handler which can parse *.obj files
+             &load_params);
     
     // This function must be called after adding all objects to the scene
     // (initiates bulding of k-d tree of entire scene)
@@ -44,6 +71,10 @@ main(void) {
     // Adding light source to the scene
     add_light_source(scene,
                      light_source);
+    
+    // Adding fog
+    Float density = 0.002;
+    set_exponential_fog(scene, density);
 
     // Allocating camera
     // TODO: It's a pity, but quaternions are not implemented yet :(
