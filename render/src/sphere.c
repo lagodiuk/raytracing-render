@@ -40,7 +40,7 @@ static Material
 get_sphere_material(const void * data,
                     const Point3d intersection_point);
 
-static void
+void
 release_sphere_data(void * data);
 
 // Code
@@ -94,7 +94,7 @@ get_sphere_material(const void * data,
     return sphere->material;
 }
 
-static void
+void
 release_sphere_data(void * data) {
 	Sphere * sphere = data;
 	free(sphere);
