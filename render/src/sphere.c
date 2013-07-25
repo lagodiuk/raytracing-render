@@ -16,31 +16,31 @@ struct {
 }
 Sphere;
 
-inline static Boolean
+static Boolean
 intersect_sphere(const void * data,
                  const Point3d vector_start,
                  const Vector3d vector,
                  Point3d * const intersection_point);
 
-Point3d
+static Point3d
 get_min_sphere_boundary_point(const void * data);
 
-Point3d
+static Point3d
 get_max_sphere_boundary_point(const void * data);
 
-static inline Color
+static Color
 get_sphere_color(const void * data,
                  const Point3d intersection_point);
 
-static inline Vector3d
+static Vector3d
 get_sphere_normal_vector(const void * data,
                          const Point3d intersection_point);
 
-static inline Material
+static Material
 get_sphere_material(const void * data,
                     const Point3d intersection_point);
 
-static inline void
+static void
 release_sphere_data(void * data);
 
 // Code
@@ -71,14 +71,14 @@ new_sphere(const Point3d center,
     return obj;
 }
 
-static inline Color
+static Color
 get_sphere_color(const void * data,
                  const Point3d intersection_point) {
 	const Sphere * sphere = data;
 	return sphere->color;
 }
 
-static inline Vector3d
+static Vector3d
 get_sphere_normal_vector(const void * data,
                          const Point3d intersection_point) {
   	const Sphere * sphere = data;    
@@ -87,14 +87,14 @@ get_sphere_normal_vector(const void * data,
     return n;
 }
 
-static inline Material
+static Material
 get_sphere_material(const void * data,
                       const Point3d intersection_point) {
     const Sphere * sphere = data;
     return sphere->material;
 }
 
-static inline void
+static void
 release_sphere_data(void * data) {
 	Sphere * sphere = data;
 	free(sphere);
@@ -116,7 +116,7 @@ get_max_sphere_boundary_point(const void * data) {
     return point3d(c.x + r + 1, c.y + r + 1, c.z + r + 1);
 }
 
-inline static Boolean
+static Boolean
 intersect_sphere(const void * data,
                  const Point3d vector_start,
                  const Vector3d vector,
