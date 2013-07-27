@@ -175,9 +175,10 @@ make example && ./example
 ```
 
 ### Average number of intersections per pixel ###
+Define different values of maximal depth of Kd-tree and track average number of ray intersections per pixel:
 ```bash
-make DEF=-DRAY_INTERSECTIONS_STAT run_demo_gl
+make DEF="-DRAY_INTERSECTIONS_STAT -DMAX_TREE_DEPTH=25" run_demo_gl
 ```
 ```bash
-make DEF=-DRAY_INTERSECTIONS_STAT example && ./example
+make DEF="-DRAY_INTERSECTIONS_STAT -DMAX_TREE_DEPTH=25" example && ./example
 ```

@@ -8,7 +8,9 @@
 #include <kdtree.h>
 #include <utils.h>
 
-#define MAX_TREE_DEPTH 20
+#ifndef MAX_TREE_DEPTH
+    #define MAX_TREE_DEPTH 20
+#endif // MAX_TREE_DEPTH
 
 #define OBJECTS_IN_LEAF 1
 
