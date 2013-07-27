@@ -6,7 +6,7 @@ ifeq ($(shell uname),Darwin)
   INCLUDES += -I/usr/X11/include
 endif
 
-CFLAGS = -Wall
+CFLAGS = $(DEF) -Wall
 CFLAGS += -O2
 #
 # http://www.insidepro.com/kk/231/231r.shtml

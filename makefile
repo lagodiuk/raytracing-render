@@ -10,10 +10,10 @@ example: $(render) example.c
 	gcc $(CC_OPTS) -fopenmp example.c $(LIBPATH) $(INCLUDES) $(LIBS) -o $@
 
 run_demo_gl: $(render)
-	(cd demo && make run_demo_gl)
+	(cd demo && make DEF=$(DEF) run_demo_gl)
 
 $(render):
-	(cd render && make render)
+	(cd render && make DEF=$(DEF) render)
 
 .PHONY: clean
 clean:

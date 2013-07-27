@@ -30,7 +30,7 @@ scene.o: scene.c
 	$(CC) $(INCLUDES) $(CC_OPTS) -c $< -o $@
 
 $(render):
-	(cd ../render && make render)
+	(cd ../render && make DEF=$(DEF) render)
 
 .PHONY: clean
 clean:

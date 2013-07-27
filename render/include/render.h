@@ -7,6 +7,11 @@
 #include <color.h>
 #include <canvas.h>
 
+#ifdef RAY_INTERSECTIONS_STAT
+long
+intersections_per_ray;
+#endif // RAY_INTERSECTIONS_STAT
+
 typedef
 int
 Boolean;

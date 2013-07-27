@@ -173,3 +173,11 @@ Launch it
 ```bash
 make example && ./example
 ```
+
+### Average number of intersections per pixel ###
+```bash
+make DEF=-DRAY_INTERSECTIONS_STAT run_demo_gl
+```
+```bash
+make DEF=-DRAY_INTERSECTIONS_STAT example && ./example
+```

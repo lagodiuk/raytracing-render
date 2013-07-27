@@ -22,6 +22,10 @@
 # define __hot
 #endif
 
+#ifdef RAY_INTERSECTIONS_STAT
+extern long
+intersections_per_ray;
+#endif // RAY_INTERSECTIONS_STAT
 
 // Declarations
 // --------------------------------------------------------------
@@ -636,6 +640,10 @@ find_intersection_node(KDNode * const node,
             for(i = 0; i < node->objects_count; i++) {
                 if(node->objects[i]) {
                     obj = node->objects[i];
+                    
+                    #ifdef RAY_INTERSECTIONS_STAT
+                    ++intersections_per_ray;
+                    #endif // RAY_INTERSECTIONS_STAT
                     
                     if((obj->intersect(obj->data, vector_start, vector, &intersection_point))
                        && (point_in_voxel(intersection_point, v))) {

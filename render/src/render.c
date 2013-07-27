@@ -14,6 +14,11 @@
     #define collapse(x) 
 #endif
 
+extern long
+intersections_per_ray;
+
+#include <stdio.h>
+
 void
 render_scene(const Scene * const scene,
              const Camera * const camera,
@@ -31,6 +36,11 @@ render_scene(const Scene * const scene,
     //omp_set_dynamic(1);
     omp_set_num_threads((num_threads < 2) ? 1 : num_threads);
     
+    #ifdef RAY_INTERSECTIONS_STAT
+    omp_set_num_threads(1);
+    intersections_per_ray = 0;
+    #endif // RAY_INTERSECTIONS_STAT
+    
     int i;
     int j;
     #pragma omp parallel private(i, j)
@@ -44,4 +54,9 @@ render_scene(const Scene * const scene,
             set_pixel(i, j, col, canvas);
         }
     }
+    
+    #ifdef RAY_INTERSECTIONS_STAT
+    intersections_per_ray /= (w * h);
+    printf("Average intersections number per pixel: %li\n", intersections_per_ray);
+    #endif // RAY_INTERSECTIONS_STAT
 }
