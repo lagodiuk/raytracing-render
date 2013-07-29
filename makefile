@@ -6,6 +6,10 @@ CC_OPTS	 = -Wall -O2
 
 render = render/lib/librender.a
 
+benchmark: $(render) benchmark.c
+	gcc $(CC_OPTS) -fopenmp benchmark.c $(LIBPATH) $(INCLUDES) $(LIBS) -o $@
+	./benchmark
+
 example: $(render) example.c
 	gcc $(CC_OPTS) -fopenmp example.c $(LIBPATH) $(INCLUDES) $(LIBS) -o $@
 
@@ -19,5 +23,5 @@ $(render):
 clean:
 	(cd render && make clean) && \
 	(cd demo && make clean)   && \
-	rm -f ./example;		\
+	rm -f ./example ./benchmark;		\
 	rm -f *.png		

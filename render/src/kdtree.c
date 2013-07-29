@@ -603,6 +603,7 @@ find_intersection_tree(KDTree * const tree,
                        Point3d * const nearest_intersection_point_ptr,
                        Float * const nearest_intersection_point_dist_ptr) {
     
+    #ifndef NO_BOUNDING_BOX
     return (voxel_intersection(vector, vector_start, tree->bounding_box)
             && find_intersection_node(tree->root,
                                       tree->bounding_box,
@@ -611,6 +612,16 @@ find_intersection_tree(KDTree * const tree,
                                       nearest_obj_ptr,
                                       nearest_intersection_point_ptr,
                                       nearest_intersection_point_dist_ptr));
+    #else
+    // Do not take into account scene bounds
+    return find_intersection_node(tree->root,
+                                      tree->bounding_box,
+                                      vector_start,
+                                      vector,
+                                      nearest_obj_ptr,
+                                      nearest_intersection_point_ptr,
+                                      nearest_intersection_point_dist_ptr);
+    #endif // NO_BOUNDING_BOX
 }
 
 inline Boolean
