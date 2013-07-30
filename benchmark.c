@@ -105,7 +105,7 @@ main(void) {
 
         prepare_scene(scene);
     
-        printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
+        printf("[STAT] Number of polygons: %i. ", scene->last_object_index + 1);
     
         render_scene(scene,
                      camera,

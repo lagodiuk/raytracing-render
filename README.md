@@ -190,7 +190,7 @@ Illustration of kd-tree boosting:
 ```bash
 make clean > /dev/null &&
 make DEF="-DRAY_INTERSECTIONS_STAT -DNO_BOUNDING_BOX -DMAX_TREE_DEPTH=0" benchmark > /dev/null &&
-./benchmark | grep -E 'Num*|Ave*' &&
+./benchmark &&
 make clean > /dev/null
 ```
 
@@ -198,7 +198,7 @@ make clean > /dev/null
 ```bash
 make clean > /dev/null &&
 make DEF="-DRAY_INTERSECTIONS_STAT -DMAX_TREE_DEPTH=0" benchmark > /dev/null &&
-./benchmark | grep -E 'Num*|Ave*' &&
+./benchmark &&
 make clean > /dev/null
 ```
 
@@ -206,7 +206,7 @@ make clean > /dev/null
 ```bash
 make clean > /dev/null &&
 make DEF="-DRAY_INTERSECTIONS_STAT -DNO_BOUNDING_BOX -DMAX_TREE_DEPTH=20" benchmark > /dev/null &&
-./benchmark | grep -E 'Num*|Ave*' &&
+./benchmark &&
 make clean > /dev/null
 ```
 
@@ -214,6 +214,6 @@ make clean > /dev/null
 ```bash
 make clean > /dev/null &&
 make DEF="-DRAY_INTERSECTIONS_STAT -DMAX_TREE_DEPTH=20" benchmark > /dev/null &&
-./benchmark | grep -E 'Num*|Ave*' &&
+./benchmark &&
 make clean > /dev/null
 ```
