@@ -7,8 +7,7 @@ CC_OPTS	 = -Wall -O2
 render = render/lib/librender.a
 
 benchmark: $(render) benchmark.c
-	gcc $(CC_OPTS) -fopenmp benchmark.c $(LIBPATH) $(INCLUDES) $(LIBS) -o $@
-	./benchmark
+	gcc $(CC_OPTS) -fopenmp benchmark.c $(LIBPATH) $(INCLUDES) $(LIBS) -o $@	
 
 example: $(render) example.c
 	gcc $(CC_OPTS) -fopenmp example.c $(LIBPATH) $(INCLUDES) $(LIBS) -o $@
