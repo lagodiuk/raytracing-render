@@ -14,8 +14,10 @@
     #define collapse(x) 
 #endif
 
+#ifdef RAY_INTERSECTIONS_STAT
 extern long
 intersections_per_ray;
+#endif // RAY_INTERSECTIONS_STAT
 
 #include <stdio.h>
 
@@ -33,10 +35,12 @@ render_scene(const Scene * const scene,
     
     // TODO: consider possibility to define these OpenMP parameters
     // in declarative style (using directives of preprocessor)
-    //omp_set_dynamic(1);
     omp_set_num_threads((num_threads < 2) ? 1 : num_threads);
     
     #ifdef RAY_INTERSECTIONS_STAT
+    // intersections_per_ray is not atomic variable
+    // avoid multithreaded rendering to prevent from race-conditions
+    // in case of incrementing this variable
     omp_set_num_threads(1);
     intersections_per_ray = 0;
     #endif // RAY_INTERSECTIONS_STAT
