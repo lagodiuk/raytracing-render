@@ -31,7 +31,7 @@ render_scene(const Scene * const scene,
     const int h = canvas->h;
     const Float dx = w / 2.0;
     const Float dy = h / 2.0;
-    const Float proj_plane_dist = camera->proj_plane_dist;
+    const Float focus = camera->proj_plane_dist;
     
     // TODO: consider possibility to define these OpenMP parameters
     // in declarative style (using directives of preprocessor)
@@ -53,7 +53,8 @@ render_scene(const Scene * const scene,
         for(j = 0; j < h; j++) {
             const Float x = i - dx;
             const Float y = j - dy;
-            Color col = trace(scene, camera, vector3df(x, y, proj_plane_dist));
+            const Vector3d ray = vector3df(x, y, focus);
+            const Color col = trace(scene, camera, ray);
             set_pixel(i, j, col, canvas);
         }
     }
