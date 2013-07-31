@@ -15,11 +15,10 @@
 // Declarations
 // --------------------------------------------------------------
 
-void
+Color
 trace_recursively(const Scene * const scene,
                   const Point3d vector_start,
                   const Vector3d vector,
-                  Color * const color,
                   const Float intensity,
                   const int recursion_level);
 
@@ -52,29 +51,26 @@ calculate_color(const Scene * const scene,
 // Code
 // --------------------------------------------------------------
 
-void
+Color
 trace(const Scene * const scene,
       const Camera * const camera,
-      Vector3d vector,
-      Color * color) {
+      Vector3d vector) {
     
     Vector3d r_vector = rotate_vector_x(vector, camera->sin_al_x, camera->cos_al_x);
     r_vector = rotate_vector_z(r_vector, camera->sin_al_z, camera->cos_al_z);
     r_vector = rotate_vector_y(r_vector, camera->sin_al_y, camera->cos_al_y);    
     
-    trace_recursively(scene,
-                      camera->camera_position,
-                      r_vector,
-                      color,
-                      INITIAL_RAY_INTENSITY,
-                      0);
+    return trace_recursively(scene,
+                             camera->camera_position,
+                             r_vector,
+                             INITIAL_RAY_INTENSITY,
+                             0);
 }
 
-void
+Color
 trace_recursively(const Scene * const scene,
                   const Point3d vector_start,
                   const Vector3d vector,
-                  Color * const color,
                   const Float intensity,
                   const int recursion_level) {
 
@@ -93,7 +89,7 @@ trace_recursively(const Scene * const scene,
                               &nearest_intersection_point,
                               &nearest_intersection_point_dist)) {
 
-        *color = calculate_color(scene,
+        return calculate_color(scene,
                                  vector_start,
                                  vector,
                                  &nearest_obj,
@@ -101,11 +97,9 @@ trace_recursively(const Scene * const scene,
                                  &nearest_intersection_point_dist,
                                  intensity,
                                  recursion_level);
-                
-        return;
     }
     
-    *color = scene->background_color;
+    return scene->background_color;
 }
 
 inline Color
@@ -176,12 +170,11 @@ calculate_color(const Scene * const scene,
         if((intensity > THRESHOLD_RAY_INTENSITY)
            && (recursion_level < MAX_RAY_RECURSION_LEVEL)) {
             
-            trace_recursively(scene,
-                              point,
-                              reflected_ray,
-                              &reflected_color,
-                              intensity * material.Kr * (1 - fog_density),
-                              recursion_level + 1);
+            reflected_color = trace_recursively(scene,
+                                                point,
+                                                reflected_ray,
+                                                intensity * material.Kr * (1 - fog_density),
+                                                recursion_level + 1);
         } else {
             reflected_color = scene->background_color;
         }

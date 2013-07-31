@@ -49,8 +49,7 @@ render_scene(const Scene * const scene,
         for(j = 0; j < h; j++) {
             const Float x = i - dx;
             const Float y = j - dy;
-            Color col;
-            trace(scene, camera, vector3df(x, y, proj_plane_dist), &col);
+            Color col = trace(scene, camera, vector3df(x, y, proj_plane_dist));
             set_pixel(i, j, col, canvas);
         }
     }

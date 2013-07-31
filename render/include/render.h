@@ -231,11 +231,10 @@ set_exponential_fog(Scene * const scene,
 void
 set_no_fog(Scene * const scene);
 
-void
+Color
 trace(const Scene * const scene,
       const Camera * const camera,
-      Vector3d vector,
-      Color * color);
+      Vector3d vector);
 
 void
 add_light_source(Scene * const scene,
