@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include <canvas.h>
 #include <render.h>
@@ -42,6 +44,10 @@ add_pyramid(Scene * scene,
             Material material,
             Color color);
 
+void
+generate_random_spheres(Scene * scene,
+                        int count);
+
 int
 main(void) {
     Camera * camera = create_camera();
@@ -56,6 +62,10 @@ main(void) {
                                   BACKGROUND_COLOR);
     
         create_serpinsky_pyramid(scene, i);
+        
+        // Randomness causes unreproducible results
+        // But in general - results are similar to Serpinsky pyramid
+        //generate_random_spheres(scene, i * 400);
 
         prepare_scene(scene);
     
@@ -143,4 +153,18 @@ add_pyramid(Scene * scene,
     add_object(scene, new_triangle(p1, p2, p4, color, material));
     add_object(scene, new_triangle(p2, p3, p4, color, material));
     add_object(scene, new_triangle(p3, p1, p4, color, material));
+}
+
+void
+generate_random_spheres(Scene * scene,
+                        int count) {
+    srand(time(NULL));
+    int i;
+    for(i = 0; i < count; i++) {
+        int x = (rand() % 200) - (rand() % 200);
+        int y = (rand() % 200) - (rand() % 200);
+        int z = (rand() % 200) - (rand() % 200);
+        int r = (rand() % 40);
+        add_object(scene, new_sphere(point3d(x, y, z), r, rgb(255, 0, 0), material(1, 5, 0, 0, 0, 0)));
+    }
 }

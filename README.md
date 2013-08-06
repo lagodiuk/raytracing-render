@@ -188,32 +188,32 @@ Illustration of kd-tree boosting:
 
 1) Without kd-tree, and without bounding box:
 ```bash
-make clean > /dev/null &&
+make clean > /dev/null
 make DEF="-DRAY_INTERSECTIONS_STAT -DNO_BOUNDING_BOX -DMAX_TREE_DEPTH=0" benchmark > /dev/null &&
-./benchmark &&
+./benchmark
 make clean > /dev/null
 ```
 
 2) Without kd-tree, but with bounding box:
 ```bash
-make clean > /dev/null &&
+make clean > /dev/null
 make DEF="-DRAY_INTERSECTIONS_STAT -DMAX_TREE_DEPTH=0" benchmark > /dev/null &&
-./benchmark &&
+./benchmark
 make clean > /dev/null
 ```
 
 3) With kd-tree, but without bounding box:
 ```bash
-make clean > /dev/null &&
+make clean > /dev/null
 make DEF="-DRAY_INTERSECTIONS_STAT -DNO_BOUNDING_BOX -DMAX_TREE_DEPTH=20" benchmark > /dev/null &&
-./benchmark &&
+./benchmark
 make clean > /dev/null
 ```
 
 4) With id-tree, and with bounding box:
 ```bash
-make clean > /dev/null &&
+make clean > /dev/null
 make DEF="-DRAY_INTERSECTIONS_STAT -DMAX_TREE_DEPTH=20" benchmark > /dev/null &&
-./benchmark &&
+./benchmark
 make clean > /dev/null
 ```
