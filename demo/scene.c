@@ -86,6 +86,7 @@ Scene * makeScene(void) {
     //add_skybox(scene, point3d(-2000, -2000, -2000), 4000);
 
     printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
+    printf("\nBuilding Kd-Tree. Wait, please...\n");
     prepare_scene(scene);    
     printf("\nScene created\n");
 

@@ -116,7 +116,7 @@ init_scene_and_camera(void) {
     Float y_angle = 0;
     Float z_angle = M_PI;
     
-    camera = new_camera(point3d(0, 100, 0),
+    camera = new_camera(point3d(-80, 250, 50),
                         x_angle,
                         y_angle,
                         z_angle,
