@@ -265,10 +265,14 @@ get_phong_normal_vector(const void * data,
     Float w3;
     
     get_weights_of_vertexes(tr, intersection_point, &w1, &w2, &w3);
+    
+    const Vector3d n1 = tr->n1;
+    const Vector3d n2 = tr->n2;
+    const Vector3d n3 = tr->n3;
         
-    return vector3df(w1 * tr->n1.x + w2 * tr->n2.x + w3 * tr->n3.x,
-                     w1 * tr->n1.y + w2 * tr->n2.y + w3 * tr->n3.y,
-                     w1 * tr->n1.z + w2 * tr->n2.z + w3 * tr->n3.z);
+    return vector3df(w1 * n1.x + w2 * n2.x + w3 * n3.x,
+                     w1 * n1.y + w2 * n2.y + w3 * n3.y,
+                     w1 * n1.z + w2 * n2.z + w3 * n3.z);
 }
 
 static inline Material
