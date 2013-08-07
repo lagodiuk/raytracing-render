@@ -42,7 +42,9 @@ void create_cube(Scene * scene);
 
 void create_sphere(Scene * scene);
 
-void create_floor(Scene * scene);
+void create_floor_with_texture(Scene * scene);
+
+void create_floor_without_texture(Scene * scene);
 
 void load_lamp(Scene * scene);
 
@@ -51,6 +53,8 @@ void load_teapot(Scene * scene);
 void load_man(Scene * scene);
 
 void load_atenea(Scene * scene);
+
+void load_elephant(Scene * scene);
 
 void load_car(Scene * scene);
 
@@ -69,15 +73,17 @@ Scene * makeScene(void) {
 
     //create_cube(scene);
     //create_serpinsky_pyramid(scene);
-    //create_floor(scene);
+    //create_floor_with_texture(scene);
+    //create_floor_without_texture(scene);
     //create_sphere(scene);
     //load_lamp(scene);
     //load_teapot(scene);
     load_man(scene);
     load_atenea(scene);
+    load_elephant(scene);
     //load_car(scene);
     //load_minicooper(scene);
-    add_skybox(scene, point3d(-2000, -2000, -2000), 4000);
+    //add_skybox(scene, point3d(-2000, -2000, -2000), 4000);
 
     printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
     prepare_scene(scene);    
@@ -111,7 +117,7 @@ void load_teapot(Scene * scene) {
 void load_man(Scene * scene) {
     SceneFaceHandlerParams load_params =
     new_scene_face_handler_params(scene,
-                                  130, -100, 100, -80, 0, 0, 0,
+                                  110, 100, -100, -80, 0, 0, 0,
                                   rgb(120, 120, 250),
                                   material(1, 5, 0, 0, 0, 10));
     load_obj("./models/man.obj",
@@ -122,10 +128,23 @@ void load_man(Scene * scene) {
 void load_atenea(Scene * scene) {
     SceneFaceHandlerParams load_params =
     new_scene_face_handler_params(scene,
-                                  0.05, -100, -100, -132, 0, 0, 0,
+                                  0.05, -100, -100, 0, 0, 0, 0,
                                   rgb(250, 200, 50),
-                                  material(2, 3, 7, 3, 0, 10));
+                                  //reflective surface
+                                  //material(2, 3, 7, 3, 0, 10)
+                                  material(2, 3, 7, 0, 0, 10));
     load_obj("./models/ateneal.obj",
+             scene_face_handler,
+             &load_params);
+}
+
+void load_elephant(Scene * scene) {
+    SceneFaceHandlerParams load_params =
+    new_scene_face_handler_params(scene,
+                                  0.3, -350, -150, -100, 0, 0, 0,
+                                  rgb(50, 150, 250),
+                                  material(2, 3, 0, 0, 0, 10));
+    load_obj("./models/elephal.obj",
              scene_face_handler,
              &load_params);
 }
@@ -153,9 +172,9 @@ void load_minicooper(Scene * scene) {
 }
 
 void create_serpinsky_pyramid(Scene * scene) {
-    Float pyramid_edge = 200;
-    Float dx = -100;
-    Float dy = -40;
+    Float pyramid_edge = 250;
+    Float dx = 40;
+    Float dy = 40;
     
     add_serpinsky_pyramid(scene, SERPINSKY_PYRAMID_LEVEL,
                           point3d(-pyramid_edge/2 + dx, -pyramid_edge * 0.87 / 2 + dy, 0),
@@ -176,8 +195,8 @@ void create_sphere(Scene * scene) {
                                  material(1, 5, 5, 10, 0, 10)));
 }
 
-void create_floor(Scene * scene) {
-    Canvas * wall = read_png("./models/wall.png");
+void create_floor_with_texture(Scene * scene) {
+    Canvas * tex = read_png("./models/wall.png");
     
     add_object(scene, new_triangle_with_texture(
                                                 point3d(-300, -300, -80),
@@ -186,7 +205,7 @@ void create_floor(Scene * scene) {
                                                 point2d(5, 0),
                                                 point2d(0, 0),
                                                 point2d(0, 5),
-                                                wall,
+                                                tex,
                                                 rgb(55, 255, 55),
                                                 material(1, 6, 0, 2, 0, 0)));
     add_object(scene, new_triangle_with_texture(
@@ -196,9 +215,25 @@ void create_floor(Scene * scene) {
                                                 point2d(5, 0),
                                                 point2d(5, 5),
                                                 point2d(0, 5),
-                                                wall,
+                                                tex,
                                                 rgb(55, 255, 55),
                                                 material(1, 6, 0, 2, 0, 0)));
+}
+
+void create_floor_without_texture(Scene * scene) {   
+    add_object(scene, new_triangle(
+                                   point3d(-500, -500, -120),
+                                   point3d(500, -500, -120),
+                                   point3d(500, 500, -120),
+                                   rgb(55, 200, 155),
+                                   material(1, 6, 0, 2, 0, 0)));
+    
+    add_object(scene, new_triangle(
+                                   point3d(-500, -500, -120),
+                                   point3d(-500, 500, -120),
+                                   point3d(500, 500, -120),
+                                   rgb(55, 200, 155),
+                                   material(1, 6, 0, 2, 0, 0)));
 }
 
 void add_cube(Scene * scene, Point3d base, Float a, Material material) {
