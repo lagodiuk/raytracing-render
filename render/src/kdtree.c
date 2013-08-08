@@ -14,7 +14,8 @@
 
 #define OBJECTS_IN_LEAF 1
 
-#define MAX_SPLITS_OF_VOXEL 100
+//#define MAX_SPLITS_OF_VOXEL 100
+#define MAX_SPLITS_OF_VOXEL 5
 
 #define SPLIT_COST 5
 
