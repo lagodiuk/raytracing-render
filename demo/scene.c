@@ -73,16 +73,28 @@ Scene * makeScene(void) {
 
     //create_cube(scene);
     //create_serpinsky_pyramid(scene);
-    //create_floor_with_texture(scene);
+    create_floor_with_texture(scene);
     //create_floor_without_texture(scene);
-    //create_sphere(scene);
+    
+    create_sphere(scene);
+    
     //load_lamp(scene);
+    
     //load_teapot(scene);
+    
     load_man(scene);
+    
     load_atenea(scene);
+    
+    // 10k triangles
     load_elephant(scene);
+    
+    // 97k triangles!
     //load_car(scene);
+    
+    // 79k triangles!
     //load_minicooper(scene);
+    
     //add_skybox(scene, point3d(-2000, -2000, -2000), 4000);
 
     printf("\nNumber of polygons: %i\n", scene->last_object_index + 1);
@@ -153,9 +165,9 @@ void load_elephant(Scene * scene) {
 void load_car(Scene * scene) {
     SceneFaceHandlerParams load_params =
     new_scene_face_handler_params(scene,
-                                  3, -100, -100, -32, M_PI / 4, M_PI / 2, 0,
-                                  rgb(250, 200, 50),
-                                  material(2, 3, 7, 3, 0, 10));
+                                  3, 200, -100, -100, M_PI / 4, M_PI / 2, 0,
+                                  rgb(190, 190, 220),
+                                  material(3, 3, 7, 5, 0, 10));
     load_obj("./models/car.obj",
              scene_face_handler,
              &load_params);
@@ -164,9 +176,9 @@ void load_car(Scene * scene) {
 void load_minicooper(Scene * scene) {
     SceneFaceHandlerParams load_params =
     new_scene_face_handler_params(scene,
-                                  3, -100, -100, -32, 0, M_PI / 2, 0,
-                                  rgb(250, 200, 50),
-                                  material(2, 3, 7, 3, 0, 10));
+                                  3, -100, -350, -100, 0, M_PI / 2, 0,
+                                  rgb(220, 220, 220),
+                                  material(2, 3, 7, 5, 0, 10));
     load_obj("./models/minicooper.obj",
              scene_face_handler,
              &load_params);
@@ -190,7 +202,7 @@ void create_cube(Scene * scene) {
 }
 
 void create_sphere(Scene * scene) {
-    add_object(scene, new_sphere(point3d(130, -100, -30),
+    add_object(scene, new_sphere(point3d(130, 100, -30),
                                  50.0,
                                  rgb(250, 30, 30),
                                  material(1, 5, 5, 10, 0, 10)));
@@ -200,9 +212,9 @@ void create_floor_with_texture(Scene * scene) {
     Canvas * tex = read_png("./models/wall.png");
     
     add_object(scene, new_triangle_with_texture(
-                                                point3d(-300, -300, -80),
-                                                point3d(300, -300, -80),
-                                                point3d(300, 300, -80),
+                                                point3d(-300, -300, -120),
+                                                point3d(300, -300, -120),
+                                                point3d(300, 300, -120),
                                                 point2d(5, 0),
                                                 point2d(0, 0),
                                                 point2d(0, 5),
@@ -210,9 +222,9 @@ void create_floor_with_texture(Scene * scene) {
                                                 rgb(55, 255, 55),
                                                 material(1, 6, 0, 2, 0, 0)));
     add_object(scene, new_triangle_with_texture(
-                                                point3d(-300, -300, -80),
-                                                point3d(-300, 300, -80),
-                                                point3d(300, 300, -80),
+                                                point3d(-300, -300, -120),
+                                                point3d(-300, 300, -120),
+                                                point3d(300, 300, -120),
                                                 point2d(5, 0),
                                                 point2d(5, 5),
                                                 point2d(0, 5),
