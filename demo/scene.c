@@ -54,6 +54,8 @@ void load_man(Scene * scene);
 
 void load_atenea(Scene * scene);
 
+void load_venus(Scene * scene);
+
 void load_elephant(Scene * scene);
 
 void load_car(Scene * scene);
@@ -69,11 +71,15 @@ Scene * makeScene(void) {
     Scene * scene = new_scene(MAX_POLYGONS_NUMBER, MAX_LIGHT_SOURCES_NUMBER, BACKGROUND_COLOR);
     
     add_light_source(scene, new_light_source(point3d(-300, 300, 300), rgb(255, 255, 255)));
+    
     //set_exponential_fog(scene, 0.001);
 
     //create_cube(scene);
+    
     //create_serpinsky_pyramid(scene);
+    
     create_floor_with_texture(scene);
+    
     //create_floor_without_texture(scene);
     
     create_sphere(scene);
@@ -82,9 +88,13 @@ Scene * makeScene(void) {
     
     //load_teapot(scene);
     
-    load_man(scene);
+    //load_man(scene);
     
+    // 10k triangles
     load_atenea(scene);
+    
+    // 11k triangles
+    load_venus(scene);
     
     // 10k triangles
     load_elephant(scene);
@@ -141,12 +151,23 @@ void load_man(Scene * scene) {
 void load_atenea(Scene * scene) {
     SceneFaceHandlerParams load_params =
     new_scene_face_handler_params(scene,
-                                  0.05, -100, -100, 0, 0, 0, 0,
+                                  0.05, -100, -100, -30, 0, 0, 0,
                                   rgb(250, 200, 50),
                                   //reflective surface
-                                  //material(2, 3, 7, 3, 0, 10)
-                                  material(2, 3, 7, 0, 0, 10));
+                                  material(2, 3, 7, 3, 0, 10));
+                                  //material(4, 3, 7, 0, 0, 10));
     load_obj("./models/ateneal.obj",
+             scene_face_handler,
+             &load_params);
+}
+
+void load_venus(Scene * scene) {
+    SceneFaceHandlerParams load_params =
+    new_scene_face_handler_params(scene,
+                                  0.05, 100, -100, -80, 0, 0, 1.3,
+                                  rgb(200, 200, 150),
+                                  material(2, 3, 0, 0, 0, 0));
+    load_obj("./models/venusl.obj",
              scene_face_handler,
              &load_params);
 }
