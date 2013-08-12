@@ -121,7 +121,7 @@ main(void) {
               canvas);
     
     write_png("gray_example.png",
-              grayscale_canvas(canvas));
+              grayscale_canvas(canvas, THREADS_NUM));
     
     release_canvas(canvas);
     release_scene(scene);

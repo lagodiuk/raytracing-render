@@ -11,6 +11,14 @@
 #define PNG_DEBUG 3
 #include <png.h>
 
+#include <omp.h>
+
+#define IMG_CHUNK 10
+
+/* collapse is a feature from OpenMP 3 (2008) */
+#if _OPENMP < 200805
+    #define collapse(x)
+#endif
 
 Canvas *
 new_canvas(int width,
@@ -197,13 +205,18 @@ read_png(char * file_name) {
 }
 
 Canvas *
-grayscale_canvas(Canvas * base) {
+grayscale_canvas(Canvas * base,
+                 int num_threads) {
     const int w = base->w;
     const int h = base->h;
     Canvas * ret = new_canvas(w, h);
     
+    omp_set_num_threads((num_threads < 2) ? 1 : num_threads);
+    
     int x;
     int y;
+    #pragma omp parallel private(x, y)
+    #pragma omp for collapse(2) schedule(dynamic, IMG_CHUNK)
     for(x = 0; x < w; ++x) {
         for(y = 0; y < h; ++y) {
             const Color c = get_pixel(x, y, base);

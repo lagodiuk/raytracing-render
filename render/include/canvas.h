@@ -16,7 +16,8 @@ new_canvas(int width,
            int height);
 
 Canvas *
-grayscale_canvas(Canvas * base);
+grayscale_canvas(Canvas * base,
+                 int num_threads);
 
 void
 release_canvas(Canvas * c);

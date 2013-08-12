@@ -24,7 +24,7 @@ $(lib_dir)/obj_loader.o: ./src/obj_loader.c ./include/obj_loader.h ./include/que
 	$(CC) $(CFLAGS) $(INCLUDES) -c ./src/obj_loader.c -o $@
 
 $(lib_dir)/canvas.o: ./src/canvas.c ./include/canvas.h ./include/color.h $(lib_dir)
-	$(CC) $(CFLAGS) $(INCLUDES) -c ./src/canvas.c -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -fopenmp -c ./src/canvas.c -o $@
 
 $(lib_dir)/scene.o: ./src/scene.c ./include/render.h ./include/color.h $(lib_dir)
 	$(CC) $(CFLAGS) $(INCLUDES) -c ./src/scene.c -o $@
