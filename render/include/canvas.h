@@ -15,6 +15,9 @@ Canvas *
 new_canvas(int width,
            int height);
 
+Canvas *
+grayscale_canvas(Canvas * base);
+
 void
 release_canvas(Canvas * c);
 

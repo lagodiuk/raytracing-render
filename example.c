@@ -16,7 +16,7 @@
 #define MAX_LIGHT_SOURCES_NUMBER 5
 
 int
-main(void) {
+main(void) {   
     // Allocating scene
     Scene * scene = new_scene(MAX_OBJECTS_NUMBER,
                               MAX_LIGHT_SOURCES_NUMBER,
@@ -119,6 +119,9 @@ main(void) {
     // Saving rendered image in PNG format
     write_png("example.png",
               canvas);
+    
+    write_png("gray_example.png",
+              grayscale_canvas(canvas));
     
     release_canvas(canvas);
     release_scene(scene);

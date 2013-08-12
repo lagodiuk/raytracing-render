@@ -195,3 +195,21 @@ read_png(char * file_name) {
     
     return canvas;
 }
+
+Canvas *
+grayscale_canvas(Canvas * base) {
+    const int w = base->w;
+    const int h = base->h;
+    Canvas * ret = new_canvas(w, h);
+    
+    int x;
+    int y;
+    for(x = 0; x < w; ++x) {
+        for(y = 0; y < h; ++y) {
+            const Color c = get_pixel(x, y, base);
+            const Color gray = grayscale(c);
+            set_pixel(x, y, gray, ret);
+        }
+    }
+    return ret;
+}

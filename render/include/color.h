@@ -74,4 +74,12 @@ mul_color(Color c,
 	return rgb((Byte) (c.r * k), (Byte) (c.g * k), (Byte) (c.b * k));
 }
 
+static inline Color
+grayscale(Color c) {
+    // https://en.wikipedia.org/wiki/Grayscale
+    // const Byte gray = (Byte)(c.r * 0.299 + c.g * 0.587 + c.b * 0.114);
+    const Byte gray = (Byte)(c.r * 0.2126 + c.g * 0.7152 + c.b * 0.0722);
+    return rgb(gray, gray, gray);
+}
+
 #endif
