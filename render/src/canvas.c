@@ -233,13 +233,15 @@ grayscale_canvas(Canvas * base,
 // Edges detection
 // See: http://en.wikipedia.org/wiki/Sobel_operator
 
-int mattrix_x[3][3] = {{-1, 0, 1},
-    {-2, 0, 2},
-    {-1, 0, 1}};
+int mattrix_x[3][3] =
+    {{-1, 0, 1},
+     {-2, 0, 2},
+     {-1, 0, 1}};
 
-int mattrix_y[3][3] = {{-1, -2, -1},
-    { 0,  0,  0},
-    { 1,  2,  1}};
+int mattrix_y[3][3] =
+    {{-1, -2, -1},
+     { 0,  0,  0},
+     { 1,  2,  1}};
 
 Canvas *
 detect_edges_canvas(Canvas * base,
