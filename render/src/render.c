@@ -5,6 +5,8 @@
 #include <canvas.h>
 #include <color.h>
 
+#define ANTIALIASING 1
+
 #include <omp.h>
 
 #define CHUNK 10
@@ -20,6 +22,7 @@ intersections_per_ray;
 #endif // RAY_INTERSECTIONS_STAT
 
 #include <stdio.h>
+
 
 void
 render_scene(const Scene * const scene,
@@ -57,6 +60,36 @@ render_scene(const Scene * const scene,
             const Color col = trace(scene, camera, ray);
             set_pixel(i, j, col, canvas);
         }
+    }
+    
+    // TODO: argument of the function? global variable?
+    const int antialiasing = ANTIALIASING;
+    
+    if(antialiasing) {
+        Canvas * edges = detect_edges_canvas(canvas, num_threads);
+        #pragma omp parallel private(i, j)
+        #pragma omp for collapse(2) schedule(dynamic, CHUNK)
+        for(i = 1; i < w - 1; i++) {
+            for(j = 1; j < h - 1; j++) {
+                Byte gray = get_pixel(i, j, edges).r;
+            
+                // TODO: improve
+                if(gray > 10) {
+                    const Float x = i - dx;
+                    const Float y = j - dy;
+                
+                    Color c = get_pixel(i, j, canvas);
+                
+                    c = mul_color(c, 1.0 / 4);
+                    c = add_colors(c, mul_color(trace(scene, camera, vector3df(x + 0.5, y, focus)), 1.0 / 4));
+                    c = add_colors(c, mul_color(trace(scene, camera, vector3df(x + 0.5, y + 0.5, focus)), 1.0 / 4));
+                    c = add_colors(c, mul_color(trace(scene, camera, vector3df(x, y + 0.5, focus)), 1.0 / 4));
+                
+                    set_pixel(i, j, c, canvas);
+                }
+            }
+        }
+        release_canvas(edges);
     }
     
     #ifdef RAY_INTERSECTIONS_STAT
