@@ -120,10 +120,19 @@ main(void) {
     write_png("example.png",
               canvas);
     
+    Canvas * grayscaled_canvas = grayscale_canvas(canvas,
+                                                  THREADS_NUM);
     write_png("gray_example.png",
-              grayscale_canvas(canvas, THREADS_NUM));
+              grayscaled_canvas);
+    
+    Canvas * edges_canvas = detect_edges_canvas(canvas,
+                                                THREADS_NUM);
+    write_png("edges_example.png",
+              edges_canvas);
     
     release_canvas(canvas);
+    release_canvas(grayscaled_canvas);
+    release_canvas(edges_canvas);
     release_scene(scene);
     release_camera(camera);
     

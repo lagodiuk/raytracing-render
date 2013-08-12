@@ -19,6 +19,10 @@ Canvas *
 grayscale_canvas(Canvas * base,
                  int num_threads);
 
+Canvas *
+detect_edges_canvas(Canvas * base,
+                    int num_threads);
+
 void
 release_canvas(Canvas * c);
 

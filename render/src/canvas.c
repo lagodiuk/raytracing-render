@@ -20,6 +20,9 @@
     #define collapse(x)
 #endif
 
+#include <math.h>
+
+
 Canvas *
 new_canvas(int width,
            int height) {
@@ -225,4 +228,59 @@ grayscale_canvas(Canvas * base,
         }
     }
     return ret;
+}
+
+// Edges detection
+// See: http://en.wikipedia.org/wiki/Sobel_operator
+
+int mattrix_x[3][3] = {{-1, 0, 1},
+    {-2, 0, 2},
+    {-1, 0, 1}};
+
+int mattrix_y[3][3] = {{-1, -2, -1},
+    { 0,  0,  0},
+    { 1,  2,  1}};
+
+Canvas *
+detect_edges_canvas(Canvas * base,
+                    int num_threads) {
+
+    Canvas * grayscaled_canv = grayscale_canvas(base, num_threads);
+    
+    const int w = base->w;
+    const int h = base->h;
+    Canvas * grad_canv = new_canvas(w, h);
+    
+    omp_set_num_threads((num_threads < 2) ? 1 : num_threads);
+    
+    int x;
+    int y;
+    #pragma omp parallel private(x, y)
+    #pragma omp for collapse(2) schedule(dynamic, IMG_CHUNK)
+    for(x = 1; x < w - 1; ++x) {
+        for(y = 1; y < h - 1; ++y) {
+            int i;
+            int j;
+            
+            int gx = 0;
+            for(i = -1; i < 2; ++i) {
+                for(j = -1; j < 2; ++j) {
+                    gx += mattrix_x[i + 1][j + 1] * get_pixel(x + i, y + j, grayscaled_canv).r;
+                }
+            }
+            
+            int gy = 0;
+            for(i = -1; i < 2; ++i) {
+                for(j = -1; j < 2; ++j) {
+                    gy += mattrix_y[i + 1][j + 1] * get_pixel(x + i, y + j, grayscaled_canv).r;
+                }
+            }
+            
+            Byte grad = (Byte) sqrt(gx * gx + gy * gy);
+            set_pixel(x, y, rgb(grad, grad, grad), grad_canv);
+        }
+    }
+    
+    release_canvas(grayscaled_canv);
+    return grad_canv;
 }
