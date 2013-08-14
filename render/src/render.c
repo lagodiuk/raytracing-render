@@ -71,6 +71,8 @@ render_scene(const Scene * const scene,
         #pragma omp for collapse(2) schedule(dynamic, CHUNK)
         for(i = 1; i < w - 1; i++) {
             for(j = 1; j < h - 1; j++) {
+                // edges canvas is grayscaled
+                // it means that color components (r, g, b) are equal
                 Byte gray = get_pixel(i, j, edges).r;
             
                 // TODO: improve
@@ -80,10 +82,11 @@ render_scene(const Scene * const scene,
                 
                     Color c = get_pixel(i, j, canvas);
                 
-                    c = mul_color(c, 1.0 / 4);
-                    c = add_colors(c, mul_color(trace(scene, camera, vector3df(x + 0.5, y, focus)), 1.0 / 4));
-                    c = add_colors(c, mul_color(trace(scene, camera, vector3df(x + 0.5, y + 0.5, focus)), 1.0 / 4));
-                    c = add_colors(c, mul_color(trace(scene, camera, vector3df(x, y + 0.5, focus)), 1.0 / 4));
+                    const Float weight = 1.0 / 4;
+                    c = mul_color(c, weight);
+                    c = add_colors(c, mul_color(trace(scene, camera, vector3df(x + 0.5, y, focus)), weight));
+                    c = add_colors(c, mul_color(trace(scene, camera, vector3df(x, y + 0.5, focus)), weight));
+                    c = add_colors(c, mul_color(trace(scene, camera, vector3df(x + 0.5, y + 0.5, focus)), weight));
                 
                     set_pixel(i, j, c, canvas);
                 }
