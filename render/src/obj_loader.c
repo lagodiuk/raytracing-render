@@ -32,6 +32,11 @@ parse_face_str(char * str,
                int * vt_index,
                int * vn_index);
 
+static Point3d vertexes[MAX_VERTEX_COUNT];
+static Vector3d norm_vectors[MAX_VERTEX_COUNT];
+
+// TODO: use LinkedList instead of arrays
+
 void
 load_obj(const char * filename,
          void (* face_handler)(Queue * vertexes,
@@ -39,10 +44,7 @@ load_obj(const char * filename,
                                void * args),
          void * args) {
     
-    Point3d vertexes[MAX_VERTEX_COUNT];
-    int vertexes_cnt = 0;    
-    
-    Vector3d norm_vectors[MAX_VERTEX_COUNT];
+    int vertexes_cnt = 0;
     int norm_vectors_cnt = 0;
     
     FILE * fp = fopen(filename, "r");
