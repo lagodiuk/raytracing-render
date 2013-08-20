@@ -11,6 +11,7 @@ Developing [ray tracing](http://en.wikipedia.org/wiki/Ray_tracing_%28graphics%29
 * Saving rendered image to file (using [libpng](http://en.wikipedia.org/wiki/Libpng))
 * Loading 3D models from [*.obj format](http://en.wikipedia.org/wiki/Wavefront_.obj_file)
 * [Phong shading](http://en.wikipedia.org/wiki/Phong_shading)
+* Antialiasing: throwing 4 rays per each pixel, which belongs to edge (using [Sobel operator](http://en.wikipedia.org/wiki/Sobel_operator) to detect edges)
 * [Phong reflection model](http://en.wikipedia.org/wiki/Phong_reflection_model)
 * Two types of primitives: triangle and sphere
 * Reflections, shadows, fog effect, multiple light sources
