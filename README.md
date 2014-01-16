@@ -3,6 +3,7 @@ raytracing-render
 
 Developing [ray tracing](http://en.wikipedia.org/wiki/Ray_tracing_%28graphics%29) render from scratch.
 
+
 ![Demo scenes](https://raw.github.com/lagodiuk/raytracing-render/master/img/demo_scenes.jpg)
 
 ### Key Features ###
