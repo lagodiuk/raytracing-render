@@ -4,6 +4,7 @@ INCLUDES = $(addprefix -I, ./include)
 
 ifeq ($(shell uname),Darwin)
   INCLUDES += -I/usr/X11/include
+  INCLUDES += -I/usr/local/include
 endif
 
 CFLAGS = $(DEF) -Wall
