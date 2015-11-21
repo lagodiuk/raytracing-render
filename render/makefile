@@ -1,4 +1,4 @@
-CC = gcc		
+CC = gcc
 
 INCLUDES = $(addprefix -I, ./include)
 
@@ -8,7 +8,7 @@ ifeq ($(shell uname),Darwin)
 endif
 
 CFLAGS = $(DEF) -Wall
-CFLAGS += -O2
+CFLAGS += -std=gnu89 -O2
 #
 # http://www.insidepro.com/kk/231/231r.shtml
 # Boosting render performance a bit :)

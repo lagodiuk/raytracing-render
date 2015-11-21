@@ -7,7 +7,7 @@ LIBS = -lrender -lm -lpng -fopenmp
 render = ../render/lib/librender.a
 
 CC_OPTS	 = -Wall
-CC_OPTS += -O2
+CC_OPTS += -std=gnu89 -O2
 
 ifeq ($(shell uname), Darwin)
   OPEN_GL_OPTS = -framework GLUT -framework OpenGL -DDARWIN

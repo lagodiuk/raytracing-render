@@ -2,15 +2,16 @@ LIBPATH	 = -Lrender/lib
 INCLUDES = -Irender/include
 LIBS = -lrender -lm -lpng -fopenmp
 
-CC_OPTS	 = -Wall -O2
+CC = gcc
+CC_OPTS	 = -std=gnu89 -Wall -O2
 
 render = render/lib/librender.a
 
 benchmark: $(render) benchmark.c
-	gcc $(CC_OPTS) -fopenmp benchmark.c $(LIBPATH) $(INCLUDES) $(LIBS) -o $@	
+	$(CC) $(CC_OPTS) -fopenmp benchmark.c $(LIBPATH) $(INCLUDES) $(LIBS) -o $@	
 
 example: $(render) example.c
-	gcc $(CC_OPTS) -fopenmp example.c $(LIBPATH) $(INCLUDES) $(LIBS) -o $@
+	$(CC) $(CC_OPTS) -fopenmp example.c $(LIBPATH) $(INCLUDES) $(LIBS) -o $@
 
 run_demo_gl: $(render)
 	(cd demo && make DEF="$(DEF)" run_demo_gl)

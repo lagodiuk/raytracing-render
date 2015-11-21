@@ -21,13 +21,18 @@ Developing [ray tracing](http://en.wikipedia.org/wiki/Ray_tracing_%28graphics%29
 
 ### Requirements ###
 Requires [libpng](http://www.libpng.org/pub/png/) to be installed.<br/>
-Tested on Mac OS 10.8 with gcc 4.2 and gcc 4.7.
+Tested on Mac OS 10.8 with gcc 4.2, gcc 4.7, gcc 4.9 and gcc 5 (as far as OpenMP is required - currently, Clang can't be
+used).
 
 ### Demo with GLUT front-end ###
 All rendering routines are performing by this render, not OpenGL.
 Just using GLUT to display rendered image.
 ```bash
 make run_demo_gl
+```
+or something like this (in case if Homebrew installed gcc 5 - under its own alias):
+```bash
+make CC=gcc-5 run_demo_gl
 ```
 * Use controls <b>← ↑ → ↓</b> to rotate camera
 * Use <b>CTRL + ↑</b> or <b>CTRL + ↓</b> to move camera forward or backward
