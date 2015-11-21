@@ -30,7 +30,7 @@ Just using GLUT to display rendered image.
 ```bash
 make run_demo_gl
 ```
-or something like this (in case if Homebrew installed gcc 5 - under its own alias):
+or something like this (in case if Homebrew installed GCC 5 - under its own alias):
 ```bash
 make CC=gcc-5 run_demo_gl
 ```
