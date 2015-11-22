@@ -219,7 +219,7 @@ make DEF="-DRAY_INTERSECTIONS_STAT -DNO_BOUNDING_BOX -DMAX_TREE_DEPTH=20" benchm
 make clean > /dev/null
 ```
 
-4) With id-tree, and with bounding box:
+4) With kd-tree, and with bounding box:
 ```bash
 make clean > /dev/null
 make DEF="-DRAY_INTERSECTIONS_STAT -DMAX_TREE_DEPTH=20" benchmark > /dev/null &&
